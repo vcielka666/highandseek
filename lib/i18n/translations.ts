@@ -341,7 +341,7 @@ export const translations = {
       tooltips: {
         temperature: 'Optimal: 20–28°C veg, 18–26°C flower.\nAffected by: light type, tent size, ventilation.',
         humidity:    'Optimal depends on stage:\nSeedling: 65–75%\nVeg: 50–70%\nFlower: 40–50% ⚠️\n(higher humidity = mould risk)',
-        light:       'Light intensity in W/m².\nCalculated from wattage and tent size.\nOptimal: 200–400 W/m² veg, 400–600 W/m² flower.',
+        light:       'Light intensity (W/m²) = your bulb\'s wattage divided by tent floor area.\nThis shows how much light energy each square metre of canopy receives.\n\nThis is NOT your light\'s wattage — it\'s the density after accounting for tent size.\nA 600W HPS in a 1×1m tent = 600 W/m². Same lamp in a 1.5×1.5m tent = 267 W/m².\n\nOptimal ranges:\nSeedling — 50–200 W/m² (gentle, no burn risk)\nVeg — 200–400 W/m² (active growth)\nFlower — 350–600 W/m² (maximum density for best resin)\n\nRaise light → less intensity. Lower light → more intensity but more heat.\nAny LED, HPS, CMH or CFL can hit these ranges — it is about placement, not brand.',
         ventilation: 'Air changes per hour (ACH).\nPoor ventilation = heat + mould risk.\nYou need at least an exhaust fan.',
         nutrients:   'Living soil: nutrients are in the medium.\nCoco: it is inert — you must feed every watering!\nHydro: precise EC control.',
         watering:    'Substrate moisture.\nBlumat: keeps optimum automatically.\nManual: depends on your actions.\nCoco: water more frequently than soil.',
@@ -957,7 +957,7 @@ export const translations = {
       tooltips: {
         temperature: 'Optimum: 20–28°C růst, 18–26°C květ.\nOvlivňuje: typ světla, velikost stanu, ventilace.',
         humidity:    'Optimum závisí na fázi:\nSemenáč: 65–75%\nRůst: 50–70%\nKvět: 40–50% ⚠️\n(vyšší vlhkost = riziko plísní)',
-        light:       'Intenzita světla v W/m².\nVypočítáno z výkonu a velikosti stanu.\nOptimum: 200–400 W/m² růst, 400–600 W/m² květ.',
+        light:       'Intenzita světla (W/m²) = výkon lampy dělený plochou stanu.\nUkazuje, kolik světelné energie dostává každý čtvereční metr canopy.\n\nNeje to výkon tvé lampy — je to hustota záření po přepočtu na plochu.\n600W HPS v stanu 1×1m = 600 W/m². Stejná lampa v 1,5×1,5m = 267 W/m².\n\nOptimální rozsahy:\nSemenáč — 50–200 W/m² (jemně, bez rizika spálení)\nRůst — 200–400 W/m² (aktivní růst)\nKvět — 350–600 W/m² (maximální hustota pro pryskyřici)\n\nZdvihni světlo → méně intenzity. Spusti světlo → více intenzity, více tepla.\nLED, HPS, CMH i CFL mohou dosáhnout těchto hodnot — záleží na rozmístění, ne značce.',
         ventilation: 'Výměna vzduchu za hodinu (ACH).\nSlabá ventilace = teplo + plísně.\nPotřebuješ min. výfukový ventilátor.',
         nutrients:   'Living soil: živiny jsou v půdě.\nCoco: je inertní — musíš hnojit při každém zalití!\nHydro: přesná kontrola EC.',
         watering:    'Vlhkost substrátu.\nBlumat: automaticky udržuje optimum.\nRuční: závisí na tvých akcích.\nCoco: zalévej častěji než soil.',

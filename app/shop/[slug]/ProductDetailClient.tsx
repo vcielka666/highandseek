@@ -12,12 +12,72 @@ import type { ProductDTO } from '@/types/shop'
 function czk(price: number) { return `${price.toLocaleString('cs-CZ')} Kč` }
 
 const STAT_ICONS: Record<string, string> = {
+  thc:           '🔥',
+  cbd:           '💚',
+  cbn:           '😴',
   floweringTime: '⏱',
   origin:        '📍',
   climate:       '🏔',
   difficulty:    '⚡',
   yield:         '💪',
   seedType:      '🌱',
+}
+
+const STAT_INFO: Record<string, { emoji: string; title: string; what: string; note: string }> = {
+  thc: {
+    emoji: '🔥',
+    title: 'THC — Tetrahydrocannabinol',
+    what: 'The main psychoactive compound in cannabis. Higher % = stronger mental and body effects.',
+    note: 'Legal CBD products stay below 1% THC by law. Values shown are from lab analysis of the genetic lineage.',
+  },
+  cbd: {
+    emoji: '💚',
+    title: 'CBD — Cannabidiol',
+    what: 'Non-psychoactive. Known for calming, anti-inflammatory and therapeutic properties.',
+    note: 'CBD balances THC effects. High-CBD strains give clear-headed, functional results without the high.',
+  },
+  cbn: {
+    emoji: '😴',
+    title: 'CBN — Cannabinol',
+    what: 'A mildly psychoactive cannabinoid formed when THC ages. Associated with deep relaxation and sleep.',
+    note: 'CBN is rare in fresh flower. Forms naturally as the plant or product ages. Sought after for sleep support.',
+  },
+  floweringTime: {
+    emoji: '⏱',
+    title: 'Flowering Time',
+    what: 'How long the plant takes to complete the flowering stage and be ready for harvest.',
+    note: 'Counted from the 12/12 light flip (or from germination for autoflowers). Shorter = faster harvest; longer = typically heavier and more complex.',
+  },
+  difficulty: {
+    emoji: '⚡',
+    title: 'Grow Difficulty',
+    what: 'How demanding this strain is to cultivate successfully.',
+    note: 'Easy: beginner-friendly, forgiving. Medium: standard care needed. Hard: sensitive to environment, requires experience.',
+  },
+  yield: {
+    emoji: '💪',
+    title: 'Expected Yield',
+    what: 'How much dried flower you can expect per plant or per m² under optimal indoor conditions.',
+    note: 'Actual yield depends heavily on setup, lighting, training and grow skill. These are breeder estimates under ideal conditions.',
+  },
+  seedType: {
+    emoji: '🌱',
+    title: 'Seed Type',
+    what: 'Describes how the plant flowers — whether it needs a light schedule change or flowers automatically.',
+    note: 'Feminized: guaranteed female, requires 12/12 flip. Autoflower: flowers by age regardless of light. Regular: mix of male/female.',
+  },
+  origin: {
+    emoji: '📍',
+    title: 'Genetic Origin',
+    what: 'Where the strain\'s genetics originate from — affects growth patterns, terpene profile and potency.',
+    note: 'Landrace = original unmodified genetics from a specific region. USA/European = bred and selected in modern programs.',
+  },
+  climate: {
+    emoji: '🏔',
+    title: 'Optimal Climate',
+    what: 'Whether this strain was bred for indoor, outdoor or both environments.',
+    note: 'Indoor strains are optimised for tent/room grows. Outdoor strains are more mould-resistant and handle weather variation.',
+  },
 }
 
 const ORIGIN_LABELS: Record<string, string> = {
@@ -150,6 +210,99 @@ function TerpeneTag({ name }: { name: string }) {
             Effect: <span style={{ color: '#00d4c8' }}>{info.effect}</span>
           </div>
           <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.6 }}>
+            {info.note}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+const STAT_POPUP_W = 240
+
+function StatTag({ statKey, label, value, icon }: { statKey: string; label: string; value: string; icon?: string }) {
+  const info = STAT_INFO[statKey]
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+  const [popupPos, setPopupPos] = useState({ left: '50%', transform: 'translateX(-50%)', arrowLeft: '50%' })
+
+  useEffect(() => {
+    if (!open || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const vpW = window.innerWidth
+    const idealLeft = rect.left + rect.width / 2 - STAT_POPUP_W / 2
+    const clampedVpLeft = Math.max(8, Math.min(idealLeft, vpW - STAT_POPUP_W - 8))
+    const relLeft = clampedVpLeft - rect.left
+    const tagCentreInPopup = rect.left + rect.width / 2 - clampedVpLeft
+    const arrowPct = Math.max(8, Math.min(92, (tagCentreInPopup / STAT_POPUP_W) * 100))
+    setPopupPos({ left: `${relLeft}px`, transform: 'none', arrowLeft: `${arrowPct}%` })
+  }, [open])
+
+  return (
+    <div ref={ref} style={{ position: 'relative', display: 'inline-block' }}>
+      <div
+        onClick={() => setOpen((v) => !v)}
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+          background: open ? 'rgba(0,212,200,0.1)' : 'rgba(0,212,200,0.05)',
+          border: `0.5px solid rgba(0,212,200,${open ? '0.35' : '0.15'})`,
+          borderRadius: '4px',
+          padding: '5px 10px',
+          cursor: info ? 'pointer' : 'default',
+          transition: 'all 0.15s',
+          userSelect: 'none',
+        }}
+      >
+        {icon && <span style={{ fontSize: '11px' }}>{icon}</span>}
+        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', color: '#4a6066', textTransform: 'uppercase' }}>
+          {label}:
+        </span>
+        <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#e8f0ef' }}>
+          {value}
+        </span>
+        {info && (
+          <span style={{ fontSize: '8px', color: open ? '#00d4c8' : 'rgba(0,212,200,0.3)', marginLeft: '2px', lineHeight: 1 }}>ⓘ</span>
+        )}
+      </div>
+
+      {open && info && (
+        <div style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: popupPos.left,
+          transform: popupPos.transform,
+          width: `${STAT_POPUP_W}px`,
+          background: '#050f14',
+          border: '0.5px solid rgba(0,212,200,0.25)',
+          borderRadius: '8px',
+          padding: '14px',
+          zIndex: 50,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(0,212,200,0.08)',
+          pointerEvents: 'none',
+        }}>
+          <div style={{
+            position: 'absolute',
+            bottom: '-5px',
+            left: popupPos.arrowLeft,
+            transform: 'translateX(-50%) rotate(45deg)',
+            width: '8px',
+            height: '8px',
+            background: '#050f14',
+            border: '0.5px solid rgba(0,212,200,0.25)',
+            borderTop: 'none',
+            borderLeft: 'none',
+          }} />
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color: '#00d4c8', marginBottom: '6px', letterSpacing: '0.5px' }}>
+            {info.emoji} {info.title}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.8)', lineHeight: 1.5, marginBottom: '8px' }}>
+            {info.what}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.4)', lineHeight: 1.5 }}>
             {info.note}
           </div>
         </div>
@@ -468,23 +621,7 @@ export default function ProductDetailClient({
           {stats.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
               {stats.map(({ key, label, value }) => (
-                <div key={key} style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '5px',
-                  background: 'rgba(0,212,200,0.05)',
-                  border: '0.5px solid rgba(0,212,200,0.15)',
-                  borderRadius: '4px',
-                  padding: '5px 10px',
-                }}>
-                  <span style={{ fontSize: '11px' }}>{STAT_ICONS[key]}</span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', color: '#4a6066', textTransform: 'uppercase' }}>
-                    {label}:
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#e8f0ef' }}>
-                    {value}
-                  </span>
-                </div>
+                <StatTag key={key} statKey={key} label={label} value={value} icon={STAT_ICONS[key]} />
               ))}
             </div>
           )}

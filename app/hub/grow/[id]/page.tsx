@@ -296,6 +296,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const dragHeightRef   = useRef(60)
   const isDragging      = useRef(false)
 
+  // Info popups
+  const [showYieldInfo, setShowYieldInfo]       = useState(false)
+  const [showStageInfo, setShowStageInfo]       = useState(false)
+
   // Fan speed drag slider
   const [fanSliderActive, setFanSliderActive]   = useState(false)
   const [dragFanSpeed, setDragFanSpeed]         = useState(100)
@@ -856,42 +860,47 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               top: `${lampTop}px`,
               left: '50%',
               transform: 'translateX(-50%)',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+              display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px',
               zIndex: 10, userSelect: 'none',
               transition: lampSliderActive ? 'none' : 'top 0.3s ease',
               opacity: isLight ? 1 : 0.35,
             }}>
+              {/* Badge left — only shown while dragging or waiting for API */}
+              {(lampSliderActive || committedHeight !== null) ? (
+                <div style={{
+                  background: 'rgba(240,168,48,0.2)',
+                  border: '0.5px solid rgba(240,168,48,0.6)',
+                  borderRadius: '4px', padding: '4px 8px',
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+                  minWidth: '52px',
+                }}>
+                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#f0a830', fontWeight: 700 }}>
+                    {currentHeight}cm
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', whiteSpace: 'nowrap' }}>
+                    {lampLabel}
+                  </span>
+                </div>
+              ) : (
+                /* Spacer to keep lamp centered */
+                <div style={{ minWidth: '52px' }} />
+              )}
               {/* The lamp image is the drag handle */}
               <img
                 src={lightImg}
                 alt={`${grow.setup.lightType} light`}
                 draggable={false}
                 onMouseDown={e => { e.preventDefault(); startLampDrag(e.clientY) }}
-                onTouchStart={e => { startLampDrag(e.touches[0].clientY) }}
+                onTouchStart={e => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
                 style={{
                   width: '120px', height: 'auto', cursor: lampSliderActive ? 'grabbing' : 'grab',
+                  touchAction: 'none',
                   filter: lampSliderActive
                     ? 'drop-shadow(0 4px 20px rgba(240,200,50,0.8))'
                     : 'drop-shadow(0 4px 12px rgba(240,200,50,0.4))',
                   transition: 'filter 0.15s',
                 }}
               />
-              {/* Badge — only shown while dragging or waiting for API */}
-              {(lampSliderActive || committedHeight !== null) && (
-                <div style={{
-                  background: 'rgba(240,168,48,0.2)',
-                  border: '0.5px solid rgba(240,168,48,0.6)',
-                  borderRadius: '4px', padding: '4px 10px',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
-                }}>
-                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', color: '#f0a830', fontWeight: 700 }}>
-                    {currentHeight}cm
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>
-                    {lampLabel}
-                  </span>
-                </div>
-              )}
             </div>
           )}
 
@@ -899,29 +908,16 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           {grow.setup.hasExhaustFan && (
             <div style={{
               position: 'absolute', top: '32px', right: '-12px',
-              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '3px',
+              display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px',
               zIndex: 10, userSelect: 'none',
             }}>
-              <img
-                src={ASSETS.exhaust}
-                alt="exhaust fan"
-                draggable={false}
-                onMouseDown={e => { e.preventDefault(); startFanDrag(e.clientY) }}
-                onTouchStart={e => { startFanDrag(e.touches[0].clientY) }}
-                style={{
-                  width: '74px', height: 'auto', opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
-                  filter: fanSliderActive
-                    ? `drop-shadow(-2px 0 12px rgba(0,212,200,0.7)) drop-shadow(0 0 4px rgba(0,212,200,0.4))`
-                    : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
-                  transition: 'filter 0.15s',
-                }}
-              />
-              {/* Speed badge — only while dragging or in flight */}
-              {(fanSliderActive || committedFanSpeed !== null) && (
+              {/* Speed badge left — only while dragging or in flight */}
+              {(fanSliderActive || committedFanSpeed !== null) ? (
                 <div style={{
                   background: 'rgba(0,212,200,0.2)', border: '0.5px solid rgba(0,212,200,0.6)',
                   borderRadius: '4px', padding: '3px 8px',
                   display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+                  minWidth: '46px',
                 }}>
                   <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', fontWeight: 700 }}>
                     {currentFanSpeed}%
@@ -930,13 +926,27 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                     {fanSpeedLabel}
                   </span>
                 </div>
-              )}
-              {/* Quiet hint when idle */}
-              {!fanSliderActive && committedFanSpeed === null && (
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '6px', color: 'rgba(74,96,102,0.4)' }}>
+              ) : (
+                /* Quiet hint when idle */
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '6px', color: 'rgba(74,96,102,0.4)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
                   {g.fanHint}
                 </span>
               )}
+              <img
+                src={ASSETS.exhaust}
+                alt="exhaust fan"
+                draggable={false}
+                onMouseDown={e => { e.preventDefault(); startFanDrag(e.clientY) }}
+                onTouchStart={e => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
+                style={{
+                  width: '74px', height: 'auto', opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
+                  touchAction: 'none',
+                  filter: fanSliderActive
+                    ? `drop-shadow(-2px 0 12px rgba(0,212,200,0.7)) drop-shadow(0 0 4px rgba(0,212,200,0.4))`
+                    : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
+                  transition: 'filter 0.15s',
+                }}
+              />
             </div>
           )}
 
@@ -1024,31 +1034,92 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const harvestAtDay = flipDay + grow.floweringTime
             const daysLeft = Math.max(0, harvestAtDay - grow.currentDay)
             const inFlower = ['flower', 'late_flower', 'harvest'].includes(grow.stage)
+            const stageDescriptions: Record<string, { title: string; desc: string }> = {
+              seedling:    { title: 'Seedling (Day 1–7)', desc: 'The most delicate stage. The plant is establishing its root system and first leaves. Keep humidity high (65–75%), light gentle (50–200 W/m²), and do not overfeed. Mistakes here are hard to recover from.' },
+              veg:         { title: 'Vegetative Stage', desc: 'The plant grows rapidly, building stems, branches and fan leaves. This is when you train (LST, topping) to shape the canopy. Light can be increased. Nutrients needed depending on medium. Duration determines final yield potential.' },
+              flower:      { title: 'Early Flower (F1–F21)', desc: 'The plant stretches 50–100% in height and begins forming bud sites. Flip to 12/12 light triggered this. Reduce humidity to 45–55% to prevent mould. Start boosting P and K if on mineral nutrients.' },
+              late_flower: { title: 'Late Flower', desc: 'Buds are swelling and resin is forming. This is the critical phase — keep humidity below 50%, watch for bud rot. Many growers flush at this stage. Trichomes will turn milky then amber as harvest approaches.' },
+              harvest:     { title: 'Harvest Ready', desc: 'Trichomes are milky/amber, pistils are mostly red/brown. Harvest now for potency. Waiting longer increases CBN (sleepy) and reduces THC. Cut, dry and cure for best results.' },
+            }
+            const stageInfo = stageDescriptions[grow.stage] ?? stageDescriptions.veg
             return (
-              <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(5,5,8,0.85)', borderRadius: '4px', padding: '6px 10px' }}>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
-                  {g.dayLabel} {grow.currentDay} · <span style={{ color: '#cc00aa' }}>{grow.stage.replace('_', ' ')}</span>
-                </div>
-                {inFlower && (
-                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginTop: '2px' }}>
-                    <span style={{ color: 'rgba(204,0,170,0.6)' }}>{g.flowerDayLabel} {flowerDay}/{grow.floweringTime}</span>
-                    {daysLeft > 0 && (
-                      <span style={{ color: 'rgba(240,168,48,0.7)', marginLeft: '6px' }}>· {g.harvestInLabel} ~{daysLeft}{g.daysAbbr}</span>
-                    )}
+              <div style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
+                <button
+                  onClick={() => setShowStageInfo(v => !v)}
+                  style={{
+                    background: 'rgba(5,5,8,0.85)', borderRadius: '4px', padding: '6px 10px',
+                    border: showStageInfo ? '0.5px solid rgba(204,0,170,0.35)' : '0.5px solid transparent',
+                    cursor: 'pointer', textAlign: 'left',
+                  }}
+                >
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    {g.dayLabel} {grow.currentDay} · <span style={{ color: '#cc00aa' }}>{grow.stage.replace('_', ' ')}</span>
+                    <span style={{ fontSize: '8px', color: showStageInfo ? '#cc00aa' : 'rgba(204,0,170,0.3)' }}>ⓘ</span>
                   </div>
-                )}
-                {!inFlower && grow.stage !== 'seedling' && (
-                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(74,96,102,0.6)', marginTop: '2px' }}>
-                    {g.vegDaysLabel} {vegDays}{g.daysAbbr}
+                  {inFlower && (
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginTop: '2px' }}>
+                      <span style={{ color: 'rgba(204,0,170,0.6)' }}>{g.flowerDayLabel} {flowerDay}/{grow.floweringTime}</span>
+                      {daysLeft > 0 && (
+                        <span style={{ color: 'rgba(240,168,48,0.7)', marginLeft: '6px' }}>· {g.harvestInLabel} ~{daysLeft}{g.daysAbbr}</span>
+                      )}
+                    </div>
+                  )}
+                  {!inFlower && grow.stage !== 'seedling' && (
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(74,96,102,0.6)', marginTop: '2px' }}>
+                      {g.vegDaysLabel} {vegDays}{g.daysAbbr}
+                    </div>
+                  )}
+                </button>
+                {showStageInfo && (
+                  <div style={{
+                    position: 'absolute', bottom: 'calc(100% + 6px)', left: 0,
+                    width: '230px', background: '#050f14',
+                    border: '0.5px solid rgba(204,0,170,0.25)', borderRadius: '8px', padding: '12px',
+                    zIndex: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                  }}>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color: '#cc00aa', marginBottom: '6px' }}>
+                      🌱 {stageInfo.title}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)', lineHeight: 1.55 }}>
+                      {stageInfo.desc}
+                    </div>
                   </div>
                 )}
               </div>
             )
           })()}
 
-          {/* Yield badge */}
-          <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(5,5,8,0.8)', borderRadius: '4px', padding: '5px 10px' }}>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>~{grow.yieldProjection}g</div>
+          {/* Yield badge — clickable info */}
+          <div style={{ position: 'absolute', bottom: '12px', right: '12px' }}>
+            <button
+              onClick={() => setShowYieldInfo(v => !v)}
+              style={{
+                background: 'rgba(5,5,8,0.88)', borderRadius: '4px', padding: '5px 10px',
+                border: showYieldInfo ? '0.5px solid rgba(0,212,200,0.35)' : '0.5px solid transparent',
+                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
+              }}
+            >
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>~{grow.yieldProjection}g</span>
+              <span style={{ fontSize: '8px', color: showYieldInfo ? '#00d4c8' : 'rgba(0,212,200,0.3)' }}>ⓘ</span>
+            </button>
+            {showYieldInfo && (
+              <div style={{
+                position: 'absolute', bottom: 'calc(100% + 6px)', right: 0,
+                width: '220px', background: '#050f14',
+                border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '8px', padding: '12px',
+                zIndex: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+              }}>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color: '#00d4c8', marginBottom: '6px' }}>
+                  💪 Yield Projection
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)', lineHeight: 1.5, marginBottom: '6px' }}>
+                  Estimated grams of dry flower at harvest based on your setup, strain and grow decisions.
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: '#4a6066', lineHeight: 1.5 }}>
+                  Flip timing, defoliation, training and healthy attributes all affect the final number. LST and defoliation increase it; early flips and problems reduce it.
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -1071,7 +1142,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         {/* ── Tabbed panel ── */}
         <div style={{ background: 'rgba(13,0,20,0.7)', border: '0.5px solid rgba(204,0,170,0.15)', borderRadius: '8px', overflow: 'hidden' }}>
-          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(74,96,102,0.2)' }}>
+          <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(204,0,170,0.12)', background: 'rgba(204,0,170,0.04)' }}>
             {([
               { id: 'attributes',  label: g.tabAttributes },
               { id: 'environment', label: g.tabEnvironment },
@@ -1080,10 +1151,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             ] as const).map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)} style={{
                 flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
-                textTransform: 'uppercase', padding: '11px 6px', background: 'transparent', border: 'none',
-                borderBottom: activeTab === tab.id ? '1.5px solid #cc00aa' : '1.5px solid transparent',
-                color: activeTab === tab.id ? '#cc00aa' : '#4a6066', cursor: 'pointer',
-                transition: 'color 0.15s', marginBottom: '-0.5px',
+                textTransform: 'uppercase', padding: '11px 6px', border: 'none',
+                borderBottom: activeTab === tab.id ? '2px solid #cc00aa' : '2px solid transparent',
+                background: activeTab === tab.id ? 'rgba(204,0,170,0.1)' : 'transparent',
+                color: activeTab === tab.id ? '#cc00aa' : 'rgba(74,96,102,0.7)', cursor: 'pointer',
+                transition: 'all 0.15s', marginBottom: '-0.5px',
               }}>
                 {tab.label}
               </button>

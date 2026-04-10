@@ -301,6 +301,53 @@ export default async function HubPage() {
         </div>
       </div>
 
+      {/* C2 — Grow Academy */}
+      <div style={{ ...cardStyle, borderColor: 'rgba(0,212,200,0.15)', marginBottom: '16px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.5)', marginBottom: '3px' }}>
+              Grow Academy
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
+              Learn the science behind every action in your grow
+            </div>
+          </div>
+          <Link href="/hub/academy" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textDecoration: 'none', letterSpacing: '0.5px', flexShrink: 0 }}
+            className="hover:text-[#00d4c8]">
+            All articles →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { emoji: '💧', title: 'Watering 101', desc: 'When, how much, and why — the most common beginner mistake', color: '#00d4c8' },
+            { emoji: '⚗️', title: 'pH & EC Explained', desc: 'Why 6.2–6.8 is sacred and what happens outside the range', color: '#8844cc' },
+            { emoji: '🌡️', title: 'VPD Guide', desc: 'Vapour pressure deficit — the metric that ties temp and humidity', color: '#f0a830' },
+            { emoji: '✂️', title: 'Training Techniques', desc: 'LST, topping, defoliation — when and why each one works', color: '#cc00aa' },
+          ].map(({ emoji, title, desc, color }) => (
+            <Link key={title} href="/hub/academy" style={{ textDecoration: 'none' }}>
+              <div style={{
+                background: 'rgba(255,255,255,0.02)',
+                border: `0.5px solid ${color}22`,
+                borderRadius: '8px',
+                padding: '14px 12px',
+                height: '100%',
+                transition: 'all 0.2s',
+              }}
+                className="hover:border-[rgba(0,212,200,0.25)] hover:bg-[rgba(0,212,200,0.04)]"
+              >
+                <div style={{ fontSize: '20px', marginBottom: '8px' }}>{emoji}</div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color, letterSpacing: '0.5px', marginBottom: '6px' }}>
+                  {title}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+                  {desc}
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </div>
+
       {/* D — XP & Badges row */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
@@ -364,11 +411,35 @@ export default async function HubPage() {
         </div>
       </div>
 
-      {/* E + F — Forum teaser + Seekers teaser */}
-      <div className="grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-4 mb-4">
+      {/* E + F — Seekers teaser + Forum teaser (Seekers first on mobile) */}
+      <div className="grid grid-cols-1 md:grid-cols-[5fr_7fr] gap-4 mb-4">
 
-        {/* E — Forum Bridge teaser */}
-        <div style={{ ...cardStyle, borderColor: 'rgba(136,68,204,0.2)' }}>
+        {/* F — Seekers Hunt teaser (first in DOM = first on mobile) */}
+        <div style={cardStyle} className="md:order-2">
+          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.5)', marginBottom: '12px' }}>
+            {d.seekers}
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '12px 0', textAlign: 'center' }}>
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', background: '#06080a', border: '0.5px solid rgba(240,168,48,0.2)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+              {d.seekersConnect}
+            </div>
+            <a
+              href="https://seekers-game.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', textDecoration: 'none', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: '4px', padding: '7px 16px', transition: 'all 0.2s' }}
+            >
+              {d.openSeekers}
+            </a>
+          </div>
+        </div>
+
+        {/* E — Forum Bridge teaser (second in DOM = second on mobile, but first on desktop) */}
+        <div style={{ ...cardStyle, borderColor: 'rgba(136,68,204,0.2)' }} className="md:order-1">
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(136,68,204,0.6)', marginBottom: '12px' }}>
             {d.forumBridge}
           </div>
@@ -404,29 +475,6 @@ export default async function HubPage() {
           </div>
         </div>
 
-        {/* F — Seekers Hunt teaser */}
-        <div style={cardStyle}>
-          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.5)', marginBottom: '12px' }}>
-            {d.seekers}
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '12px 0', textAlign: 'center' }}>
-            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', background: '#06080a', border: '0.5px solid rgba(240,168,48,0.2)' }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
-            </div>
-            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
-              {d.seekersConnect}
-            </div>
-            <a
-              href="https://seekers-game.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', textDecoration: 'none', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: '4px', padding: '7px 16px', transition: 'all 0.2s' }}
-            >
-              {d.openSeekers}
-            </a>
-          </div>
-        </div>
       </div>
 
       {/* G — Leaderboard snippet */}

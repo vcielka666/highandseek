@@ -32,18 +32,19 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
 
   return (
     <>
-      <div style={{ position: 'relative', minHeight: '520px' }}>
+      <div style={{ position: 'relative' }} className="min-h-[520px] sm:min-h-[520px]">
 
-        {/* Blurred ghost cards behind */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-          gap: '16px',
-          filter: 'blur(14px)',
-          opacity: 0.12,
-          pointerEvents: 'none',
-          userSelect: 'none',
-        }}>
+        {/* Blurred ghost cards behind — desktop only */}
+        <div
+          className="hidden sm:grid"
+          style={{
+            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+            gap: '16px',
+            filter: 'blur(14px)',
+            opacity: 0.12,
+            pointerEvents: 'none',
+            userSelect: 'none',
+          }}>
           {[...Array(6)].map((_, i) => (
             <div key={i} style={{
               height: '340px',
@@ -56,13 +57,10 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
 
         {/* Inline unlock form */}
         <div style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
           padding: '24px',
-        }}>
+        }}
+          className="sm:absolute sm:inset-0 flex items-center justify-center"
+        >
           <div style={{
             position: 'relative',
             width: '100%',
