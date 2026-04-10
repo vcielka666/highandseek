@@ -120,16 +120,16 @@ export default function HeroSection() {
           }}
         >
           <Link
-            href="#shop"
+            href="/shop"
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: '4px',
-              padding: '18px 36px',
+              padding: '18px 0',
+              width: '200px',
               borderRadius: '6px',
               textDecoration: 'none',
-              minWidth: '180px',
               background: 'rgba(0,212,200,0.08)',
               border: '1px solid #00d4c8',
               boxShadow: '0 0 20px rgba(0,212,200,0.1), inset 0 0 20px rgba(0,212,200,0.05)',
@@ -148,16 +148,16 @@ export default function HeroSection() {
           </Link>
 
           <Link
-            href="#hub"
+            href="/hub"
             style={{
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: '4px',
-              padding: '18px 36px',
+              padding: '18px 0',
+              width: '200px',
               borderRadius: '6px',
               textDecoration: 'none',
-              minWidth: '180px',
               background: 'rgba(204,0,170,0.08)',
               border: '1px solid #cc00aa',
               boxShadow: '0 0 20px rgba(204,0,170,0.1), inset 0 0 20px rgba(204,0,170,0.05)',
@@ -176,32 +176,6 @@ export default function HeroSection() {
           </Link>
         </div>
 
-        {/* Seekers link */}
-        <a
-          href="https://seekers-game.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            fontFamily: 'var(--font-dm-mono)',
-            fontSize: '10px',
-            letterSpacing: '1.5px',
-            textTransform: 'uppercase',
-            color: '#f0a830',
-            textDecoration: 'none',
-            marginTop: '24px',
-            opacity: 0,
-            animation: 'fadeUp 0.6s ease forwards 1.3s',
-            transition: 'color 0.2s',
-            borderBottom: '0.5px solid rgba(240,168,48,0.3)',
-            paddingBottom: '2px',
-          }}
-          className="hover:text-[#ffc040]"
-        >
-          {t.hero.seekers}
-        </a>
       </div>
     </section>
   )

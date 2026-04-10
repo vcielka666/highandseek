@@ -246,6 +246,120 @@ Transactional emails via Resend (already installed) — registration confirmatio
 
 ---
 
+## Virtual Grow — Detailed Spec
+
+### Concept
+Gamified cannabis grow simulation inside the Hub. User builds a virtual 
+grow room, selects strain, performs care actions daily, earns XP and 
+H&S Credits at harvest. Realism-based — teaches real cultivation techniques.
+
+### Visual Style
+Hybrid ASCII/box-drawing UI chrome (box-drawing chars: ┌┐└┘├┤┬┴┼─│) 
+with a live procedural SVG plant in the center panel.
+Click any setup component → detail overlay with real product photo 
+(Cloudinary) + guidance text.
+
+### Setup Selection — Dependency System
+Medium choice gates all other options. Use a dependency tree:
+
+Living Soil:
+  - Watering: Blumat / manual drip / hand watering only
+  - Nutrients: organic teas, topdress, compost — NO mineral nutrients
+  - Container: fabric pot / raised bed / no-till bed
+  - Hydro options: DISABLED (tooltip: "Living soil relies on 
+    microbial life — hydro systems flush and destroy beneficial 
+    bacteria and fungi that make living soil work")
+  - Mineral nutrients: DISABLED (tooltip: "Synthetic salts disrupt 
+    the soil food web in living soil. Use organic amendments instead")
+
+Coco Coir:
+  - Watering: drip timer / manual — frequent (coco dries fast)
+  - Nutrients: mineral 2-part or 3-part — required, coco is inert
+  - Container: fabric pot / airpot / plastic pot
+  - Organic nutrients: DISABLED (tooltip: "Coco is inert — it has 
+    no microbial life to break down organic matter. Use mineral 
+    nutrients with precise EC/pH")
+
+Hydroponics (DWC/NFT/Flood&Drain):
+  - Watering: recirculating system — automated
+  - Nutrients: hydro-specific mineral — EC monitored
+  - Container: net pot / bucket / tray
+  - Soil options: DISABLED
+  - Organic nutrients: DISABLED
+
+### Plant Visual — Procedural SVG
+Plant SVG changes based on:
+  - Day number + growth stage
+  - Strain type (Sativa: tall/narrow, Indica: short/dense, 
+    Hybrid: mixed)
+  - Health % (color saturation, leaf droop)
+  - Applied techniques (LST: bent/spread canopy, 
+    Defoliation: fewer fan leaves)
+
+Growth stages:
+  seedling (day 1-7) → early veg (8-21) → mid veg (22-35) → 
+  late veg (36-45) → early flower (F1-14) → mid flower (F15-35) → 
+  late flower (F36-harvest) → ready
+
+### Care Actions
+  WATER    — frequency depends on medium and container size
+  FEED     — nutrients per schedule, disabled for living soil self-sustaining
+  LST      — available veg only, changes plant shape visually
+  DEFOLIATE — available mid-veg and early flower
+  TOPDRESS  — living soil only, organic amendments
+  pH CHECK  — all setups, affects nutrient uptake
+  HARVEST   — available when trichomes ready (strain flowering time reached)
+
+### Random Events
+Triggered by: day, care quality, setup type, RNG weight
+Each event: 3 response options → correct (+XP, no yield loss) / 
+wrong (-yield) / ignore (progressive damage)
+
+Categories: Pests / Environment stress / Nutrient issues / 
+Positive bonuses (exceptional terps, perfect stretch)
+
+### Rewards
+  XP per action (watering: 5xp, feeding: 10xp, LST: 20xp, 
+  defo: 15xp, correct event response: 50xp)
+  H&S Credits at harvest — amount based on yield quality %
+  NFT harvest certificate — Solana mint, unique per grow
+  Shop discount unlock — credits redeemable for % off
+
+### Funnel
+  Virtual strain X completed → "Grow it for real?" → 
+  direct link to strain product page in Shop
+
+### MongoDB Model (to be created: lib/db/models/VirtualGrow.ts)
+{
+  userId: ObjectId (ref: User)
+  strainSlug: string
+  setup: {
+    medium: 'living_soil' | 'coco' | 'hydro' | 'dwc'
+    light: string
+    tent: string
+    watering: string
+    nutrients: string
+    container: string
+  }
+  startDate: Date
+  currentDay: number
+  stage: 'seedling'|'veg'|'flower'|'harvest'|'complete'
+  health: number (0-100)
+  yieldQuality: number (0-100)
+  xpEarned: number
+  events: Array<{day, type, response, xpEffect, yieldEffect}>
+  actions: Array<{day, type, timestamp}>
+  harvestData: { gramsYield, qualityScore, nftMinted, creditsEarned }
+  status: 'active' | 'completed' | 'failed'
+  timestamps: true
+}
+
+### Build Priority
+After: auth ✓ → landing ✓ → shop basics → strain AI chat
+Virtual Grow is the flagship Hub feature — build as Hub MVP after 
+strain profiles exist (strain data needed for flowering times)
+```
+
 ## Key Decisions & Rules
 
 1. **No `any` in TypeScript** — use proper types or Zod inference

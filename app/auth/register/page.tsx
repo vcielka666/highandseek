@@ -165,6 +165,25 @@ function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
           pointerEvents: loading ? 'none' : 'auto',
         }}
       >
+        {/* Back link */}
+        <Link
+          href="/"
+          style={{
+            alignSelf: 'flex-start',
+            fontFamily: 'var(--font-dm-mono)',
+            fontSize: '10px',
+            letterSpacing: '1.5px',
+            textTransform: 'uppercase',
+            color: '#4a6066',
+            textDecoration: 'none',
+            marginBottom: '32px',
+            transition: 'color 0.2s',
+          }}
+          className="hover:text-[#00d4c8]"
+        >
+          ← Home
+        </Link>
+
         {/* Logo */}
         <div
           style={{

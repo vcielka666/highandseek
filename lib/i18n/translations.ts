@@ -7,12 +7,12 @@ export const translations = {
       signup: 'Sign up',
     },
     hero: {
-      eyebrow: 'Cannabis · Community · Hunt · 18+',
+      eyebrow: '· Original Cannabis Boutique ·',
       cta1Label: '◈ Collection',
       cta1Sub: 'Curated strains & clones',
       cta2Label: '⚡ Hub',
       cta2Sub: 'Strain avatars · XP · Hunt · Forum',
-      seekers: '◈ Powered by Seekers →',
+      
     },
     shop: {
       pillarNum: 'Pillar 01 · E-commerce',
@@ -60,12 +60,12 @@ export const translations = {
       signup: 'Registrovat',
     },
     hero: {
-      eyebrow: 'Cannabis · Komunita · Hunt · 18+',
+      eyebrow: '· Original Cannabis Boutique ·',
       cta1Label: '◈ Kolekce',
       cta1Sub: 'Kurátorsky vybrané strains & klony',
       cta2Label: '⚡ Hub',
       cta2Sub: 'Strain avatari · XP · Hunt · Fórum',
-      seekers: '◈ Powered by Seekers →',
+      
     },
     shop: {
       pillarNum: 'Pilíř 01 · E-commerce',

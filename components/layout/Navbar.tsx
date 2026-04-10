@@ -32,20 +32,18 @@ export default function Navbar() {
         borderBottom: '0.5px solid rgba(0,212,200,0.12)',
       }}
     >
-      {/* Logo */}
-      <div
-        style={{
-          fontFamily: 'var(--font-cacha)',
-          fontSize: '18px',
-          letterSpacing: '2px',
-          color: '#e8f0ef',
-        }}
-      >
-        HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
-      </div>
-
-      {/* Right side: language switcher + auth buttons */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+      {/* Left: Logo + language switcher */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+        <div
+          style={{
+            fontFamily: 'var(--font-cacha)',
+            fontSize: '18px',
+            letterSpacing: '2px',
+            color: '#e8f0ef',
+          }}
+        >
+          HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
+        </div>
 
         {/* Language switcher */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '2px' }}>
@@ -76,7 +74,10 @@ export default function Navbar() {
             </span>
           ))}
         </div>
+      </div>
 
+      {/* Right: Auth buttons */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         {/* Auth section */}
         {status === 'loading' ? (
           <div style={{ width: '120px' }} />
