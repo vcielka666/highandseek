@@ -25,6 +25,7 @@ const OrderSchema = new mongoose.Schema({
   status:                { type: String, enum: ['pending', 'paid', 'shipped', 'delivered'], default: 'pending' },
   userId:                { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
   xpAwarded:             { type: Boolean, default: false },
+  telegramContact:       { type: String, default: '' },
 }, { timestamps: true })
 
 export type IOrder = InferSchemaType<typeof OrderSchema> & { _id: mongoose.Types.ObjectId }

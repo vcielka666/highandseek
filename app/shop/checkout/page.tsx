@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   Elements,
@@ -142,6 +143,11 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
   const { data: session } = useSession()
   const router = useRouter()
   const [loading, setLoading] = useState(false)
+  const [telegramContact, setTelegramContact] = useState('')
+
+  // Quick Contact state
+  const [inquiryContact, setInquiryContact] = useState('')
+  const [inquiryState, setInquiryState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
 
   const [form, setForm] = useState({
     email: session?.user?.email ?? '',
@@ -152,11 +158,43 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
     setForm((prev) => ({ ...prev, [key]: value }))
   }
 
+  async function handleInquiry() {
+    if (!inquiryContact.trim()) return
+    setInquiryState('sending')
+    try {
+      const res = await fetch('/api/shop/cart/inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telegramContact: inquiryContact.trim(),
+          items: items.map((i) => ({
+            cartKey: i.cartKey, productId: i.productId, slug: i.slug,
+            name: i.name, price: i.price, image: i.image, quantity: i.quantity,
+          })),
+          subtotal: totalPrice(),
+        }),
+      })
+      setInquiryState(res.ok ? 'sent' : 'error')
+    } catch {
+      setInquiryState('error')
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!stripe || !elements) return
 
     setLoading(true)
+
+    // Attach telegramContact to PI metadata before confirming
+    if (telegramContact.trim()) {
+      const piId = clientSecret.split('_secret_')[0]
+      await fetch('/api/shop/checkout', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentIntentId: piId, telegramContact: telegramContact.trim() }),
+      }).catch(() => { /* non-blocking */ })
+    }
 
     const { error } = await stripe.confirmPayment({
       elements,
@@ -227,6 +265,29 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                   onFocus={(e) => { e.target.style.borderColor = '#00d4c8' }}
                   onBlur={(e) => { e.target.style.borderColor = 'rgba(0,212,200,0.18)' }}
                 />
+              </div>
+              <div>
+                <label style={{ ...labelStyle, display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                    <circle cx="12" cy="12" r="11.5" stroke="#f0a830" strokeOpacity="0.5" strokeWidth="1" fill="rgba(240,168,48,0.1)" />
+                    <path d="M17.5 7L5.5 11.5L9.5 13L11.5 18L13.5 14.5L17 16.5L17.5 7Z" fill="#f0a830" />
+                    <path d="M9.5 13L11 11.5" stroke="#050508" strokeWidth="0.8" strokeLinecap="round" />
+                  </svg>
+                  <span>Telegram</span>
+                  <span style={{ color: '#4a6066' }}>(optional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={telegramContact}
+                  onChange={(e) => setTelegramContact(e.target.value)}
+                  placeholder="@username or +420..."
+                  style={{ ...inputStyle, borderColor: telegramContact ? 'rgba(240,168,48,0.3)' : 'rgba(240,168,48,0.12)' }}
+                  onFocus={(e) => { e.target.style.borderColor = 'rgba(240,168,48,0.5)' }}
+                  onBlur={(e) => { e.target.style.borderColor = telegramContact ? 'rgba(240,168,48,0.3)' : 'rgba(240,168,48,0.12)' }}
+                />
+                <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '5px' }}>
+                  For faster communication about your order
+                </p>
               </div>
             </div>
           </div>
@@ -341,6 +402,89 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
               {totalPrice().toLocaleString('cs-CZ')} Kč
             </span>
           </div>
+
+          {/* Quick Contact */}
+          <div style={{
+            marginTop: '20px',
+            paddingTop: '20px',
+            borderTop: '0.5px solid rgba(240,168,48,0.12)',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              {/* Telegram official icon */}
+              <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="#29B6F6"/>
+                <path d="M5.35 11.66 17.1 7.1c.56-.2 1.05.13.87.96l-2 9.43c-.15.67-.54.83-1.09.52l-3-2.21-1.44 1.39c-.16.16-.3.29-.6.29l.21-3.03 5.5-4.97c.24-.21-.05-.33-.37-.12L7.4 14.26l-2.95-.92c-.64-.2-.65-.64.13-.95Z" fill="#fff"/>
+              </svg>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#f0a830' }}>
+                Want to consult before buying?
+              </div>
+            </div>
+            <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.5, marginBottom: '12px' }}>
+              Drop your Telegram handle and we'll reach out — no payment needed.
+            </p>
+
+            {inquiryState === 'sent' ? (
+              <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#00d4c8', letterSpacing: '0.5px' }}>
+                ✓ Message sent! We'll be in touch shortly.
+              </p>
+            ) : (
+              <>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={inquiryContact}
+                    onChange={(e) => setInquiryContact(e.target.value)}
+                    placeholder="@username or +420..."
+                    disabled={inquiryState === 'sending'}
+                    style={{
+                      flex: 1,
+                      background: 'rgba(255,255,255,0.02)',
+                      border: '0.5px solid rgba(240,168,48,0.2)',
+                      borderRadius: '4px',
+                      color: '#e8f0ef',
+                      padding: '8px 10px',
+                      fontFamily: 'var(--font-dm-mono)',
+                      fontSize: '12px',
+                      outline: 'none',
+                    }}
+                    onFocus={(e) => { e.target.style.borderColor = 'rgba(240,168,48,0.5)' }}
+                    onBlur={(e) => { e.target.style.borderColor = 'rgba(240,168,48,0.2)' }}
+                    onKeyDown={(e) => { if (e.key === 'Enter') handleInquiry() }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleInquiry}
+                    disabled={inquiryState === 'sending' || !inquiryContact.trim()}
+                    style={{
+                      padding: '8px 12px',
+                      background: inquiryContact.trim() ? '#f0a830' : 'rgba(240,168,48,0.15)',
+                      color: inquiryContact.trim() ? '#050508' : '#4a6066',
+                      fontFamily: 'var(--font-orbitron)',
+                      fontSize: '9px',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: inquiryContact.trim() ? 'pointer' : 'not-allowed',
+                      transition: 'all 0.2s',
+                      flexShrink: 0,
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {inquiryState === 'sending' ? '...' : 'Send'}
+                  </button>
+                </div>
+                {inquiryState === 'error' && (
+                  <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#cc00aa', marginTop: '6px' }}>
+                    Something went wrong, please try again.
+                  </p>
+                )}
+                <p style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '6px' }}>
+                  Optional · No payment required
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </form>
     </>
@@ -380,9 +524,7 @@ export default function CheckoutPage() {
   return (
     <div style={{ padding: '24px 16px 64px', maxWidth: '1000px', width: '100%', boxSizing: 'border-box' }}>
       <div style={{ marginBottom: '32px' }}>
-        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#007a74', marginBottom: '8px' }}>
-          Shop · Checkout
-        </div>
+        <Breadcrumb items={[{ label: 'Shop', href: '/shop' }, { label: 'Checkout' }]} />
         <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', letterSpacing: '1px', color: '#e8f0ef', marginBottom: '10px' }}>
           Complete your order
         </h1>

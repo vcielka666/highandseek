@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { Suspense } from 'react'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 
 const TRENDING = [
   'Best LED for 2×2 tent?',
@@ -96,10 +97,8 @@ function ForumContent() {
   }
 
   return (
-    <div style={{ padding: '28px 24px 40px', maxWidth: '800px' }}>
-      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(136,68,204,0.6)', marginBottom: '6px' }}>
-        Hub · Forum Bridge
-      </div>
+    <div style={{ maxWidth: '800px' }} className="px-4 pt-4 pb-10 md:px-6 md:pt-7">
+      <Breadcrumb items={[{ label: 'Hub', href: '/hub' }, { label: 'Forum Bridge' }]} color="#8844cc" />
       <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', letterSpacing: '1px', color: '#e8f0ef', marginBottom: '6px' }}>
         Forum Bridge
       </h1>
@@ -276,7 +275,7 @@ function ForumContent() {
 export default function ForumPage() {
   return (
     <Suspense fallback={
-      <div style={{ padding: '28px 24px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
+      <div className="px-4 pt-4 md:px-6 md:pt-7" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
         Loading...
       </div>
     }>

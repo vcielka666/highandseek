@@ -3,12 +3,10 @@
 import { useState, useEffect } from 'react'
 
 const STORAGE_KEY = 'hs-shop-access'
-const SHOP_PASSWORD = 'kunda'
 
 export default function AgeGate({ children }: { children: React.ReactNode }) {
-  const [verified, setVerified] = useState<boolean | null>(null) // null = loading
+  const [verified, setVerified] = useState<boolean | null>(null)
   const [ageConfirmed, setAgeConfirmed] = useState(false)
-  const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
 
@@ -19,26 +17,16 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
 
   function handleEnter() {
     if (!ageConfirmed) {
-      triggerShake('Please confirm you are 18 or older.')
-      return
-    }
-    if (password.trim().toLowerCase() !== SHOP_PASSWORD) {
-      triggerShake('Incorrect password.')
+      setError('Please confirm you are 18 or older.')
+      setShake(true)
+      setTimeout(() => setShake(false), 500)
       return
     }
     localStorage.setItem(STORAGE_KEY, 'true')
     setVerified(true)
   }
 
-  function triggerShake(msg: string) {
-    setError(msg)
-    setShake(true)
-    setTimeout(() => setShake(false), 500)
-  }
-
-  // Still loading from localStorage
   if (verified === null) return null
-
   if (verified) return <>{children}</>
 
   return (
@@ -72,8 +60,6 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
           borderRadius: '12px',
           padding: '40px 36px',
           boxShadow: '0 24px 80px rgba(0,0,0,0.8), 0 0 0 0.5px rgba(0,212,200,0.08)',
-          transition: 'transform 0.1s',
-          transform: shake ? 'translateX(0)' : 'none',
           animation: shake ? 'ageShake 0.4s ease' : 'none',
         }}
       >
@@ -98,15 +84,15 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
             color: '#4a6066',
             textTransform: 'uppercase',
           }}>
-            Members only
+            Cannabis Boutique
           </div>
         </div>
 
         {/* Divider */}
         <div style={{ height: '0.5px', background: 'linear-gradient(90deg, transparent, rgba(0,212,200,0.2), transparent)', marginBottom: '28px' }} />
 
-        {/* Age warning icon */}
-        <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+        {/* Age warning */}
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -143,7 +129,7 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
 
         {/* Age checkbox */}
         <div
-          onClick={() => setAgeConfirmed((v) => !v)}
+          onClick={() => { setAgeConfirmed((v) => !v); setError('') }}
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -153,7 +139,7 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
             border: `0.5px solid ${ageConfirmed ? 'rgba(0,212,200,0.35)' : 'rgba(255,255,255,0.06)'}`,
             background: ageConfirmed ? 'rgba(0,212,200,0.06)' : 'rgba(255,255,255,0.02)',
             cursor: 'pointer',
-            marginBottom: '16px',
+            marginBottom: '20px',
             transition: 'all 0.15s',
             userSelect: 'none',
           }}
@@ -184,42 +170,6 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
           }}>
             I confirm I am 18 years of age or older
           </span>
-        </div>
-
-        {/* Password field */}
-        <div style={{ marginBottom: '20px' }}>
-          <div style={{
-            fontFamily: 'var(--font-dm-mono)',
-            fontSize: '9px',
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-            color: '#4a6066',
-            marginBottom: '8px',
-          }}>
-            Access password
-          </div>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => { setPassword(e.target.value); setError('') }}
-            onKeyDown={(e) => e.key === 'Enter' && handleEnter()}
-            placeholder="Enter password"
-            autoComplete="new-password"
-            style={{
-              width: '100%',
-              padding: '11px 14px',
-              background: 'rgba(255,255,255,0.03)',
-              border: `0.5px solid ${error ? 'rgba(204,0,170,0.5)' : 'rgba(0,212,200,0.15)'}`,
-              borderRadius: '6px',
-              color: '#e8f0ef',
-              fontFamily: 'var(--font-dm-mono)',
-              fontSize: '14px',
-              letterSpacing: '3px',
-              outline: 'none',
-              transition: 'border-color 0.15s',
-              boxSizing: 'border-box',
-            }}
-          />
         </div>
 
         {/* Error */}

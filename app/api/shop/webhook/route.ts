@@ -4,6 +4,7 @@ import { Resend } from 'resend'
 import { connectDB } from '@/lib/db/connect'
 import Order from '@/lib/db/models/Order'
 import User from '@/lib/db/models/User'
+import { sendTelegramMessage, formatOrderConfirmation } from '@/lib/notifications/telegram'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2026-02-25.clover',
@@ -32,9 +33,10 @@ export async function POST(req: NextRequest) {
     if (exists) return NextResponse.json({ received: true })
 
     const metadata = pi.metadata as {
-      customerEmail: string
-      userId?: string
-      orderItems?: string
+      customerEmail:   string
+      userId?:         string
+      orderItems?:     string
+      telegramContact?: string
     }
 
     let items: { productId: string; name: string; quantity: number; price: number }[] = []
@@ -60,7 +62,19 @@ export async function POST(req: NextRequest) {
       stripePaymentIntentId: pi.id,
       status: 'paid',
       userId: metadata.userId ?? null,
+      telegramContact: metadata.telegramContact ?? '',
     })
+
+    // Telegram notification — must never throw
+    sendTelegramMessage(formatOrderConfirmation({
+      _id:                  order._id,
+      customerEmail:        order.customerEmail,
+      shippingAddress:      order.shippingAddress,
+      items:                items,
+      totalAmount:          order.totalAmount,
+      stripePaymentIntentId: pi.id,
+      telegramContact:      metadata.telegramContact,
+    })).catch((err) => console.error('[webhook] telegram failed', err))
 
     // Award XP to logged-in user
     if (metadata.userId) {

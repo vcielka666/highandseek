@@ -113,6 +113,11 @@ body::after {
   50%     { opacity: 0.6; }
 }
 
+@keyframes scrollCarousel {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
 :root {
   --background:     oklch(1 0 0);
   --foreground:     oklch(0.145 0 0);

@@ -18,7 +18,13 @@ export const XP_EVENTS = {
   PROFILE_COMPLETED:        30,
   FIRST_FOLLOWER:           20,
   ACADEMY_ARTICLE_READ:     15,
-  ACADEMY_QUIZ_PASSED:      40,
+  ACADEMY_QUIZ_PASSED:          40,
+  QUIZ_CORRECT_PHASE1:          10,
+  QUIZ_CORRECT_PHASE2:          15,
+  QUIZ_CORRECT_PHASE3:          25,
+  QUIZ_SPEED_BONUS:             10,
+  QUIZ_PERFECT_SCORE:           150,
+  ACADEMY_TOPIC_FIRST_COMPLETE: 50,
 } as const
 
 export const LEVELS = [

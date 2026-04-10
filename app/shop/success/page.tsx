@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Suspense } from 'react'
 import { useCart } from '@/stores/cartStore'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
@@ -30,16 +31,20 @@ function SuccessContent() {
   const isSuccess = status === 'succeeded'
 
   return (
-    <div style={{
-      minHeight: '80vh',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      textAlign: 'center',
-      padding: '40px 24px',
-      gap: '24px',
-    }}>
+    <>
+      <div style={{ padding: '24px 16px 0' }}>
+        <Breadcrumb items={[{ label: 'Shop', href: '/shop' }, { label: 'Order confirmed' }]} />
+      </div>
+      <div style={{
+        minHeight: '80vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        padding: '40px 24px',
+        gap: '24px',
+      }}>
       {/* Icon */}
       <div style={{
         width: '72px',
@@ -160,6 +165,7 @@ function SuccessContent() {
         </Link>
       </div>
     </div>
+    </>
   )
 }
 

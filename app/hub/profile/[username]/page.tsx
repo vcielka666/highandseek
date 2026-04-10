@@ -4,11 +4,18 @@ import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
 import Order from '@/lib/db/models/Order'
+import Listing from '@/lib/db/models/Listing'
 import Link from 'next/link'
+import Breadcrumb from '@/components/ui/Breadcrumb'
+import OrderCard from '@/components/shop/OrderCard'
+import type { OrderData } from '@/components/shop/OrderCard'
 import { getXPProgress } from '@/lib/xp/index'
 import { BADGES } from '@/lib/badges/index'
+import MyListingActions from '@/components/hub/MyListingActions'
+import type { ListingStatus } from '@/lib/db/models/Listing'
+import WalletSection from '@/components/hub/WalletSection'
 
-type Tab = 'overview' | 'grows' | 'badges' | 'activity' | 'orders'
+type Tab = 'overview' | 'grows' | 'badges' | 'activity' | 'orders' | 'listings'
 
 export default async function ProfilePage(props: {
   params: Promise<{ username: string }>
@@ -19,7 +26,7 @@ export default async function ProfilePage(props: {
 
   const { username } = await props.params
   const { tab: rawTab } = await props.searchParams
-  const tab: Tab = (['overview', 'grows', 'badges', 'activity', 'orders'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
+  const tab: Tab = (['overview', 'grows', 'badges', 'activity', 'orders', 'listings'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
 
   await connectDB()
 
@@ -39,6 +46,7 @@ export default async function ProfilePage(props: {
     growsCompleted: number
     totalXpEarned: number
     showcaseBadges: string[]
+    walletAddress: string
     createdAt: Date
   }>()
 
@@ -52,11 +60,41 @@ export default async function ProfilePage(props: {
     .limit(10)
     .lean<{ event: string; amount: number; createdAt: Date }[]>()
 
-  const userOrders = isOwnProfile
+  const userOrdersRaw = isOwnProfile
     ? await Order.find({ userId: profileUser._id.toString() })
         .sort({ createdAt: -1 })
-        .lean<{ _id: { toString(): string }; items: { name: string; quantity: number; price: number }[]; totalAmount: number; status: string; createdAt: Date }[]>()
+        .lean<{ _id: { toString(): string }; items: { productId: { toString(): string }; name: string; quantity: number; price: number }[]; totalAmount: number; currency?: string; status: string; customerEmail?: string; shippingAddress?: { name: string; address: string; city: string; postalCode: string; country: string }; stripePaymentIntentId?: string; createdAt: Date; xpAwarded?: boolean }[]>()
     : []
+  const userOrders: OrderData[] = userOrdersRaw.map(o => ({
+    _id: o._id.toString(),
+    items: o.items.map(i => ({ ...i, productId: i.productId?.toString() ?? '' })),
+    totalAmount: o.totalAmount,
+    currency: o.currency,
+    status: o.status,
+    customerEmail: o.customerEmail,
+    shippingAddress: o.shippingAddress,
+    stripePaymentIntentId: o.stripePaymentIntentId,
+    createdAt: o.createdAt.toISOString(),
+    xpAwarded: o.xpAwarded,
+  }))
+
+  // Fetch own listings (all statuses except 'removed')
+  const userListingsRaw = isOwnProfile
+    ? await Listing.find({ userId: profileUser._id.toString(), status: { $ne: 'removed' } })
+        .sort({ createdAt: -1 })
+        .lean<{ _id: { toString(): string }; title: string; description: string; category: string; price: number; location?: string; status: ListingStatus; expiresAt: Date; createdAt: Date }[]>()
+    : []
+  const userListings = userListingsRaw.map(l => ({
+    _id: l._id.toString(),
+    title: l.title,
+    description: l.description,
+    category: l.category,
+    price: l.price,
+    location: l.location,
+    status: l.status,
+    expiresAt: l.expiresAt.toISOString(),
+    createdAt: l.createdAt.toISOString(),
+  }))
 
   const EVENT_LABELS: Record<string, string> = {
     WATER_PLANT: '🌿 Watered plant',
@@ -69,15 +107,17 @@ export default async function ProfilePage(props: {
     ACADEMY_ARTICLE_READ: '📚 Read article',
   }
 
+  const userBadges = profileUser.badges ?? []
   const allBadgeIds = Object.keys(BADGES) as (keyof typeof BADGES)[]
-  const earnedBadgeIds = new Set(profileUser.badges.map(b => b.badgeId))
+  const earnedBadgeIds = new Set(userBadges.map(b => b.badgeId))
 
   const TABS: { value: Tab; label: string }[] = [
     { value: 'overview',  label: 'Overview' },
     { value: 'grows',     label: 'Grows' },
-    { value: 'badges',    label: `Badges (${profileUser.badges.length})` },
+    { value: 'badges',    label: `Badges (${userBadges.length})` },
     { value: 'activity',  label: 'Activity' },
     ...(isOwnProfile ? [{ value: 'orders' as Tab, label: `Orders (${userOrders.length})` }] : []),
+    ...(isOwnProfile ? [{ value: 'listings' as Tab, label: `Listings (${userListings.length})` }] : []),
   ]
 
   const cardStyle: React.CSSProperties = {
@@ -88,7 +128,8 @@ export default async function ProfilePage(props: {
   }
 
   return (
-    <div style={{ maxWidth: '900px' }}>
+    <div style={{ maxWidth: '900px', overflowX: 'hidden' }}>
+      <Breadcrumb items={[{ label: 'Hub', href: '/hub' }, { label: profileUser.username }]} color="#cc00aa" />
       {/* Banner */}
       <div style={{
         height: '120px',
@@ -188,9 +229,9 @@ export default async function ProfilePage(props: {
         <div style={{ display: 'flex', gap: '24px', marginTop: '16px', flexWrap: 'wrap' }}>
           {[
             { label: 'Grows', value: profileUser.growsCompleted },
-            { label: 'Followers', value: profileUser.followers.length },
-            { label: 'Following', value: profileUser.following.length },
-            { label: 'Badges', value: profileUser.badges.length },
+            { label: 'Followers', value: (profileUser.followers ?? []).length },
+            { label: 'Following', value: (profileUser.following ?? []).length },
+            { label: 'Badges', value: userBadges.length },
           ].map(({ label, value }) => (
             <div key={label}>
               <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#e8f0ef' }}>{value}</div>
@@ -200,15 +241,25 @@ export default async function ProfilePage(props: {
         </div>
       </div>
 
+      {/* Wallet section — own profile only */}
+      {isOwnProfile && (
+        <div style={{ padding: '0 24px', marginTop: '20px' }}>
+          <WalletSection
+            walletAddress={profileUser.walletAddress ?? ''}
+            userId={profileUser._id.toString()}
+          />
+        </div>
+      )}
+
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(204,0,170,0.1)' }}>
+      <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(204,0,170,0.1)', overflowX: 'auto', marginTop: '20px' }}>
         {TABS.map(({ value, label }) => (
           <Link
             key={value}
             href={`/hub/profile/${profileUser.username}?tab=${value}`}
             style={{
               fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px',
-              padding: '14px 20px', textDecoration: 'none',
+              padding: '12px 16px', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
               color: tab === value ? '#cc00aa' : '#4a6066',
               borderBottom: tab === value ? '2px solid #cc00aa' : '2px solid transparent',
               transition: 'all 0.15s',
@@ -220,19 +271,19 @@ export default async function ProfilePage(props: {
       </div>
 
       {/* Tab content */}
-      <div style={{ padding: '24px' }}>
+      <div className="p-4 md:p-6">
 
         {/* Overview */}
         {tab === 'overview' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             {/* Showcase badges */}
-            {profileUser.badges.length > 0 && (
+            {userBadges.length > 0 && (
               <div style={cardStyle}>
                 <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '14px' }}>
                   Badges Earned
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                  {profileUser.badges.slice(0, 6).map(b => {
+                  {userBadges.slice(0, 6).map(b => {
                     const badge = BADGES[b.badgeId as keyof typeof BADGES]
                     if (!badge) return null
                     return (
@@ -278,7 +329,7 @@ export default async function ProfilePage(props: {
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#4a6066' }}>
               {profileUser.growsCompleted > 0
                 ? `${profileUser.growsCompleted} grows completed`
-                : 'No grows yet — start a Virtual Grow to see results here.'}
+                : 'No grows yet — start a Grow Simulation to see results here.'}
             </div>
             {isOwnProfile && (
               <Link href="/hub/grow" style={{ display: 'inline-block', marginTop: '16px', fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase', color: '#050508', background: '#cc00aa', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none', transition: 'all 0.2s' }}
@@ -332,6 +383,25 @@ export default async function ProfilePage(props: {
           </div>
         )}
 
+        {/* Listings — own profile only */}
+        {tab === 'listings' && isOwnProfile && (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
+                {userListings.length} listing{userListings.length !== 1 ? 's' : ''}
+              </div>
+              <Link
+                href="/hub/marketplace/new"
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: '4px', padding: '6px 14px', textDecoration: 'none', transition: 'all 0.15s' }}
+                className="hover:bg-[rgba(240,168,48,0.08)]"
+              >
+                + New Listing
+              </Link>
+            </div>
+            <MyListingActions initialListings={userListings} />
+          </div>
+        )}
+
         {/* Orders — own profile only */}
         {tab === 'orders' && isOwnProfile && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -345,48 +415,11 @@ export default async function ProfilePage(props: {
             ) : (
               <>
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginBottom: '6px' }}>
-                  {userOrders.length} order{userOrders.length !== 1 ? 's' : ''} · <Link href="/shop/orders" style={{ color: '#00d4c8', textDecoration: 'none' }}>View full history →</Link>
+                  {userOrders.length} order{userOrders.length !== 1 ? 's' : ''} · click any row to expand
                 </div>
-                {userOrders.slice(0, 5).map((order) => {
-                  const STATUS_MAP: Record<string, { color: string; label: string }> = {
-                    paid: { color: '#00d4c8', label: 'Paid' },
-                    shipped: { color: '#f0a830', label: 'Shipped' },
-                    delivered: { color: '#8844cc', label: 'Delivered' },
-                    pending: { color: '#4a6066', label: 'Pending' },
-                  }
-                  const s = STATUS_MAP[order.status] ?? STATUS_MAP.pending
-                  const ref = order._id.toString().slice(-8).toUpperCase()
-                  const date = new Date(order.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })
-                  return (
-                    <div key={order._id.toString()} style={cardStyle}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '0.5px solid rgba(204,0,170,0.08)', flexWrap: 'wrap', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', fontWeight: 700, color: '#e8f0ef', letterSpacing: '1px' }}>#{ref}</span>
-                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: s.color, padding: '2px 7px', borderRadius: '3px', border: `0.5px solid ${s.color}44` }}>
-                            {s.label}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>{date}</span>
-                          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', fontWeight: 700, color: '#00d4c8' }}>
-                            {order.totalAmount.toLocaleString('cs-CZ')} Kč
-                          </span>
-                        </div>
-                      </div>
-                      <div style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {order.items.map((item, i) => (
-                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '10px' }}>
-                            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)' }}>{item.name}</span>
-                            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', textAlign: 'right' }}>×{item.quantity}</span>
-                            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', textAlign: 'right', whiteSpace: 'nowrap' }}>
-                              {(item.price * item.quantity).toLocaleString('cs-CZ')} Kč
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                })}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {userOrders.map((order) => <OrderCard key={order._id} order={order} />)}
+                </div>
               </>
             )}
           </div>

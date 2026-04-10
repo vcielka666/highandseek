@@ -5,8 +5,10 @@ import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
 import Product from '@/lib/db/models/Product'
 import { getXPProgress, LEVELS } from '@/lib/xp/index'
-import { BADGES } from '@/lib/badges/index'
+import { BADGES } from '@/lib/badges/config'
+import { getServerT } from '@/lib/i18n/server'
 import Link from 'next/link'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 
 function XPBar({ percent, xp, next }: { percent: number; xp: number; next: typeof LEVELS[number] | null }) {
   return (
@@ -48,6 +50,9 @@ export default async function HubPage() {
   const session = await auth()
   if (!session) redirect('/auth/login?callbackUrl=/hub')
 
+  const { t } = await getServerT()
+  const d = t.hubDash
+
   await connectDB()
 
   const [userData, recentXP, productCount] = await Promise.all([
@@ -69,10 +74,11 @@ export default async function HubPage() {
   const badges = userData?.badges ?? []
   const recentBadges = badges.slice(-3).reverse()
 
-  // Strain of the day — deterministic random based on date
-  const dayIndex = Math.floor(Date.now() / 86400000) % Math.max(productCount, 1)
-  const strainOfDay = await Product.findOne({ isAvailable: true, category: 'seed' })
-    .skip(dayIndex % Math.max(productCount, 1))
+  // Strain of the day — deterministic random based on date, uses flower category
+  const flowerCount = await Product.countDocuments({ isAvailable: true, category: 'flower' })
+  const dayIndex = Math.floor(Date.now() / 86400000) % Math.max(flowerCount || productCount, 1)
+  const strainOfDay = await Product.findOne({ isAvailable: true, category: flowerCount > 0 ? 'flower' : 'seed' })
+    .skip(dayIndex % Math.max(flowerCount || productCount, 1))
     .select('name slug shortDescription strain images')
     .lean<{
       name: string; slug: string; shortDescription: string;
@@ -94,14 +100,12 @@ export default async function HubPage() {
   }
 
   return (
-    <div style={{ padding: '28px 24px 40px', maxWidth: '1100px' }}>
+    <div style={{ maxWidth: '1100px' }} className="px-4 pt-4 pb-10 md:px-6 md:pt-7">
       {/* A — Welcome header */}
-      <div style={{ marginBottom: '28px' }}>
-        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '6px' }}>
-          Hub · Dashboard
-        </div>
+      <div className="mb-5 md:mb-7">
+        <Breadcrumb items={[{ label: 'Home', href: '/' }, { label: 'Hub' }]} color="#cc00aa" />
         <h1 style={{ fontFamily: 'var(--font-orbitron)', fontSize: 'clamp(20px, 3vw, 30px)', fontWeight: 700, color: '#e8f0ef', marginBottom: '4px' }}>
-          Welcome back, <span style={{ color: '#cc00aa' }}>{session.user.username}</span>
+          {d.welcomeBack} <span style={{ color: '#cc00aa' }}>{session.user.username}</span>
         </h1>
         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#f0a830', marginBottom: '8px' }}>
           ⚡ Level {current.level} · {current.name}
@@ -110,12 +114,12 @@ export default async function HubPage() {
       </div>
 
       {/* B + C — Active Grow + Strain of Day */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }} className="max-md:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
         {/* B — Active Grow */}
         <div style={cardStyle}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '12px' }}>
-            Virtual Grow
+            {d.growSim}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '16px 0' }}>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '24px', color: 'rgba(0,212,200,0.2)', letterSpacing: '-2px' }}>
@@ -124,7 +128,7 @@ export default async function HubPage() {
               └────────────┘
             </div>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              No active grow
+              {d.noActiveGrow}
             </div>
             <Link
               href="/hub/grow"
@@ -136,68 +140,95 @@ export default async function HubPage() {
               }}
               className="hover:bg-[#e000bb] hover:shadow-[0_0_16px_rgba(204,0,170,0.4)]"
             >
-              Start Virtual Grow →
+              {d.startGrow}
             </Link>
           </div>
         </div>
 
         {/* C — Strain of the Day */}
-        <div style={cardStyle}>
-          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '12px' }}>
-            Strain of the Day
-          </div>
-          {strainOfDay ? (
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'rgba(204,0,170,0.12)', border: '1px solid rgba(204,0,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>
-                  🧬
-                </div>
-                <div>
-                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', fontWeight: 700, color: '#e8f0ef' }}>
+        <div style={{
+          background: '#0d0d10',
+          border: '0.5px solid rgba(204,0,170,0.15)',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          position: 'relative',
+          minHeight: '200px',
+        }}>
+          {/* Background image */}
+          {strainOfDay?.images?.[0] && (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={strainOfDay.images[0]}
+                alt=""
+                aria-hidden
+                style={{
+                  position: 'absolute', inset: 0,
+                  width: '100%', height: '100%',
+                  objectFit: 'cover', objectPosition: 'center',
+                  opacity: 0.22,
+                }}
+              />
+              <div style={{
+                position: 'absolute', inset: 0,
+                background: 'linear-gradient(160deg, rgba(13,0,20,0.6) 0%, rgba(5,5,8,0.92) 70%)',
+              }} />
+            </>
+          )}
+
+          {/* Content */}
+          <div style={{ position: 'relative', zIndex: 1, padding: '20px' }}>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.6)', marginBottom: '12px' }}>
+              {d.strainOfDay}
+            </div>
+            {strainOfDay ? (
+              <>
+                <div style={{ marginBottom: '8px' }}>
+                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '15px', fontWeight: 700, color: '#e8f0ef', marginBottom: '3px' }}>
                     {strainOfDay.name}
                   </div>
                   {strainOfDay.strain.type && (
-                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textTransform: 'uppercase' }}>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1.5px', color: '#cc00aa', textTransform: 'uppercase' }}>
                       {strainOfDay.strain.type}
                     </div>
                   )}
                 </div>
+                <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#8a9a9a', lineHeight: 1.6, marginBottom: '14px' }}>
+                  {strainOfDay.shortDescription}
+                </p>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Link
+                    href={`/hub/strains`}
+                    style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#cc00aa', textDecoration: 'none', border: '0.5px solid rgba(204,0,170,0.3)', borderRadius: '4px', padding: '6px 12px', transition: 'all 0.2s', backdropFilter: 'blur(4px)', background: 'rgba(5,5,8,0.4)' }}
+                    className="hover:border-[#cc00aa] hover:bg-[rgba(204,0,170,0.12)]"
+                  >
+                    {d.chatWithStrain}
+                  </Link>
+                  <Link
+                    href={`/shop/${strainOfDay.slug}`}
+                    style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#007a74', textDecoration: 'none', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '4px', padding: '6px 12px', transition: 'all 0.2s', backdropFilter: 'blur(4px)', background: 'rgba(5,5,8,0.4)' }}
+                    className="hover:border-[#00d4c8] hover:text-[#00d4c8]"
+                  >
+                    {d.viewFlower}
+                  </Link>
+                </div>
+              </>
+            ) : (
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', padding: '20px 0' }}>
+                {d.noFlowers}
               </div>
-              <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6, marginBottom: '12px' }}>
-                {strainOfDay.shortDescription}
-              </p>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <Link
-                  href={`/hub/strains`}
-                  style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#cc00aa', textDecoration: 'none', border: '0.5px solid rgba(204,0,170,0.3)', borderRadius: '4px', padding: '6px 12px', transition: 'all 0.2s' }}
-                  className="hover:border-[#cc00aa] hover:bg-[rgba(204,0,170,0.08)]"
-                >
-                  Chat with strain →
-                </Link>
-                <Link
-                  href={`/shop/${strainOfDay.slug}`}
-                  style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#007a74', textDecoration: 'none', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '4px', padding: '6px 12px', transition: 'all 0.2s' }}
-                  className="hover:border-[#00d4c8] hover:text-[#00d4c8]"
-                >
-                  Buy seeds →
-                </Link>
-              </div>
-            </div>
-          ) : (
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', textAlign: 'center', padding: '20px 0' }}>
-              No strains available yet
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
       {/* D — XP & Badges row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }} className="max-md:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
 
         {/* Recent XP events */}
         <div style={cardStyle}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '12px' }}>
-            Recent XP
+            {d.recentXP}
           </div>
           {recentXP.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -214,7 +245,7 @@ export default async function HubPage() {
             </div>
           ) : (
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
-              No XP events yet — start growing!
+              {d.noXP}
             </div>
           )}
         </div>
@@ -223,11 +254,11 @@ export default async function HubPage() {
         <div style={cardStyle}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
             <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)' }}>
-              Badges
+              {d.badges}
             </div>
             <Link href={`/hub/profile/${session.user.username}`} style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textDecoration: 'none', letterSpacing: '0.5px' }}
               className="hover:text-[#cc00aa]">
-              View all →
+              {d.viewAll}
             </Link>
           </div>
           {recentBadges.length > 0 ? (
@@ -248,19 +279,19 @@ export default async function HubPage() {
             </div>
           ) : (
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
-              No badges yet — complete actions to earn them.
+              {d.noBadges}
             </div>
           )}
         </div>
       </div>
 
       {/* E + F — Forum teaser + Seekers teaser */}
-      <div style={{ display: 'grid', gridTemplateColumns: '7fr 5fr', gap: '16px', marginBottom: '16px' }} className="max-md:grid-cols-1">
+      <div className="grid grid-cols-1 md:grid-cols-[7fr_5fr] gap-4 mb-4">
 
         {/* E — Forum Bridge teaser */}
         <div style={{ ...cardStyle, borderColor: 'rgba(136,68,204,0.2)' }}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(136,68,204,0.6)', marginBottom: '12px' }}>
-            Forum Bridge
+            {d.forumBridge}
           </div>
           <Link href="/hub/forum" style={{ textDecoration: 'none', display: 'block' }}>
             <div style={{
@@ -269,7 +300,7 @@ export default async function HubPage() {
               borderRadius: '4px', padding: '10px 14px', marginBottom: '12px',
             }}>
               <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#4a6066' }}>
-                Ask anything about growing cannabis...
+                {d.forumPlaceholder}
               </span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8844cc" strokeWidth="2" style={{ flexShrink: 0 }}>
                 <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -297,20 +328,24 @@ export default async function HubPage() {
         {/* F — Seekers Hunt teaser */}
         <div style={cardStyle}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.5)', marginBottom: '12px' }}>
-            Seekers Hunt
+            {d.seekers}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', padding: '12px 0', textAlign: 'center' }}>
-            <span style={{ fontSize: '28px' }}>🗺️</span>
-            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
-              Connect your Seekers account to see hunts near you.
+            <div style={{ width: '56px', height: '56px', borderRadius: '50%', overflow: 'hidden', background: '#06080a', border: '0.5px solid rgba(240,168,48,0.2)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
             </div>
-            <Link
-              href="/hub/hunt"
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+              {d.seekersConnect}
+            </div>
+            <a
+              href="https://seekers-game.com"
+              target="_blank"
+              rel="noopener noreferrer"
               style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', textDecoration: 'none', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: '4px', padding: '7px 16px', transition: 'all 0.2s' }}
-              className="hover:border-[#f0a830] hover:bg-[rgba(240,168,48,0.08)]"
             >
-              View Hunts →
-            </Link>
+              {d.openSeekers}
+            </a>
           </div>
         </div>
       </div>
@@ -319,11 +354,11 @@ export default async function HubPage() {
       <div style={cardStyle}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)' }}>
-            Leaderboard · Top 5
+            {d.leaderboardTitle}
           </div>
           <Link href="/hub/leaderboard" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textDecoration: 'none' }}
             className="hover:text-[#cc00aa]">
-            Full leaderboard →
+            {d.fullLeaderboard}
           </Link>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>

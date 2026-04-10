@@ -15,6 +15,10 @@ export const CREDIT_COSTS = {
   SHOP_DISCOUNT_VOUCHER: 150,
   SEEKERS_HUNT_ACCESS:   200,
   NFT_CERTIFICATE_MINT:  75,
+  QUIZ_RETRY_2ND:        25,
+  QUIZ_RETRY_3RD_PLUS:   50,
+  MARKETPLACE_POST:      15,
+  MARKETPLACE_EXTEND:    10,
 } as const
 
 export async function awardCredits(userId: string, amount: number, reason: string): Promise<number> {
@@ -22,7 +26,7 @@ export async function awardCredits(userId: string, amount: number, reason: strin
   const user = await User.findByIdAndUpdate(
     userId,
     { $inc: { credits: amount } },
-    { new: true },
+    { returnDocument: 'after' },
   )
   if (!user) throw new Error('User not found')
   await CreditEvent.create({ userId, type: 'earned', amount, reason })
@@ -37,7 +41,7 @@ export async function spendCredits(userId: string, amount: number, reason: strin
   const updated = await User.findByIdAndUpdate(
     userId,
     { $inc: { credits: -amount } },
-    { new: true },
+    { returnDocument: 'after' },
   )
   await CreditEvent.create({ userId, type: 'spent', amount, reason })
   return updated!.credits

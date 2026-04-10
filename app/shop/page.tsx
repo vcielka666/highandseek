@@ -5,6 +5,7 @@ import type { ProductDTO } from '@/types/shop'
 import ProductCard from '@/components/shop/ProductCard'
 import Link from 'next/link'
 import CategorySwitcher from '@/components/shop/CategorySwitcher'
+import FlowerGate from '@/components/shop/FlowerGate'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -33,7 +34,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   const params = await searchParams
 
   const rawCategory = getString(params.category)
-  if (!rawCategory) redirect('/shop?category=flower')
+  if (!rawCategory) redirect('/shop?category=seed')
   const category = rawCategory
   const types      = getArray(params.type)
   const seedTypes  = getArray(params.seedType)
@@ -41,7 +42,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   const climates   = getArray(params.climate)
   const difficulties = getArray(params.difficulty)
   const yields     = getArray(params.yield)
-  const priceMax   = Number(getString(params.priceMax) ?? 100)
+  const priceMax   = Number(getString(params.priceMax) ?? 2500)
   const sort       = getString(params.sort) ?? 'price_asc'
   const q          = getString(params.q)
 
@@ -56,7 +57,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   if (climates.length)                 filter['strain.climate'] = { $in: climates }
   if (difficulties.length)             filter['strain.difficulty'] = { $in: difficulties }
   if (yields.length)                   filter['strain.yield'] = { $in: yields }
-  if (priceMax < 100)                  filter.price = { $lte: priceMax }
+  if (priceMax < 2500)                 filter.price = { $lte: priceMax }
   if (q)                               filter.name = { $regex: q, $options: 'i' }
 
   let sortObj: Record<string, 1 | -1> = { price: 1 }
@@ -64,12 +65,8 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
 
   const products = await Product.find(filter).sort(sortObj).lean<ProductDTO[]>()
 
-  // Serialize ObjectIds
-  const serialised: ProductDTO[] = products.map((p) => ({
-    ...p,
-    _id: p._id.toString(),
-    createdAt: p.createdAt ? new Date(p.createdAt as unknown as Date).toISOString() : '',
-  }))
+  // Deep-serialize: strips all Mongoose types (ObjectId, Buffer, etc.) at every level
+  const serialised: ProductDTO[] = JSON.parse(JSON.stringify(products))
 
   return (
     <div style={{ padding: '24px 24px 48px' }}>
@@ -127,7 +124,19 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
       </div>
 
       {/* Product grid */}
-      {serialised.length === 0 ? (
+      {category === 'flower' ? (
+        <FlowerGate>
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+            gap: '16px',
+          }}>
+            {serialised.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        </FlowerGate>
+      ) : serialised.length === 0 ? (
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -141,7 +150,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
             No strains match your filters
           </p>
           <Link
-            href="/shop"
+            href={`/shop?category=${category}`}
             style={{
               fontFamily: 'var(--font-dm-mono)',
               fontSize: '10px',

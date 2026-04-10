@@ -4,6 +4,12 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { type Locale, translations } from '@/lib/i18n/translations'
 
+function setLocaleCookie(locale: Locale) {
+  if (typeof document !== 'undefined') {
+    document.cookie = `hs-locale=${locale};path=/;max-age=31536000;SameSite=Lax`
+  }
+}
+
 interface LanguageStore {
   locale: Locale
   t: (typeof translations)[Locale]
@@ -17,7 +23,10 @@ const useLanguageStore = create<LanguageStore>()(
       locale: 'en',
       t: translations['en'],
       hydrated: false,
-      setLocale: (locale) => set({ locale, t: translations[locale] }),
+      setLocale: (locale) => {
+        setLocaleCookie(locale)
+        set({ locale, t: translations[locale] })
+      },
     }),
     {
       name: 'hs-language',
@@ -26,6 +35,7 @@ const useLanguageStore = create<LanguageStore>()(
         if (state) {
           state.t = translations[state.locale]
           state.hydrated = true
+          setLocaleCookie(state.locale) // sync cookie with existing localStorage value
         }
       },
     }

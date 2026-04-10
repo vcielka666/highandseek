@@ -22,6 +22,16 @@ const UserSchema = new mongoose.Schema({
   growsCompleted:  { type: Number, default: 0 },
   totalXpEarned:   { type: Number, default: 0 },
   showcaseBadges:  [{ type: String }],
+  academy: {
+    completedTopics: [{
+      topicSlug:   { type: String },
+      bestScore:   { type: Number, default: 0 },
+      bestXp:      { type: Number, default: 0 },
+      attempts:    { type: Number, default: 0 },
+      completedAt: { type: Date },
+    }],
+  },
+  walletAddress: { type: String, default: '' },
 }, { timestamps: true })
 
 export type IUser = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId }

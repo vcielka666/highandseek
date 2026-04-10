@@ -14,13 +14,19 @@ export interface ProductDTO {
     seedType: 'feminized' | 'autoflower' | 'regular' | null
     climate: 'indoor' | 'outdoor' | 'both' | null
     terpenes: string
+    thc: string
+    cbd: string
+    cbn: string
   }
   description: string
   shortDescription: string
+  descriptionCs: string
+  shortDescriptionCs: string
   price: number
   stock: number
   images: string[]
   tags: string[]
+  variants: { label: string; price: number }[]
   isAvailable: boolean
   isFeatured: boolean
   createdAt: string

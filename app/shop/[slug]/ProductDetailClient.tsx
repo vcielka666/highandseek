@@ -4,14 +4,13 @@ import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCart } from '@/stores/cartStore'
+import { useLanguage } from '@/stores/languageStore'
 import { toast } from 'sonner'
 import ProductCard from '@/components/shop/ProductCard'
 import type { ProductDTO } from '@/types/shop'
 
-const EUR_TO_CZK = 25
-const EUR_TO_USD = 1.08
-function czk(eur: number) { return `${Math.round(eur * EUR_TO_CZK).toLocaleString('cs-CZ')} Kč` }
-function usd(eur: number) { return `$${Math.round(eur * EUR_TO_USD)}` }
+function czk(price: number) { return `${price.toLocaleString('cs-CZ')} Kč` }
+function usd(price: number) { return `$${Math.round(price / 23)}` }
 
 const STAT_ICONS: Record<string, string> = {
   floweringTime: '⏱',
@@ -30,11 +29,17 @@ const CLIMATE_LABELS: Record<string, string> = {
   indoor: 'Indoor', outdoor: 'Outdoor', both: 'Indoor / Outdoor',
 }
 
-const FLOWER_WEIGHTS = [
-  { label: '5g',  price: 20  },
-  { label: '10g', price: 35 },
-  { label: '25g', price: 80 },
-]
+
+const BADGE_TAGS: Record<string, { bg: string; color: string; border: string; emoji: string; label: string }> = {
+  'bio organic':    { bg: 'rgba(0,180,80,0.1)',   color: '#00b450', border: 'rgba(0,180,80,0.25)',   emoji: '🌿', label: 'Bio Organic'   },
+  'high thc':       { bg: 'rgba(204,0,170,0.12)', color: '#cc00aa', border: 'rgba(204,0,170,0.3)',   emoji: '🔥', label: 'High THC'      },
+  'cbd rich':       { bg: 'rgba(0,212,200,0.12)', color: '#00d4c8', border: 'rgba(0,212,200,0.3)',   emoji: '💚', label: 'CBD Rich'      },
+  'lab tested':     { bg: 'rgba(136,68,204,0.12)',color: '#8844cc', border: 'rgba(136,68,204,0.3)', emoji: '🔬', label: 'Lab Tested'    },
+  'award winner':   { bg: 'rgba(240,168,48,0.12)',color: '#f0a830', border: 'rgba(240,168,48,0.3)', emoji: '🏆', label: 'Award Winner'  },
+  'indoor grown':   { bg: 'rgba(0,212,200,0.08)', color: '#007a74', border: 'rgba(0,212,200,0.2)',  emoji: '🏠', label: 'Indoor Grown'  },
+  'outdoor grown':  { bg: 'rgba(240,168,48,0.08)',color: '#8a5e1a', border: 'rgba(240,168,48,0.2)', emoji: '☀️', label: 'Outdoor Grown' },
+  'limited batch':  { bg: 'rgba(204,0,170,0.08)', color: '#cc00aa', border: 'rgba(204,0,170,0.2)',  emoji: '✨', label: 'Limited Batch'  },
+}
 
 const TERPENE_INFO: Record<string, { emoji: string; smell: string; effect: string; note: string }> = {
   myrcene:       { emoji: '🥭', smell: 'Earthy, musky, tropical mango',     effect: 'Sedating, relaxing',          note: 'Most abundant terpene in cannabis. Enhances THC absorption and promotes body relaxation — the "couch-lock" molecule.' },
@@ -50,6 +55,7 @@ function TerpeneTag({ name }: { name: string }) {
   const info = TERPENE_INFO[key]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
+  const [popupPos, setPopupPos] = useState({ left: '50%', transform: 'translateX(-50%)', arrowLeft: '50%' })
 
   useEffect(() => {
     if (!open) return
@@ -58,6 +64,26 @@ function TerpeneTag({ name }: { name: string }) {
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  // Recalculate popup position whenever it opens so it stays within viewport
+  useEffect(() => {
+    if (!open || !ref.current) return
+    const rect = ref.current.getBoundingClientRect()
+    const POPUP_W = 220
+    const MARGIN  = 8
+
+    // Where the popup would sit naturally (centered on the tag)
+    const naturalVpLeft  = rect.left + rect.width / 2 - POPUP_W / 2
+    // Clamp so it never bleeds past viewport edges
+    const clampedVpLeft  = Math.max(MARGIN, Math.min(naturalVpLeft, window.innerWidth - POPUP_W - MARGIN))
+    // Convert to position relative to the ref element's left edge
+    const relLeft        = clampedVpLeft - rect.left
+    // Keep arrow pointing at the tag's centre regardless of shift
+    const tagCentreInPopup = rect.left + rect.width / 2 - clampedVpLeft
+    const arrowPct       = Math.max(8, Math.min(92, (tagCentreInPopup / POPUP_W) * 100))
+
+    setPopupPos({ left: `${relLeft}px`, transform: 'none', arrowLeft: `${arrowPct}%` })
   }, [open])
 
   return (
@@ -91,8 +117,8 @@ function TerpeneTag({ name }: { name: string }) {
         <div style={{
           position: 'absolute',
           bottom: 'calc(100% + 8px)',
-          left: '50%',
-          transform: 'translateX(-50%)',
+          left: popupPos.left,
+          transform: popupPos.transform,
           width: '220px',
           background: '#0d1a10',
           border: '0.5px solid rgba(240,168,48,0.3)',
@@ -102,11 +128,11 @@ function TerpeneTag({ name }: { name: string }) {
           boxShadow: '0 8px 32px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(240,168,48,0.1)',
           pointerEvents: 'none',
         }}>
-          {/* Arrow */}
+          {/* Arrow — tracks tag centre even when popup is shifted */}
           <div style={{
             position: 'absolute',
             bottom: '-5px',
-            left: '50%',
+            left: popupPos.arrowLeft,
             transform: 'translateX(-50%) rotate(45deg)',
             width: '8px',
             height: '8px',
@@ -141,16 +167,34 @@ export default function ProductDetailClient({
   related: ProductDTO[]
 }) {
   const isFlower = product.category === 'flower'
+  const hasVariants = product.variants && product.variants.length > 0
+  const weightOptions = product.variants ?? []
   const [activeImage, setActiveImage] = useState(0)
+  const [hoveredImage, setHoveredImage] = useState<number | null>(null)
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const displayedImage = hoveredImage ?? activeImage
+
+  function handleThumbnailEnter(i: number) {
+    hoverTimer.current = setTimeout(() => setHoveredImage(i), 180)
+  }
+
+  function handleThumbnailLeave() {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current)
+    setHoveredImage(null)
+  }
   const [qty, setQty] = useState(1)
-  const [flowerWeight, setFlowerWeight] = useState(0)
+  const [selectedVariant, setSelectedVariant] = useState(0)
   const { addItem, openCart } = useCart()
+  const { locale } = useLanguage()
+  const isCs = locale === 'cs'
+  const desc = isCs && product.descriptionCs ? product.descriptionCs : product.description
+  const shortDesc = isCs && product.shortDescriptionCs ? product.shortDescriptionCs : product.shortDescription
 
   const images = product.images.length > 0 ? product.images : ['']
 
   function handleAddToCart() {
-    if (isFlower) {
-      const option = FLOWER_WEIGHTS[flowerWeight]
+    if (hasVariants) {
+      const option = weightOptions[selectedVariant]
       addItem({
         cartKey: `${product._id}-${option.label}`,
         productId: product._id,
@@ -182,6 +226,9 @@ export default function ProductDetailClient({
     : null
 
   const stats = [
+    product.strain.thc && { key: 'thc', label: 'THC', value: product.strain.thc },
+    product.strain.cbd && { key: 'cbd', label: 'CBD', value: product.strain.cbd },
+    product.strain.cbn && { key: 'cbn', label: 'CBN', value: product.strain.cbn },
     product.strain.floweringTime && { key: 'floweringTime', label: 'Flowering', value: `${product.strain.floweringTime} days` },
     !isFlower && product.strain.origin     && { key: 'origin',     label: 'Origin',     value: ORIGIN_LABELS[product.strain.origin] ?? product.strain.origin },
     !isFlower && product.strain.climate    && { key: 'climate',    label: 'Climate',    value: CLIMATE_LABELS[product.strain.climate] ?? product.strain.climate },
@@ -194,6 +241,25 @@ export default function ProductDetailClient({
     <div style={{ padding: '24px', maxWidth: '1100px' }}>
       {/* Breadcrumb */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '28px', flexWrap: 'wrap' }}>
+        {/* Back arrow — always first */}
+        <Link
+          href={`/shop?category=${product.category}`}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            width: '24px', height: '24px', borderRadius: '4px',
+            border: '0.5px solid rgba(0,212,200,0.15)',
+            background: 'rgba(0,212,200,0.05)',
+            color: '#4a6066', textDecoration: 'none', flexShrink: 0,
+            transition: 'all 0.15s', marginRight: '2px',
+          }}
+          className="hover:border-[rgba(0,212,200,0.4)] hover:text-[#00d4c8]"
+          aria-label="Back to shop"
+        >
+          <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+            <path d="M7.5 2.5L4.5 6L7.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </Link>
+
         {([
           { label: 'Shop', href: '/shop' },
           { label: categoryLabel, href: `/shop?category=${product.category}` },
@@ -208,7 +274,10 @@ export default function ProductDetailClient({
               </Link>
             ) : (
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#00d4c8' }}>
-                {crumb.label}
+                <span className="md:hidden">
+                  {crumb.label.length > 12 ? crumb.label.slice(0, 12).trimEnd() + '…' : crumb.label}
+                </span>
+                <span className="hidden md:inline">{crumb.label}</span>
               </span>
             )}
             {i < arr.length - 1 && (
@@ -216,32 +285,6 @@ export default function ProductDetailClient({
             )}
           </span>
         ))}
-
-        {/* Mobile back arrow — pushed to far right, hidden on desktop */}
-        <Link
-          href={`/shop?category=${product.category}`}
-          className="lg:hidden"
-          style={{
-            marginLeft: 'auto',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '28px',
-            height: '28px',
-            borderRadius: '4px',
-            border: '0.5px solid rgba(0,212,200,0.15)',
-            background: 'rgba(0,212,200,0.05)',
-            color: '#4a6066',
-            textDecoration: 'none',
-            flexShrink: 0,
-            transition: 'all 0.15s',
-          }}
-          aria-label="Back to shop"
-        >
-          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-            <path d="M7.5 2.5L4.5 6L7.5 9.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
-        </Link>
       </div>
 
       {/* Two-column layout */}
@@ -261,12 +304,12 @@ export default function ProductDetailClient({
             position: 'relative',
             marginBottom: '12px',
           }}>
-            {images[activeImage] ? (
+            {images[displayedImage] ? (
               <Image
-                src={images[activeImage]}
+                src={images[displayedImage]}
                 alt={product.name}
                 fill
-                style={{ objectFit: isFlower ? 'contain' : 'cover', padding: isFlower ? '20px' : '0' }}
+                style={{ objectFit: isFlower ? 'contain' : 'cover', padding: isFlower ? '20px' : '0', transition: 'opacity 0.2s ease' }}
                 priority
               />
             ) : (
@@ -282,11 +325,13 @@ export default function ProductDetailClient({
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
+                  onMouseEnter={() => handleThumbnailEnter(i)}
+                  onMouseLeave={handleThumbnailLeave}
                   style={{
                     width: '60px',
                     height: '60px',
                     borderRadius: '4px',
-                    border: `0.5px solid ${activeImage === i ? '#00d4c8' : 'rgba(0,212,200,0.15)'}`,
+                    border: `0.5px solid ${activeImage === i || hoveredImage === i ? '#00d4c8' : 'rgba(0,212,200,0.15)'}`,
                     background: 'rgba(0,212,200,0.03)',
                     cursor: 'pointer',
                     padding: 0,
@@ -327,53 +372,61 @@ export default function ProductDetailClient({
             </div>
           )}
 
-          {/* Flower-specific badges */}
-          {isFlower && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
-              {/* Strain type */}
-              {product.strain.type && (() => {
-                const typeColors: Record<string, { bg: string; color: string }> = {
-                  indica:  { bg: 'rgba(204,0,170,0.12)',  color: '#cc00aa' },
-                  sativa:  { bg: 'rgba(0,212,200,0.12)',  color: '#00d4c8' },
-                  hybrid:  { bg: 'rgba(136,68,204,0.12)', color: '#8844cc' },
-                }
-                const c = typeColors[product.strain.type] ?? { bg: 'rgba(255,255,255,0.06)', color: '#e8f0ef' }
-                return (
-                  <span style={{
+          {/* Badges — strain type + tag-driven badges */}
+          {(() => {
+            const badgeTagMatches = (product.tags ?? [])
+              .map((t) => ({ raw: t, badge: BADGE_TAGS[t.toLowerCase()] }))
+              .filter((x) => x.badge)
+
+            const typeColors: Record<string, { bg: string; color: string }> = {
+              indica:  { bg: 'rgba(204,0,170,0.12)',  color: '#cc00aa' },
+              sativa:  { bg: 'rgba(0,212,200,0.12)',  color: '#00d4c8' },
+              hybrid:  { bg: 'rgba(136,68,204,0.12)', color: '#8844cc' },
+            }
+
+            if (!product.strain.type && badgeTagMatches.length === 0) return null
+
+            return (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '20px' }}>
+                {product.strain.type && (() => {
+                  const c = typeColors[product.strain.type] ?? { bg: 'rgba(255,255,255,0.06)', color: '#e8f0ef' }
+                  return (
+                    <span style={{
+                      fontFamily: 'var(--font-dm-mono)',
+                      fontSize: '10px',
+                      letterSpacing: '1.5px',
+                      fontWeight: 700,
+                      padding: '5px 12px',
+                      borderRadius: '4px',
+                      background: c.bg,
+                      color: c.color,
+                      border: `0.5px solid ${c.color}33`,
+                      textTransform: 'uppercase',
+                    }}>
+                      {product.strain.type}
+                    </span>
+                  )
+                })()}
+
+                {badgeTagMatches.map(({ raw, badge }) => (
+                  <span key={raw} style={{
                     fontFamily: 'var(--font-dm-mono)',
                     fontSize: '10px',
                     letterSpacing: '1.5px',
                     fontWeight: 700,
                     padding: '5px 12px',
                     borderRadius: '4px',
-                    background: c.bg,
-                    color: c.color,
-                    border: `0.5px solid ${c.color}33`,
+                    background: badge!.bg,
+                    color: badge!.color,
+                    border: `0.5px solid ${badge!.border}`,
                     textTransform: 'uppercase',
                   }}>
-                    {product.strain.type}
+                    {badge!.emoji} {badge!.label}
                   </span>
-                )
-              })()}
-
-              {/* Bio Organic */}
-              <span style={{
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '10px',
-                letterSpacing: '1.5px',
-                fontWeight: 700,
-                padding: '5px 12px',
-                borderRadius: '4px',
-                background: 'rgba(0,180,80,0.1)',
-                color: '#00b450',
-                border: '0.5px solid rgba(0,180,80,0.25)',
-                textTransform: 'uppercase',
-              }}>
-                🌿 Bio Organic
-              </span>
-
-            </div>
-          )}
+                ))}
+              </div>
+            )
+          })()}
 
           {/* Terpene profile — separate labelled container */}
           {isFlower && product.strain.terpenes && (
@@ -409,7 +462,7 @@ export default function ProductDetailClient({
             lineHeight: 1.6,
             marginBottom: '20px',
           }}>
-            {product.shortDescription}
+            {shortDesc}
           </p>
 
           {/* Strain stats */}
@@ -437,17 +490,16 @@ export default function ProductDetailClient({
             </div>
           )}
 
-          {/* Price / Weight selector */}
-          {isFlower ? (
+          {/* Price / Variant selector */}
+          {hasVariants ? (
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                {FLOWER_WEIGHTS.map((opt, i) => {
-                  const active = flowerWeight === i
+                {weightOptions.map((opt, i) => {
+                  const active = selectedVariant === i
                   return (
-                    // Gradient border via background on wrapper + inset content
                     <div
                       key={opt.label}
-                      onClick={() => setFlowerWeight(i)}
+                      onClick={() => setSelectedVariant(i)}
                       style={{
                         flex: 1,
                         minWidth: '80px',
@@ -471,7 +523,7 @@ export default function ProductDetailClient({
                           {opt.label}
                         </div>
                         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px', color: active ? 'rgba(232,240,239,0.6)' : '#4a6066' }}>
-                          {opt.price.toLocaleString()} CZK
+                          {opt.price.toLocaleString()} Kč
                         </div>
                       </div>
                     </div>
@@ -497,23 +549,25 @@ export default function ProductDetailClient({
                 }}
                 className="hover:bg-[#00f5e8] hover:shadow-[0_0_20px_rgba(0,212,200,0.4)]"
               >
-                {product.stock === 0 ? 'Out of Stock' : `Add ${FLOWER_WEIGHTS[flowerWeight].label} — ${FLOWER_WEIGHTS[flowerWeight].price.toLocaleString()} CZK`}
+                {product.stock === 0 ? 'Out of Stock' : `Add ${weightOptions[selectedVariant].label} — ${weightOptions[selectedVariant].price.toLocaleString()} Kč`}
               </button>
             </div>
           ) : (
             <>
               {/* Price */}
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
-                <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '32px', fontWeight: 700, color: '#00d4c8' }}>
-                  {czk(product.price)}
-                </span>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#4a6066' }}>
-                  {usd(product.price)}
-                </span>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '0.5px', marginLeft: 'auto' }}>
-                  {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
-                </span>
-              </div>
+              {product.price > 0 && (
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
+                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '32px', fontWeight: 700, color: '#00d4c8' }}>
+                    {czk(product.price)}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#4a6066' }}>
+                    {usd(product.price)}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '0.5px', marginLeft: 'auto' }}>
+                    {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
+                  </span>
+                </div>
+              )}
               {/* Qty + Add to cart */}
               <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', alignItems: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '4px', overflow: 'hidden' }}>
@@ -576,17 +630,42 @@ export default function ProductDetailClient({
             >
               <span style={{ fontSize: '11px' }}>🌱</span>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', textTransform: 'uppercase' }}>
-                Grow it virtually →
+                Simulate a Grow →
               </span>
             </Link>
           )}
+
+          {/* Tags — only non-badge tags shown here */}
+          {(() => {
+            const plainTags = (product.tags ?? []).filter((t) => !BADGE_TAGS[t.toLowerCase()])
+            if (!plainTags.length) return null
+            return (
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '20px' }}>
+                {plainTags.map((tag) => (
+                  <span key={tag} style={{
+                    fontFamily: 'var(--font-dm-mono)',
+                    fontSize: '9px',
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    padding: '4px 10px',
+                    borderRadius: '4px',
+                    background: 'rgba(0,212,200,0.05)',
+                    color: '#4a6066',
+                    border: '0.5px solid rgba(0,212,200,0.12)',
+                  }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )
+          })()}
 
           {/* Separator */}
           <div style={{ height: '0.5px', background: 'rgba(0,212,200,0.1)', marginBottom: '24px' }} />
 
           {/* Full description */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {product.description.split('\n\n').map((para, i) => (
+            {desc.split('\n\n').map((para, i) => (
               <p key={i} style={{
                 fontFamily: 'var(--font-dm-sans)',
                 fontSize: '14px',
@@ -646,7 +725,6 @@ export default function ProductDetailClient({
               msOverflowStyle: 'none',
               scrollbarWidth: 'none',
             }}
-            // @ts-expect-error — vendor prefix
             className="[&::-webkit-scrollbar]:hidden"
             >
               {related.map((p) => (

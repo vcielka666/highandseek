@@ -1,9 +1,11 @@
 'use client'
 
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useCallback, useState } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+
+const FLOWER_KEY = 'hs-flower-access'
 
 interface FilterSidebarProps {
   isOpen: boolean
@@ -64,6 +66,13 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     type: false, seedType: false, origin: false, climate: false, difficulty: false, yield: false, cbdLevel: false, price: false,
   })
+  const [flowerUnlocked, setFlowerUnlocked] = useState<boolean | null>(null)
+  useEffect(() => {
+    setFlowerUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
+    const handler = () => setFlowerUnlocked(true)
+    window.addEventListener('flower-unlocked', handler)
+    return () => window.removeEventListener('flower-unlocked', handler)
+  }, [])
 
   const toggleSection = (key: string) =>
     setOpenSections((prev) => ({ ...prev, [key]: !prev[key] }))
@@ -76,7 +85,8 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
   const difficulties = searchParams.getAll('difficulty')
   const yields    = searchParams.getAll('yield')
   const cbdLevels = searchParams.getAll('cbdLevel')
-  const priceMax  = Number(searchParams.get('priceMax') ?? 100)
+  const priceMax  = Number(searchParams.get('priceMax') ?? 2500)
+  // prices are stored in CZK — filter compares directly
 
   const isFlower = category === 'flower'
   const isSeed   = category === 'seed'
@@ -108,7 +118,7 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
   const sidebarStyle: React.CSSProperties = {
     width: '280px',
     flexShrink: 0,
-    background: '#0a1a0d',
+    background: '#050508',
     borderRight: '0.5px solid rgba(0,212,200,0.12)',
     padding: '20px 0 0',
     flexDirection: 'column',
@@ -122,7 +132,7 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
     width: '300px',
     height: '100vh',
     zIndex: 200,
-    background: '#0a1a0d',
+    background: '#050508',
     borderRight: '0.5px solid rgba(0,212,200,0.2)',
     padding: '20px 0 0',
     transition: 'left 0.3s ease',
@@ -267,11 +277,13 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
       <div style={{ padding: '8px 12px 12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
         {options.map((opt) => {
           const active = value === opt.value
+          const isLocked = opt.value === 'flower' && flowerUnlocked === false
           return (
             <div
               key={opt.value}
               onClick={() => onChange(opt.value)}
               style={{
+                position: 'relative',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -282,22 +294,47 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
                 border: `0.5px solid ${active ? 'rgba(0,212,200,0.5)' : 'rgba(0,212,200,0.08)'}`,
                 background: active ? 'rgba(0,212,200,0.12)' : 'transparent',
                 transition: 'all 0.15s',
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '12px',
-                letterSpacing: '2.5px',
-                color: active ? '#00d4c8' : '#4a6066',
-                fontWeight: active ? 700 : 400,
+                overflow: 'hidden',
               }}
-              className={active ? '' : 'hover:bg-[rgba(0,212,200,0.05)] hover:text-[#c0e8e6]'}
+              className={active ? '' : 'hover:bg-[rgba(0,212,200,0.05)]'}
             >
-              <Image
-                src={opt.icon}
-                alt={opt.label}
-                width={opt.iconSize}
-                height={opt.iconSize}
-                style={{ opacity: active ? 1 : 0.4, transition: 'opacity 0.15s', flexShrink: 0 }}
-              />
-              {opt.label}
+              {/* Blurred actual content */}
+              <div style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                filter: isLocked ? 'blur(5px)' : 'none',
+                opacity: isLocked ? 0.25 : 1,
+                transition: 'all 0.15s',
+                fontFamily: 'var(--font-cacha)',
+                fontSize: '14px',
+                letterSpacing: '1.5px',
+                color: active ? '#00d4c8' : '#4a6066',
+                userSelect: isLocked ? 'none' : 'auto',
+              }}>
+                <Image
+                  src={opt.icon}
+                  alt={opt.label}
+                  width={opt.iconSize}
+                  height={opt.iconSize}
+                  style={{ opacity: active ? 1 : 0.4, transition: 'opacity 0.15s', flexShrink: 0 }}
+                />
+                {opt.label}
+              </div>
+              {/* Single question mark overlay when locked */}
+              {isLocked && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontFamily: 'var(--font-cacha)',
+                  fontSize: '20px',
+                  letterSpacing: '2px',
+                  color: 'rgba(232,240,239,0.35)',
+                }}>
+                  ?
+                </div>
+              )}
             </div>
           )
         })}
@@ -492,14 +529,14 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
           {openSections.price && (
             <div style={{ padding: '4px 20px 8px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>€0</span>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8' }}>€{priceMax}</span>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>0 Kč</span>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8' }}>{priceMax.toLocaleString('cs-CZ')} Kč</span>
               </div>
               <input
                 type="range"
                 min={0}
-                max={100}
-                step={5}
+                max={2500}
+                step={100}
                 value={priceMax}
                 onChange={(e) => update({ priceMax: e.target.value })}
                 style={{ width: '100%', accentColor: '#00d4c8', cursor: 'pointer' }}
@@ -511,7 +548,7 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
         {/* Reset */}
         <div style={{ padding: '16px 12px 20px' }}>
           <button
-            onClick={() => router.push('/shop?category=flower')}
+            onClick={() => router.push(`/shop?category=${category}`)}
             style={{
               width: '100%',
               padding: '8px',

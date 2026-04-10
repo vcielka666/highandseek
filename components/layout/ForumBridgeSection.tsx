@@ -8,16 +8,14 @@ export default function ForumBridgeSection() {
   const { t } = useLanguage()
 
   return (
-    <section id="forum" style={{ padding: '0 48px 80px' }}>
+    <section id="forum" className="px-6 pb-16 md:px-12 md:pb-20">
       <div
+        className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12"
         style={{
           border: '0.5px solid rgba(136,68,204,0.25)',
           borderRadius: '8px',
           background: 'linear-gradient(135deg, rgba(136,68,204,0.04) 0%, transparent 50%)',
-          padding: '36px 40px',
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '48px',
+          padding: '28px 24px',
           alignItems: 'center',
         }}
       >

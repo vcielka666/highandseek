@@ -4,13 +4,12 @@ import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useCart } from '@/stores/cartStore'
+import { useLanguage } from '@/stores/languageStore'
 import { toast } from 'sonner'
 import type { ProductDTO } from '@/types/shop'
 
-const EUR_TO_CZK = 25
-const EUR_TO_USD = 1.08
-function czk(eur: number) { return `${Math.round(eur * EUR_TO_CZK).toLocaleString('cs-CZ')} Kč` }
-function usd(eur: number) { return `$${Math.round(eur * EUR_TO_USD)}` }
+function czk(price: number) { return `${price.toLocaleString('cs-CZ')} Kč` }
+function usd(price: number) { return `$${Math.round(price / 23)}` }
 
 const BADGE_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   indica:    { bg: 'rgba(204,0,170,0.15)',  color: '#cc00aa', label: 'INDICA'   },
@@ -33,21 +32,27 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
   const [hovered, setHovered] = useState(false)
   const [qty, setQty] = useState(1)
   const { addItem, openCart } = useCart()
+  const { locale } = useLanguage()
+  const shortDesc = locale === 'cs' && product.shortDescriptionCs ? product.shortDescriptionCs : product.shortDescription
 
   const badge = getBadge(product)
   const cardBorderColor = product.category === 'merch'
     ? 'rgba(255,255,255,0.1)'
     : 'rgba(0,212,200,0.15)'
 
+  const hasVariants = product.variants && product.variants.length > 0
+  const outOfStock = !product.isAvailable || product.stock === 0
+
   function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
+    if (hasVariants) return  // variant products require detail page selection
     addItem({
       cartKey: product._id,
       productId: product._id,
       slug: product.slug,
       name: product.name,
-      price: Math.round(product.price * EUR_TO_CZK / 100), // EUR → test CZK price
+      price: product.price,
       image: product.images[0] ?? '',
     }, qty)
     toast.success(`${product.name} added to cart`)
@@ -63,7 +68,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
     >
       <div style={{
         background: '#0d0d10',
-        border: `0.5px solid ${hovered ? 'rgba(0,212,200,0.4)' : cardBorderColor}`,
+        border: `0.5px solid ${hovered && outOfStock ? 'rgba(204,0,170,0.3)' : hovered ? 'rgba(0,212,200,0.4)' : cardBorderColor}`,
         borderRadius: '8px',
         overflow: 'hidden',
         transition: 'all 0.25s',
@@ -141,8 +146,52 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
             </div>
           )}
 
+          {/* Out of stock overlay */}
+          {outOfStock && (
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'rgba(5,5,8,0.55)',
+              backdropFilter: 'blur(2px)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                background: 'rgba(5,5,8,0.85)',
+                border: '0.5px solid rgba(204,0,170,0.4)',
+                borderRadius: '4px',
+                padding: '6px 14px',
+                boxShadow: '0 0 20px rgba(204,0,170,0.15)',
+              }}>
+                <span style={{
+                  display: 'block',
+                  width: '5px',
+                  height: '5px',
+                  borderRadius: '50%',
+                  background: '#cc00aa',
+                  boxShadow: '0 0 6px #cc00aa',
+                  flexShrink: 0,
+                }} />
+                <span style={{
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: '9px',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: '#cc00aa',
+                  fontWeight: 700,
+                }}>
+                  Out of Stock
+                </span>
+              </div>
+            </div>
+          )}
+
           {/* Quick-add overlay on hover */}
-          {hovered && (
+          {hovered && !outOfStock && (
             <div
               style={{
                 position: 'absolute',
@@ -157,36 +206,44 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
               }}
               onClick={(e) => e.preventDefault()}
             >
-              <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQty(Math.max(1, qty - 1)) }}
-                style={{ width: '26px', height: '26px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.3)', background: 'rgba(0,212,200,0.1)', color: '#e8f0ef', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-              >−</button>
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#e8f0ef', minWidth: '20px', textAlign: 'center' }}>
-                {qty}
-              </span>
-              <button
-                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQty(qty + 1) }}
-                style={{ width: '26px', height: '26px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.3)', background: 'rgba(0,212,200,0.1)', color: '#e8f0ef', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
-              >+</button>
-              <button
-                onClick={handleAddToCart}
-                style={{
-                  flex: 1,
-                  height: '26px',
-                  background: '#00d4c8',
-                  color: '#050508',
-                  fontFamily: 'var(--font-cacha)',
-                  fontSize: '11px',
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  border: 'none',
-                  borderRadius: '3px',
-                  cursor: 'pointer',
-                  transition: 'background 0.15s',
-                }}
-              >
-                Add
-              </button>
+              {hasVariants ? (
+                <span style={{ flex: 1, textAlign: 'center', fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8' }}>
+                  View Options →
+                </span>
+              ) : (
+                <>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQty(Math.max(1, qty - 1)) }}
+                    style={{ width: '26px', height: '26px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.3)', background: 'rgba(0,212,200,0.1)', color: '#e8f0ef', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                  >−</button>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#e8f0ef', minWidth: '20px', textAlign: 'center' }}>
+                    {qty}
+                  </span>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setQty(qty + 1) }}
+                    style={{ width: '26px', height: '26px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.3)', background: 'rgba(0,212,200,0.1)', color: '#e8f0ef', cursor: 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
+                  >+</button>
+                  <button
+                    onClick={handleAddToCart}
+                    style={{
+                      flex: 1,
+                      height: '26px',
+                      background: '#00d4c8',
+                      color: '#050508',
+                      fontFamily: 'var(--font-cacha)',
+                      fontSize: '11px',
+                      letterSpacing: '1px',
+                      textTransform: 'uppercase',
+                      border: 'none',
+                      borderRadius: '3px',
+                      cursor: 'pointer',
+                      transition: 'background 0.15s',
+                    }}
+                  >
+                    Add
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -228,19 +285,30 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
                 fontSize: '10px',
                 color: '#4a6066',
               }}>
-                {product.shortDescription}
+                {shortDesc}
               </span>
             </div>
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div>
-              <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
-                {czk(product.price)}
-              </span>
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '6px' }}>
-                {usd(product.price)}
-              </span>
+              {product.price > 0 && hasVariants ? (
+                <>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginRight: '4px' }}>od</span>
+                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
+                    {Math.min(...product.variants.map((v) => v.price)).toLocaleString('cs-CZ')} Kč
+                  </span>
+                </>
+              ) : product.price > 0 ? (
+                <>
+                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
+                    {czk(product.price)}
+                  </span>
+                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '6px' }}>
+                    {usd(product.price)}
+                  </span>
+                </>
+              ) : null}
             </div>
             {product.strain.floweringTime && (
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>

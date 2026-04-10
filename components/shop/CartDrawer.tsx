@@ -65,16 +65,14 @@ export default function CartDrawer() {
                 </span>
               )}
             </div>
-            {session && (
-              <Link
-                href="/shop/orders"
-                onClick={closeCart}
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066', textDecoration: 'none', transition: 'color 0.15s' }}
-                className="hover:text-[#00d4c8]"
-              >
-                View order history →
-              </Link>
-            )}
+            <Link
+              href="/shop/orders"
+              onClick={closeCart}
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066', textDecoration: 'none', transition: 'color 0.15s' }}
+              className="hover:text-[#00d4c8]"
+            >
+              Order history →
+            </Link>
           </div>
           <button
             onClick={closeCart}

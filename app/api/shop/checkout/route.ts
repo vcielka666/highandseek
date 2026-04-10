@@ -17,6 +17,7 @@ const schema = z.object({
   items: z.array(itemSchema).min(1),
   customerEmail: z.string().email(),
   userId: z.string().optional(),
+  telegramContact: z.string().max(50).optional(),
   shippingAddress: z.object({
     name:       z.string().optional().default(''),
     address:    z.string().optional().default(''),
@@ -24,6 +25,11 @@ const schema = z.object({
     postalCode: z.string().optional().default(''),
     country:    z.string().optional().default('CZ'),
   }).optional(),
+})
+
+const patchSchema = z.object({
+  paymentIntentId:  z.string().startsWith('pi_'),
+  telegramContact:  z.string().max(50),
 })
 
 export async function POST(req: NextRequest) {
@@ -34,7 +40,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
     }
 
-    const { items, customerEmail, userId } = parsed.data
+    const { items, customerEmail, userId, telegramContact } = parsed.data
     const totalAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
     // CZK smallest unit is haléř (×100)
     const amountHalers = Math.round(totalAmount * 100)
@@ -49,6 +55,7 @@ export async function POST(req: NextRequest) {
       }))).slice(0, 490),
     }
     if (userId) metadata.userId = userId
+    if (telegramContact) metadata.telegramContact = telegramContact
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountHalers,
@@ -61,5 +68,24 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error('[POST /api/shop/checkout]', err)
     return NextResponse.json({ error: 'Failed to create payment intent' }, { status: 500 })
+  }
+}
+
+/** PATCH: attach telegramContact to an existing PaymentIntent's metadata */
+export async function PATCH(req: NextRequest) {
+  try {
+    const body   = await req.json()
+    const parsed = patchSchema.safeParse(body)
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
+    }
+    const { paymentIntentId, telegramContact } = parsed.data
+    await stripe.paymentIntents.update(paymentIntentId, {
+      metadata: { telegramContact },
+    })
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('[PATCH /api/shop/checkout]', err)
+    return NextResponse.json({ error: 'Failed to update payment intent' }, { status: 500 })
   }
 }

@@ -46,6 +46,8 @@
 MONGODB_URL=mongodb+srv://...@cluster0.zxa57.mongodb.net/highandseeek_db?...
 NEXTAUTH_SECRET=<32-byte base64 string>
 AUTH_SECRET=<same or separate value>
+TELEGRAM_BOT_TOKEN=   # from @BotFather — create bot, then /token
+TELEGRAM_CHAT_ID=     # your personal chat ID — message @userinfobot to get it
 ```
 
 **Important:**
@@ -216,7 +218,7 @@ const tips = [
 
 ## Planned Features (Not Yet Built)
 
-### Virtual Grow
+### Grow Simulator
 A gamified grow simulation within the Hub. Users grow virtual cannabis plants, earn XP for care actions (watering, lighting, nutrients), progress through stages (seed → seedling → veg → flower → harvest). Tied to the XP/level system already in the User model. Will use AI (Anthropic SDK, already installed) for strain personality and grow advice.
 
 ### AI Strain Avatars
@@ -246,7 +248,7 @@ Transactional emails via Resend (already installed) — registration confirmatio
 
 ---
 
-## Virtual Grow — Detailed Spec
+## Grow Simulator — Detailed Spec
 
 ### Concept
 Gamified cannabis grow simulation inside the Hub. User builds a virtual 
@@ -356,7 +358,7 @@ Positive bonuses (exceptional terps, perfect stretch)
 
 ### Build Priority
 After: auth ✓ → landing ✓ → shop basics → strain AI chat
-Virtual Grow is the flagship Hub feature — build as Hub MVP after 
+Grow Simulator is the flagship Hub feature — build as Hub MVP after
 strain profiles exist (strain data needed for flowering times)
 ```
 
@@ -372,7 +374,107 @@ strain profiles exist (strain data needed for flowering times)
 8. **`HeroGrid.tsx` is a server component** — pure SVG, no client state needed
 9. **Fonts via CSS variables** — always reference as `fontFamily: 'var(--font-cacha)'` etc, never hardcode font names in component styles
 10. **`useSearchParams` requires Suspense** — pattern: inner component reads params, outer default export wraps in `<Suspense>`
+11. **shadcn/ui is installed** — components in `components/ui/`. Uses Tailwind v4 CSS variable bridge via `@import "shadcn/tailwind.css"` in globals.css. Override shadcn colors by setting inline `style` props, not Tailwind classes (shadcn's oklch tokens conflict with HS design tokens).
+12. **Admin accent = amber** — `/admin/*` uses `#f0a830` as primary color. Never use teal or magenta as primary in admin.
 
+---
+
+## Admin Panel
+
+### Access
+- Route: `/admin/*`
+- Role: `admin` only — checked server-side in `proxy.ts` AND in `app/admin/layout.tsx`
+- Redirect non-admin users to `/hub`
+- Redirect unauthenticated users to `/auth/login?callbackUrl=/admin`
+
+### Make Admin Script
+```bash
+pnpm tsx scripts/make-admin.ts user@example.com
+```
+File: `scripts/make-admin.ts` — sets `role: 'admin'` for the given email using direct MongoDB update.
+
+### Admin Routes
+
+| Page       | Path                     | Data Source |
+|------------|--------------------------|-------------|
+| Overview   | `/admin`                 | Server component — direct DB queries |
+| Orders     | `/admin/orders`          | Client — `/api/admin/orders` |
+| Order Edit | `/admin/orders` (Sheet)  | Client — `/api/admin/orders/[id]` |
+| Products   | `/admin/products`        | Client — `/api/admin/products` |
+| New Product| `/admin/products/new`    | Client form |
+| Edit Product| `/admin/products/[slug]`| Server + client |
+| Users      | `/admin/users`           | Client — `/api/admin/users` |
+| User Detail| `/admin/users/[id]`     | Server component — direct DB queries |
+| Hub Stats  | `/admin/hub`             | Client — `/api/admin/hub` |
+| Analytics  | `/admin/analytics`       | Client — `/api/admin/analytics` |
+| System     | `/admin/system`          | Client — `/api/admin/system` |
+
+### API Routes (all require admin role)
+
+```
+GET  /api/admin/orders               paginated, filterable
+PATCH /api/admin/orders/[id]         { status }
+GET  /api/admin/orders/export        CSV download
+GET  /api/admin/products             list, filterable
+POST /api/admin/products             create
+GET  /api/admin/products/[slug]      single
+PATCH /api/admin/products/[slug]     update
+DELETE /api/admin/products/[slug]    delete
+GET  /api/admin/users                paginated, filterable
+GET  /api/admin/users/[id]           with orders/xp/credits
+PATCH /api/admin/users/[id]          { role }
+POST /api/admin/users/[id]/award-xp        { amount, reason }
+POST /api/admin/users/[id]/award-credits   { amount, reason }
+POST /api/admin/users/[id]/suspend         { suspended: bool }
+POST /api/admin/users/[id]/reset-password  sends Resend email
+GET  /api/admin/overview             dashboard metrics
+GET  /api/admin/analytics            revenue/reg/orders charts
+GET  /api/admin/hub                  XP/forum stats
+GET  /api/admin/system               DB counts, error log
+POST /api/admin/system/clear-errors  deletes errors >30 days
+```
+
+### ErrorLog Model
+File: `lib/db/models/ErrorLog.ts`
+Fields: `message`, `stack`, `route`, `userId`, `severity` (low/medium/high), `action` (audit string), `createdAt`
+Usage: log all destructive admin actions (status changes, suspensions, password resets, XP/credit awards).
+
+### Admin UI Architecture
+- Sidebar: `app/admin/AdminSidebar.tsx` — client component, 240px desktop / 48px mobile icon-only
+- Shared components in `components/admin/`: `MetricCard`, `StatusBadge`, `AdminPageHeader`
+- Charts: Recharts — dark themed, transparent background, amber/teal/magenta lines
+- All admin pages use inline `style` props for H&S design tokens (not Tailwind classes) to avoid shadcn token conflicts
+
+### Dependencies Added
+- `recharts` — all charts
+- `react-hook-form` + `@hookform/resolvers` — product form
+- `date-fns` — relative time formatting
+- `lucide-react` — icons
+- `shadcn/ui` components: card, badge, input, textarea, select, tabs, progress, skeleton, dialog, sheet, table, separator, scroll-area, button, label, switch, form, dropdown-menu, avatar, tooltip, checkbox
+
+
+## Telegram Notification System
+
+File: `lib/notifications/telegram.ts`
+
+**Functions:**
+- `sendTelegramMessage(text)` — sends HTML-formatted message to the owner's Telegram. Always wrapped in try/catch, never throws, logs failures to ErrorLog
+- `formatOrderInquiry({ telegramContact, items, subtotal })` — formats a "want to consult before buying" inquiry in Slovak
+- `formatOrderConfirmation(order)` — formats a confirmed paid order notification in Slovak
+
+**Triggers:**
+1. `POST /api/shop/cart/inquiry` — customer sends pre-purchase inquiry from checkout sidebar. Rate-limited to 3/IP/hour. Logged to ErrorLog severity='low'. No auth required
+2. Stripe webhook `payment_intent.succeeded` — auto-fires `formatOrderConfirmation` after order is saved to MongoDB
+
+**Telegram contact flow:**
+- Checkout form has optional "Telegram kontakt" field (amber-styled, under Contact section)
+- On "Place Order": `PATCH /api/shop/checkout` updates the Stripe PaymentIntent metadata with `telegramContact`
+- Webhook reads `metadata.telegramContact` → saves to `Order.telegramContact`
+- Quick Contact section in order summary sidebar lets users send an inquiry WITHOUT paying first (separate `/api/shop/cart/inquiry` endpoint)
+
+**Key rule:** Telegram failure must NEVER fail the webhook or block any user-facing flow.
+
+---
 
 ## Seekers Integration — Planned, Not Yet Built
 
@@ -391,3 +493,42 @@ When integration happens:
 
 For now: H&S is fully standalone.
 Current Seekers DB: seekers_db (do not touch)
+
+---
+
+## Marketplace
+
+Route: `/hub/marketplace`
+Model: `lib/db/models/Listing.ts`
+
+### Listing model fields
+- `userId` — ObjectId ref User
+- `title` — string, max 80
+- `description` — string, max 500
+- `category` — 'equipment' | 'clones' | 'seeds' | 'nutrients' | 'other'
+- `price` — number EUR (0 = free/trade)
+- `location` — string optional
+- `contact` — `{ telegram?, signal?, threema? }` (at least 1 required)
+- `images` — string[] Cloudinary URLs, max 3
+- `status` — 'active' | 'sold' | 'removed' | 'expired'
+- `creditsCost` — number (saved at post time)
+- `expiresAt` — Date (30 days from creation)
+
+### Credit costs
+- `MARKETPLACE_POST: 15` — post a new listing
+- `MARKETPLACE_EXTEND: 10` — extend expiry by 30 days
+
+### API routes
+```
+GET    /api/hub/marketplace          public browse, ?category, ?page (20/page)
+POST   /api/hub/marketplace          auth, deduct 15 credits, create listing
+PATCH  /api/hub/marketplace/[id]     auth + owner, { action: 'mark_sold' | 'mark_active' | 'extend' }
+DELETE /api/hub/marketplace/[id]     auth + owner, sets status='removed' (no refund)
+```
+
+### UI
+- Browse page: `/hub/marketplace` — server component, category filter via URL params
+- New listing: `/hub/marketplace/new` — server wrapper + `NewListingForm` client component
+- My listings: profile page "Listings" tab — `MyListingActions` client component
+- Contact info always visible (hub requires auth)
+- Auto-expire: on each browse page load, bulk-updates status='expired' where expiresAt < now

@@ -3,7 +3,9 @@ import { redirect } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
+import { getServerT } from '@/lib/i18n/server'
 import Link from 'next/link'
+import Breadcrumb from '@/components/ui/Breadcrumb'
 
 async function getWeeklyXP(): Promise<Record<string, number>> {
   const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
@@ -34,6 +36,9 @@ export default async function LeaderboardPage(props: {
   const { tab: rawTab } = await props.searchParams
   const tab: TabType = (rawTab === 'month' || rawTab === 'all') ? rawTab : 'week'
 
+  const { t } = await getServerT()
+  const lb = t.leaderboard
+
   await connectDB()
 
   const allUsers = await User.find({})
@@ -60,18 +65,16 @@ export default async function LeaderboardPage(props: {
 
   const RANK_COLORS = ['#f0a830', '#c0c0c0', '#cd7f32']
   const TABS: { value: TabType; label: string }[] = [
-    { value: 'week',  label: 'This Week' },
-    { value: 'month', label: 'This Month' },
-    { value: 'all',   label: 'All Time' },
+    { value: 'week',  label: lb.thisWeek },
+    { value: 'month', label: lb.thisMonth },
+    { value: 'all',   label: lb.allTime },
   ]
 
   return (
-    <div style={{ padding: '28px 24px 40px', maxWidth: '700px' }}>
-      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '6px' }}>
-        Hub · Leaderboard
-      </div>
+    <div style={{ maxWidth: '700px' }} className="px-4 pt-4 pb-10 md:px-6 md:pt-7">
+      <Breadcrumb items={[{ label: 'Hub', href: '/hub' }, { label: 'Leaderboard' }]} color="#cc00aa" />
       <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', letterSpacing: '1px', color: '#e8f0ef', marginBottom: '24px' }}>
-        🏆 Leaderboard
+        {lb.title}
       </h1>
 
       {/* Tabs */}
@@ -130,7 +133,7 @@ export default async function LeaderboardPage(props: {
                   </span>
                 </Link>
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '8px' }}>
-                  Lv.{u.level} · {u.growsCompleted} grows
+                  Lv.{u.level} · {u.growsCompleted} {lb.grows}
                 </span>
               </div>
 
@@ -150,7 +153,7 @@ export default async function LeaderboardPage(props: {
       {!meInTop20 && me && (
         <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '6px', background: 'rgba(204,0,170,0.08)', border: '0.5px solid rgba(204,0,170,0.25)' }}>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#cc00aa' }}>
-            Your rank: #{myRank} · {me.score.toLocaleString()} XP {tab !== 'all' ? 'this ' + tab : ''}
+            {lb.yourRank} #{myRank} · {me.score.toLocaleString()} XP
           </span>
         </div>
       )}

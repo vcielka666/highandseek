@@ -4,6 +4,8 @@ import Product from '@/lib/db/models/Product'
 import type { ProductDTO } from '@/types/shop'
 import ProductDetailClient from './ProductDetailClient'
 
+export const dynamic = 'force-dynamic'
+
 type Params = Promise<{ slug: string }>
 
 export default async function ProductPage({ params }: { params: Params }) {
@@ -11,27 +13,18 @@ export default async function ProductPage({ params }: { params: Params }) {
 
   await connectDB()
 
-  const raw = await Product.findOne({ slug, isAvailable: true }).lean<ProductDTO>()
+  const raw = await Product.findOne({ slug, isAvailable: true }).lean()
   if (!raw) notFound()
 
   const relatedRaw = await Product.find({
     slug: { $ne: slug },
     isAvailable: true,
-    category: raw.category,
-  }).limit(3).lean<ProductDTO[]>()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    category: (raw as any).category,
+  }).limit(3).lean()
 
-  // Serialize
-  const product: ProductDTO = {
-    ...raw,
-    _id: raw._id.toString(),
-    createdAt: raw.createdAt ? new Date(raw.createdAt as unknown as Date).toISOString() : '',
-  }
-
-  const related: ProductDTO[] = relatedRaw.map((p) => ({
-    ...p,
-    _id: p._id.toString(),
-    createdAt: p.createdAt ? new Date(p.createdAt as unknown as Date).toISOString() : '',
-  }))
+  const product = JSON.parse(JSON.stringify(raw)) as ProductDTO
+  const related = JSON.parse(JSON.stringify(relatedRaw)) as ProductDTO[]
 
   return <ProductDetailClient product={product} related={related} />
 }
