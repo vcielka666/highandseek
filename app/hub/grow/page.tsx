@@ -1,6 +1,10 @@
 import { auth } from '@/lib/auth/config'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
+import { connectDB } from '@/lib/db/connect'
+import VirtualGrow from '@/lib/db/models/VirtualGrow'
+import User from '@/lib/db/models/User'
+import Strain from '@/lib/db/models/Strain'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { getServerT } from '@/lib/i18n/server'
 
@@ -11,72 +15,54 @@ export default async function GrowPage() {
   const { t } = await getServerT()
   const g = t.grow
 
+  await connectDB()
+
+  const [activeGrow, user, strains] = await Promise.all([
+    VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
+      .select('_id strainName strainType stage currentDay health yieldProjection setup')
+      .lean<{
+        _id: { toString(): string }
+        strainName: string; strainType: string; stage: string
+        currentDay: number; health: number; yieldProjection: number
+        setup: { tentSize: string; lightType: string; lightWatts: number; medium: string }
+      }>(),
+    User.findById(session.user.id).select('growsCompleted xp credits').lean<{
+      growsCompleted: number; xp: number; credits: number
+    }>(),
+    Strain.find({ isActive: true, isComingSoon: false })
+      .select('slug name type floweringTime difficulty')
+      .limit(12)
+      .lean<Array<{ slug: string; name: string; type: string; floweringTime: number; difficulty: string }>>(),
+  ])
+
+  const growsCompleted = user?.growsCompleted ?? 0
+
   return (
-    <div style={{ maxWidth: '860px' }} className="px-4 pt-4 pb-16 md:px-7 md:pt-7">
+    <div style={{ maxWidth: '900px' }} className="px-4 pt-4 pb-16 md:px-7 md:pt-7">
 
       {/* Header */}
-      <div style={{ marginBottom: '36px' }}>
+      <div style={{ marginBottom: '32px' }}>
         <Breadcrumb items={[{ label: 'Hub', href: '/hub' }, { label: g.title }]} color="#cc00aa" />
-        <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(28px, 5vw, 44px)', color: '#e8f0ef', letterSpacing: '2px', margin: 0, lineHeight: 1 }}>
+        <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(26px, 5vw, 42px)', color: '#e8f0ef', letterSpacing: '2px', margin: 0, lineHeight: 1 }}>
           {g.title}
         </h1>
       </div>
 
-      {/* Story card */}
-      <div style={{
-        background: 'rgba(13,0,20,0.6)',
-        border: '0.5px solid rgba(204,0,170,0.15)',
-        borderRadius: '8px',
-        padding: '28px 32px',
-        marginBottom: '32px',
-        position: 'relative',
-        overflow: 'hidden',
-      }}>
-        <div style={{
-          position: 'absolute', top: '16px', right: '20px',
-          fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
-          color: 'rgba(204,0,170,0.1)', lineHeight: 1.4, userSelect: 'none',
-        }}>
-          {'┌──────────┐\n│  🌱      │\n└──────────┘'}
-        </div>
-
-        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.4)', marginBottom: '20px' }}>
-          {g.originLabel}
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {[g.story1, g.story2, g.story3].map((para, i) => (
-            <p key={i} style={{
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '14px',
-              lineHeight: 1.85,
-              color: i === 0 ? 'rgba(232,240,239,0.85)' : 'rgba(232,240,239,0.6)',
-              margin: 0,
-            }}>
-              {para}
-            </p>
-          ))}
-        </div>
-
-      </div>
-
-      {/* Farm stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '32px' }}
+      {/* Stats row */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}
         className="max-sm:grid-cols-1">
         {[
-          { label: g.growsCompleted, value: '0', unit: '' },
-          { label: g.xpFromGrows,   value: '0', unit: 'xp' },
-          { label: g.creditsEarned, value: '0', unit: '💎' },
-        ].map(({ label, value, unit }) => (
+          { label: g.growsCompleted, value: String(growsCompleted) },
+          { label: g.xpFromGrows,   value: String(user?.xp ?? 0) + ' xp' },
+          { label: g.creditsEarned, value: String(user?.credits ?? 0) + ' 💎' },
+        ].map(({ label, value }) => (
           <div key={label} style={{
             background: 'rgba(204,0,170,0.05)',
             border: '0.5px solid rgba(204,0,170,0.12)',
-            borderRadius: '6px',
-            padding: '16px',
-            textAlign: 'center',
+            borderRadius: '6px', padding: '14px', textAlign: 'center',
           }}>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '22px', fontWeight: 700, color: '#cc00aa', marginBottom: '4px' }}>
-              {value}<span style={{ fontSize: '12px', marginLeft: '3px', opacity: 0.6 }}>{unit}</span>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#cc00aa', marginBottom: '3px' }}>
+              {value}
             </div>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>
               {label}
@@ -85,40 +71,139 @@ export default async function GrowPage() {
         ))}
       </div>
 
-      {/* Start grow CTA */}
-      <div style={{
-        background: 'rgba(13,0,20,0.6)',
-        border: '0.5px solid rgba(204,0,170,0.2)',
-        borderRadius: '8px',
-        padding: '32px',
-        textAlign: 'center',
-      }}>
+      {/* ── Active grow card ── */}
+      {activeGrow ? (
         <div style={{
-          fontFamily: 'var(--font-dm-mono)', fontSize: '13px',
-          color: 'rgba(0,212,200,0.2)', lineHeight: 1.6, marginBottom: '24px', letterSpacing: '-1px',
+          background: 'rgba(0,212,200,0.05)',
+          border: '0.5px solid rgba(0,212,200,0.25)',
+          borderRadius: '8px', padding: '24px', marginBottom: '28px',
         }}>
-          {'     |\n    /|\\\n   / | \\\n  /  |  \\\n ────────\n    |||'}
-        </div>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.5)', marginBottom: '14px' }}>
+            {g.activeGrowLabel}
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px', marginBottom: '20px' }}>
+            <div>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', color: '#e8f0ef', marginBottom: '4px' }}>
+                {activeGrow.strainName}
+              </div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
+                {g.activeGrowInfo(activeGrow.currentDay, activeGrow.stage, activeGrow.setup.tentSize, activeGrow.setup.lightWatts, activeGrow.setup.lightType)}
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginBottom: '4px' }}>{g.healthLabel}</div>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '22px', color: activeGrow.health > 60 ? '#00d4c8' : activeGrow.health > 30 ? '#f0a830' : '#cc00aa' }}>
+                {activeGrow.health}%
+              </div>
+            </div>
+          </div>
 
-        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', fontWeight: 700, color: '#e8f0ef', marginBottom: '8px' }}>
-          {g.noActiveGrow}
+          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+            <Link href={`/hub/grow/${activeGrow._id.toString()}`} style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase',
+              color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '9px 20px',
+              textDecoration: 'none',
+            }}>
+              {g.viewGrow}
+            </Link>
+            <Link href={`/hub/grow/${activeGrow._id.toString()}/journal/new`} style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase',
+              color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.4)',
+              borderRadius: '4px', padding: '9px 20px', textDecoration: 'none',
+            }}>
+              {g.addJournal}
+            </Link>
+          </div>
         </div>
-        <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#4a6066', marginBottom: '24px', maxWidth: '340px', margin: '0 auto 24px' }}>
-          {g.noActiveGrowDesc}
-        </div>
+      ) : (
+        /* ── No active grow — start new ── */
+        <div style={{ marginBottom: '28px' }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '16px' }}>
+            {g.startNewGrow}
+          </div>
 
-        <Link
-          href="/shop?category=seed"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: '8px',
-            fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase',
-            color: '#050508', background: '#cc00aa', border: 'none', borderRadius: '4px',
-            padding: '10px 24px', textDecoration: 'none', transition: 'all 0.2s',
-          }}
-          className="hover:bg-[#e000bb] hover:shadow-[0_0_20px_rgba(204,0,170,0.4)]"
-        >
-          {g.chooseStrain}
-        </Link>
+          <div style={{
+            background: 'rgba(0,212,200,0.05)',
+            border: '0.5px solid rgba(0,212,200,0.2)',
+            borderRadius: '8px', padding: '20px', marginBottom: '24px',
+          }}>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', marginBottom: '6px' }}>
+              {g.realtimeTitle}
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6, marginBottom: '10px' }}>
+              {g.realtimeDesc}
+            </div>
+            {growsCompleted === 0 && (
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8', marginBottom: '12px' }}>
+                {g.realtimeFree}
+              </div>
+            )}
+            {growsCompleted > 0 && (
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginBottom: '12px' }}>
+                {g.realtimeCost}
+              </div>
+            )}
+            <Link href="/hub/grow/setup" style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
+              color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '8px 16px',
+              textDecoration: 'none', display: 'inline-block',
+            }}>
+              {g.startSetup}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* ── Strain picker ── */}
+      {!activeGrow && strains.length > 0 && (
+        <div>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '14px' }}>
+            {g.availableStrains}
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+            {strains.map(s => (
+              <Link
+                key={s.slug}
+                href={`/hub/grow/setup?strain=${s.slug}`}
+                style={{
+                  background: 'rgba(13,0,20,0.6)',
+                  border: '0.5px solid rgba(204,0,170,0.12)',
+                  borderRadius: '6px', padding: '14px',
+                  textDecoration: 'none',
+                  transition: 'border-color 0.15s',
+                }}
+                className="hover:border-[rgba(204,0,170,0.4)]"
+              >
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef', marginBottom: '4px' }}>
+                  {s.name}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+                  {(g.strainTypes as Record<string, string>)[s.type] ?? s.type} · {s.floweringTime}d · {(g.strainDifficulty as Record<string, string>)[s.difficulty] ?? s.difficulty}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Story card */}
+      <div style={{
+        background: 'rgba(13,0,20,0.5)',
+        border: '0.5px solid rgba(204,0,170,0.1)',
+        borderRadius: '8px', padding: '24px 28px', marginTop: '32px',
+      }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.3)', marginBottom: '16px' }}>
+          {g.originLabel}
+        </div>
+        {[g.story1, g.story2, g.story3].map((para, i) => (
+          <p key={i} style={{
+            fontFamily: 'var(--font-dm-sans)', fontSize: '13px', lineHeight: 1.8,
+            color: i === 0 ? 'rgba(232,240,239,0.75)' : 'rgba(232,240,239,0.45)',
+            margin: i === 0 ? '0 0 12px' : '0',
+          }}>
+            {para}
+          </p>
+        ))}
       </div>
     </div>
   )

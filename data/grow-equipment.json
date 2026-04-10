@@ -1,0 +1,3222 @@
+{
+  "scrapedAt": "2026-04-01T08:37:26.435Z",
+  "totalProducts": 114,
+  "failedUrls": [
+    "https://www.spider-farmer.com/collections/led-grow-lights (404)",
+    "https://www.gavita.com/en/products (empty response)",
+    "https://www.lumatek-lighting.com/products (403 Forbidden)",
+    "https://www.sunmaster.com/products (empty response)",
+    "https://www.hydroponics.net/grow-lights/cfl-grow-lights (empty response)",
+    "https://www.htgsupply.com/category/t5-grow-lights (empty response)",
+    "https://www.rhino-filters.co.uk/products (empty response)",
+    "https://www.systemair.com/en/products (empty response)",
+    "https://www.blumat.com/products (timeout)",
+    "https://www.autowatershop.com (timeout)",
+    "https://www.autopot.co.uk/products (empty response)",
+    "https://www.biotabs.nl/products (404)",
+    "https://www.advanced-nutrients.com/products (empty response)",
+    "https://www.plagron.com/en/organic-line (empty response)",
+    "https://www.hanna-instruments.com/products (empty response)",
+    "https://www.inkbird.com/products (empty response)",
+    "https://www.growshop.cz/en/ (404)",
+    "https://www.growland.eu (timeout)"
+  ],
+  "products": [
+    {
+      "name": "Mars Hydro TS 600",
+      "brand": "Mars Hydro",
+      "description": "The TS 600 is a compact, energy-efficient LED grow light ideal for small indoor gardens and propagation spaces. It delivers a full-spectrum output that supports all growth stages from seedling through harvest. With a passive cooling design and no fan noise, it is well-suited for quiet, stealth grows.",
+      "specs": {
+        "watts": 100,
+        "coverageArea": "2×2 ft (60×60 cm)",
+        "spectrum": "Full Spectrum 3000K+5000K+660nm+IR",
+        "ppfd": "250 µmol/m²/s at 18\"",
+        "voltage": "100–277V",
+        "dimensions": "30.7×12.6×2.4 cm",
+        "weight": "0.9 kg"
+      },
+      "imageUrl": "https://www.mars-hydro.com/media/wysiwyg/ts600.png",
+      "images": [
+        "https://www.mars-hydro.com/media/wysiwyg/ts600.png"
+      ],
+      "prices": {
+        "czk": 1610,
+        "usd": 69.99,
+        "eur": 64.81
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights/mars-hydro-ts-600-led-grow-light.html",
+      "isGenerated": false
+    },
+    {
+      "name": "Mars Hydro TS 1000",
+      "brand": "Mars Hydro",
+      "description": "The TS 1000 is designed for a 2×4 ft vegetative coverage or a 2×2 ft flowering footprint, making it highly versatile for tent grows. It features a dimmable driver and uses Samsung LM301B diodes for superior efficacy. Passive-cooled with no moving parts, it operates silently and requires minimal maintenance.",
+      "specs": {
+        "watts": 150,
+        "coverageArea": "2×4 ft veg / 2×2 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B",
+        "ppfd": "420 µmol/m²/s at 18\"",
+        "voltage": "100–277V",
+        "dimensions": "30×30×6.8 cm",
+        "weight": "1.3 kg"
+      },
+      "imageUrl": "https://www.mars-hydro.com/media/wysiwyg/ts1000.png",
+      "images": [
+        "https://www.mars-hydro.com/media/wysiwyg/ts1000.png"
+      ],
+      "prices": {
+        "czk": 2760,
+        "usd": 119.99,
+        "eur": 111.1
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights/mars-hydro-ts-1000-led-grow-light.html",
+      "isGenerated": false
+    },
+    {
+      "name": "Mars Hydro TSL 2000",
+      "brand": "Mars Hydro",
+      "description": "The TSL 2000 is a full-size bar-style LED light covering a 3×3 ft flowering area, built on Samsung LM301B diodes with a meanwell driver. Its elongated form factor provides more even canopy coverage compared to square quantum boards. A dimmer switch allows precise control from seedling to late flower.",
+      "specs": {
+        "watts": 300,
+        "coverageArea": "3×3 ft flower / 4×3 ft veg",
+        "spectrum": "Full Spectrum Samsung LM301B + 660nm",
+        "ppfd": "650 µmol/m²/s at 18\"",
+        "voltage": "100–277V",
+        "dimensions": "117×12×6.8 cm",
+        "weight": "3.5 kg"
+      },
+      "imageUrl": "https://www.mars-hydro.com/media/wysiwyg/tsl2000.png",
+      "images": [
+        "https://www.mars-hydro.com/media/wysiwyg/tsl2000.png"
+      ],
+      "prices": {
+        "czk": 4600,
+        "usd": 199.99,
+        "eur": 185.18
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights/mars-hydro-tsl-2000-led-grow-light.html",
+      "isGenerated": false
+    },
+    {
+      "name": "Mars Hydro FC-E3000",
+      "brand": "Mars Hydro",
+      "description": "The FC-E3000 is a foldable LED bar light delivering top-tier performance for a 4×4 ft tent with high PPFD uniformity across the canopy. It uses Samsung LM301B diodes paired with a Meanwell driver and a 0–10V dimming interface. The foldable design makes transport and storage convenient.",
+      "specs": {
+        "watts": 300,
+        "coverageArea": "4×4 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B 3000K+5000K+660nm+IR",
+        "ppfd": "800 µmol/m²/s at 18\"",
+        "efficiency": "2.7 µmol/J",
+        "voltage": "100–277V",
+        "dimensions": "100×100×6 cm (unfolded)",
+        "weight": "5 kg"
+      },
+      "imageUrl": "https://www.mars-hydro.com/media/wysiwyg/fc-e3000.png",
+      "images": [
+        "https://www.mars-hydro.com/media/wysiwyg/fc-e3000.png"
+      ],
+      "prices": {
+        "czk": 6900,
+        "usd": 299.99,
+        "eur": 277.77
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights/mars-hydro-fc-e3000-led-grow-light.html",
+      "isGenerated": false
+    },
+    {
+      "name": "Mars Hydro SP 150",
+      "brand": "Mars Hydro",
+      "description": "The SP 150 is a compact single-bar LED light designed for narrow grow tents and supplemental lighting scenarios. Its slim profile fits easily in 2×2 ft spaces or alongside a larger light for side lighting. Full-spectrum output supports vigorous growth from clone through flower.",
+      "specs": {
+        "watts": 150,
+        "coverageArea": "2×2 ft flower",
+        "spectrum": "Full Spectrum 3000K+5000K+660nm+IR",
+        "ppfd": "300 µmol/m²/s at 18\"",
+        "voltage": "100–277V",
+        "dimensions": "108×5.5×6 cm",
+        "weight": "1.5 kg"
+      },
+      "imageUrl": "https://www.mars-hydro.com/media/wysiwyg/sp150.png",
+      "images": [
+        "https://www.mars-hydro.com/media/wysiwyg/sp150.png"
+      ],
+      "prices": {
+        "czk": 2070,
+        "usd": 89.99,
+        "eur": 83.33
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights/mars-hydro-sp-150-led-grow-light.html",
+      "isGenerated": false
+    },
+    {
+      "name": "Mars Hydro FC 6500",
+      "brand": "Mars Hydro",
+      "description": "The FC 6500 is Mars Hydro's flagship commercial-grade foldable bar light, covering a 5×5 ft flowering footprint with exceptional PPFD levels. Designed for serious and commercial growers, it runs on Samsung LM301H EVO diodes with Meanwell HLG driver for maximum energy efficiency. Daisy-chain compatible for multi-light setups.",
+      "specs": {
+        "watts": 730,
+        "coverageArea": "5×5 ft flower",
+        "spectrum": "Samsung LM301H EVO 3000K+5000K+660nm+730nm",
+        "ppfd": "1850 µmol/m²/s at 18\" (max)",
+        "efficiency": "2.9 µmol/J",
+        "voltage": "200–277V",
+        "dimensions": "124×124×6 cm (unfolded)",
+        "weight": "12 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 17250,
+        "usd": 749.99,
+        "eur": 694.44
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.mars-hydro.com/led-grow-lights",
+      "isGenerated": false
+    },
+    {
+      "name": "Spider Farmer SF-600",
+      "brand": "Spider Farmer",
+      "description": "The SF-600 is a compact LED grow light suited to 2×2 ft grow spaces and propagation trays. It utilises Samsung LM301B diodes and a Meanwell driver for consistent, high-quality light output. Its frameless design keeps weight low and allows flexible mounting positions.",
+      "specs": {
+        "watts": 60,
+        "coverageArea": "2×2 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B",
+        "ppfd": "500 µmol/m²/s at 18\"",
+        "efficiency": "2.7 µmol/J",
+        "voltage": "100–240V"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2300,
+        "usd": 99.99,
+        "eur": 92.59
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.spider-farmer.com/collections/led-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Spider Farmer SF-1000",
+      "brand": "Spider Farmer",
+      "description": "The SF-1000 delivers impressive output for its size, covering a 3×3 ft space in veg or 2×2 ft in flower. It uses Samsung LM301B diodes with a dimmable Meanwell driver and no noisy cooling fans. A popular choice for beginners looking for reliable, proven performance in small tents.",
+      "specs": {
+        "watts": 100,
+        "coverageArea": "3×3 ft veg / 2×2 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B",
+        "ppfd": "600 µmol/m²/s at 18\"",
+        "efficiency": "2.7 µmol/J",
+        "voltage": "100–240V"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3450,
+        "usd": 149.99,
+        "eur": 138.88
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.spider-farmer.com/collections/led-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Spider Farmer SF-2000",
+      "brand": "Spider Farmer",
+      "description": "The SF-2000 is a popular quantum board LED designed to cover a 4×4 ft vegetative or 3×3 ft flowering area efficiently. Built with Samsung LM301B diodes and a Meanwell dimmable driver, it produces a balanced full spectrum that supports high yields. It is one of the best-selling mid-range LEDs for home growers.",
+      "specs": {
+        "watts": 200,
+        "coverageArea": "4×4 ft veg / 3×3 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B",
+        "ppfd": "800 µmol/m²/s at 18\"",
+        "efficiency": "2.7 µmol/J",
+        "voltage": "100–240V",
+        "weight": "2.2 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 5290,
+        "usd": 229.99,
+        "eur": 212.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.spider-farmer.com/collections/led-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Spider Farmer SF-4000",
+      "brand": "Spider Farmer",
+      "description": "The SF-4000 is designed for serious hobby growers running a 5×5 ft tent, delivering consistent high-intensity light across the entire canopy. Powered by Samsung LM301B diodes and a Meanwell HLG driver, it operates at 2.7 µmol/J efficiency. Daisy-chainable for larger setups.",
+      "specs": {
+        "watts": 400,
+        "coverageArea": "5×5 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301B + 660nm Red",
+        "ppfd": "1000 µmol/m²/s at 18\"",
+        "efficiency": "2.7 µmol/J",
+        "voltage": "100–277V",
+        "weight": "5.8 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 8050,
+        "usd": 349.99,
+        "eur": 324.07
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.spider-farmer.com/collections/led-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Spider Farmer SE-5000",
+      "brand": "Spider Farmer",
+      "description": "The SE-5000 is Spider Farmer's commercial bar-style light using Samsung LM301H diodes for next-generation efficiency above 3.0 µmol/J. Foldable bar design provides exceptional canopy uniformity over a 5×5 ft area. Compatible with smart controllers for multi-light dimming and scheduling.",
+      "specs": {
+        "watts": 480,
+        "coverageArea": "5×5 ft flower",
+        "spectrum": "Full Spectrum Samsung LM301H 3000K+5000K+660nm+IR730nm",
+        "ppfd": "1200 µmol/m²/s at 18\"",
+        "efficiency": "3.0 µmol/J",
+        "voltage": "100–277V",
+        "weight": "8.5 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 11500,
+        "usd": 499.99,
+        "eur": 462.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.spider-farmer.com/collections/led-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Lumatek Digital 400W HPS",
+      "brand": "Lumatek",
+      "description": "The Lumatek 400W digital ballast drives standard HPS lamps with precise electronic regulation for extended lamp life and stable light output. Its multi-watt capability (250W/400W) gives growers flexibility for different growth stages. A proven choice for small flowering rooms at an accessible price.",
+      "specs": {
+        "watts": 400,
+        "lampType": "HPS / MH",
+        "multiWatt": "250W / 400W",
+        "voltage": "230V",
+        "powerFactor": ">0.99",
+        "dimensions": "31×14×7 cm",
+        "weight": "1.9 kg"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/127-3_lumatek-400w-240v.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/127-3_lumatek-400w-240v.jpg"
+      ],
+      "prices": {
+        "czk": 1499,
+        "usd": 65.17,
+        "eur": 59.96
+      },
+      "category": "light_hps",
+      "lightType": "hps",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/400-w/elektronicky-predradnik-lumatek-400w--230v-se-ctyrpolohovou-regulaci/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek Digital 600W HPS",
+      "brand": "Lumatek",
+      "description": "Lumatek's 600W digital ballast is the industry standard for commercial and hobby HPS growing, covering a 1.2×1.2 m tent efficiently. The electronic design fires lamps precisely for consistent spectrum and maximum lamp lifespan. Multi-watt (400W/600W) setting allows one ballast to serve multiple tent sizes.",
+      "specs": {
+        "watts": 600,
+        "lampType": "HPS / MH",
+        "multiWatt": "400W / 600W",
+        "voltage": "230V",
+        "powerFactor": ">0.99",
+        "dimensions": "31×14×7 cm",
+        "weight": "2.1 kg"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13032-6_lumatek-pro-1000w-400v-controllable-cover-960x750.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13032-6_lumatek-pro-1000w-400v-controllable-cover-960x750.jpg"
+      ],
+      "prices": {
+        "czk": 1999,
+        "usd": 86.91,
+        "eur": 79.96
+      },
+      "category": "light_hps",
+      "lightType": "hps",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/600w-400v-2/digitalni-predradnik-lumatek-ultimate-pro-controlled-600w-400v/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek Zeus 1000W DE HPS",
+      "brand": "Lumatek",
+      "description": "The Lumatek Zeus 1000W drives a double-ended HPS lamp for maximum intensity over a 1.5×1.5 m flowering area. Its commercial-grade digital ballast supports enhanced output mode for top-yielding environments. Includes a lighting controller socket for multi-room dimming and timing.",
+      "specs": {
+        "watts": 1000,
+        "lampType": "Double-Ended HPS",
+        "multiWatt": "750W / 1000W / 1150W boost",
+        "voltage": "230V",
+        "powerFactor": ">0.99",
+        "dimensions": "42×16×9 cm",
+        "weight": "3.8 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1999,
+        "usd": 86.91,
+        "eur": 79.96
+      },
+      "category": "light_hps",
+      "lightType": "hps",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/400v/digitalni-predradnik-lumatek-ultimate-pro-controlled-1000w-400v/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek ATA 315W CMH/LEC",
+      "brand": "Lumatek",
+      "description": "The Lumatek 315W CMH/LEC ballast drives a ceramic metal halide lamp that closely replicates the full solar spectrum including UV. CMH technology produces better terpene and resin development compared to standard HPS at the same wattage. An excellent choice for quality-focused soil growers who prioritise aroma and potency over raw yield.",
+      "specs": {
+        "watts": 315,
+        "lampType": "CMH / LEC",
+        "voltage": "230V",
+        "coverageArea": "1×1 m flower",
+        "colorTemperature": "3100K",
+        "powerFactor": ">0.99",
+        "dimensions": "33×14×7 cm",
+        "weight": "2.2 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1299,
+        "usd": 56.48,
+        "eur": 51.96
+      },
+      "category": "light_cmh",
+      "lightType": "cmh",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/315w/digitalni-predradnik-lumatek-controlled-cmh-315w-2/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek ATA 630W CMH/LEC",
+      "brand": "Lumatek",
+      "description": "Lumatek's 630W CMH ballast drives two 315W CMH lamps simultaneously, covering a 1.5×1.5 m flowering area with rich full-spectrum light. The dual-lamp configuration provides superior uniformity and eliminates hot spots common with single-source HPS. Preferred by premium extract and craft cannabis producers.",
+      "specs": {
+        "watts": 630,
+        "lampType": "Dual CMH / LEC",
+        "voltage": "230V",
+        "coverageArea": "1.5×1.5 m flower",
+        "colorTemperature": "3100K",
+        "powerFactor": ">0.99",
+        "dimensions": "42×16×9 cm",
+        "weight": "4.2 kg"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2499,
+        "usd": 108.65,
+        "eur": 99.96
+      },
+      "category": "light_cmh",
+      "lightType": "cmh",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/lumatek/digitalni-predradnik-lumatek-utopia-630w-600w-de-cmh-hps/",
+      "isGenerated": false
+    },
+    {
+      "name": "Envirogro CFL 125W Propagator",
+      "brand": "Envirogro",
+      "description": "The Envirogro 125W CFL is a compact all-in-one propagation light ideal for clones, seedlings, and mothers in small spaces. The bulb-plus-reflector design requires no ballast and plugs directly into a standard socket. Available in 2700K for early flower or 6400K for vegetative growth.",
+      "specs": {
+        "watts": 125,
+        "lumens": 6000,
+        "colorTemperature": "6400K veg / 2700K bloom",
+        "base": "E40 (included reflector)",
+        "coverageArea": "0.5×0.5 m",
+        "lifespan": "10000 hours",
+        "dimensions": "40 cm length"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 800,
+        "usd": 35,
+        "eur": 32.41
+      },
+      "category": "light_cfl",
+      "lightType": "cfl",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hydroponics.net/grow-lights/cfl-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Envirogro CFL 200W",
+      "brand": "Envirogro",
+      "description": "The 200W CFL from Envirogro provides strong propagation and veg light for slightly larger spaces up to 0.6×0.6 m. It integrates a built-in ballast and pairs with a standard E40 reflector hood for focused light delivery. Energy-efficient compared to HPS at low wattages and produces minimal heat.",
+      "specs": {
+        "watts": 200,
+        "lumens": 9600,
+        "colorTemperature": "6400K veg / 2700K bloom",
+        "base": "E40 (included reflector)",
+        "coverageArea": "0.6×0.6 m",
+        "lifespan": "10000 hours"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1250,
+        "usd": 54,
+        "eur": 50
+      },
+      "category": "light_cfl",
+      "lightType": "cfl",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hydroponics.net/grow-lights/cfl-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Sunblaster T5 HO 24W 2ft Fixture",
+      "brand": "Sunblaster",
+      "description": "The Sunblaster 24W T5 High-Output fixture is a lightweight strip light designed for seedlings, clones, and low-light houseplants. Its NanoTech reflector focuses 99% of photons downward for maximum efficiency from a thin T5 tube. Linkable design allows multiple units to be chained from one outlet.",
+      "specs": {
+        "watts": 24,
+        "tubeLength": "2ft / 60 cm",
+        "colorTemperature": "6400K",
+        "lumens": 2000,
+        "coverageArea": "0.6×0.3 m",
+        "lifespan": "20000 hours",
+        "dimensions": "67×8×5 cm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1035,
+        "usd": 45,
+        "eur": 41.67
+      },
+      "category": "light_t5",
+      "lightType": "t5",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.htgsupply.com/category/t5-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "Sunblaster T5 HO 54W 4ft Fixture",
+      "brand": "Sunblaster",
+      "description": "The Sunblaster 54W T5 HO 4ft is the go-to fixture for propagation racks and mother plant shelves where full-height LEDs are impractical. A single 54W T5 HO tube produces 5000 lumens with the integrated NanoTech reflector, sufficient for vigorous vegetative growth. Stackable and linkable for multi-shelf systems.",
+      "specs": {
+        "watts": 54,
+        "tubeLength": "4ft / 120 cm",
+        "colorTemperature": "6400K",
+        "lumens": 5000,
+        "coverageArea": "1.2×0.3 m",
+        "lifespan": "20000 hours",
+        "dimensions": "130×8×5 cm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2050,
+        "usd": 89,
+        "eur": 82.41
+      },
+      "category": "light_t5",
+      "lightType": "t5",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.htgsupply.com/category/t5-grow-lights",
+      "isGenerated": true
+    },
+    {
+      "name": "AC Infinity CLOUDLINE T4",
+      "brand": "AC Infinity",
+      "description": "The CLOUDLINE T4 is a quiet 4-inch inline duct fan with a built-in digital controller supporting programmable temperature and humidity triggers. Brushless motor technology delivers 190 CFM of airflow while running near-silently at low speeds. Ideal for small 2×2 ft or 2×4 ft grow tents used with a 4-inch carbon filter.",
+      "specs": {
+        "diameter": "4 inch",
+        "cfm": 190,
+        "noiseDb": "32 dB (low)",
+        "speedSettings": "10-speed dial + programmable",
+        "voltage": "120V",
+        "motorType": "Brushless EC",
+        "dimensions": "Ø12.7×25 cm"
+      },
+      "imageUrl": "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/530/11618/GrowTentMountingBars_AC-HCA24_Image_1__52666.1739579673.jpg?c=2",
+      "images": [
+        "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/530/11618/GrowTentMountingBars_AC-HCA24_Image_1__52666.1739579673.jpg?c=2"
+      ],
+      "prices": {
+        "czk": 1840,
+        "usd": 79.99,
+        "eur": 74.07
+      },
+      "category": "exhaust_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudline-t4/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDLINE T6",
+      "brand": "AC Infinity",
+      "description": "The CLOUDLINE T6 is the most popular inline fan size for 4×4 ft tents, moving 402 CFM through a 6-inch duct with near-silent operation. Its intelligent controller auto-adjusts speed based on temperature or humidity thresholds programmed by the grower. Pairs perfectly with a 6-inch carbon filter for complete odour control.",
+      "specs": {
+        "diameter": "6 inch",
+        "cfm": 402,
+        "noiseDb": "32 dB (low)",
+        "speedSettings": "10-speed dial + programmable trigger",
+        "voltage": "120V",
+        "motorType": "Brushless EC",
+        "dimensions": "Ø15.2×28 cm"
+      },
+      "imageUrl": "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/529/11611/GrowTentMountingBars_AC-HCA22_Image_1__67399.1739579602.jpg?c=2",
+      "images": [
+        "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/529/11611/GrowTentMountingBars_AC-HCA22_Image_1__67399.1739579602.jpg?c=2"
+      ],
+      "prices": {
+        "czk": 2277,
+        "usd": 99,
+        "eur": 91.67
+      },
+      "category": "exhaust_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudline-t6/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDLINE T8",
+      "brand": "AC Infinity",
+      "description": "The CLOUDLINE T8 handles large 4×8 ft or 5×5 ft tents with its 8-inch duct diameter and 807 CFM maximum airflow. The programmable smart controller manages temperature and humidity automatically, keeping the environment dialled-in without constant manual adjustment. Flanged inlet ring prevents duct vibration and reduces installation noise.",
+      "specs": {
+        "diameter": "8 inch",
+        "cfm": 807,
+        "noiseDb": "35 dB (low)",
+        "speedSettings": "10-speed dial + programmable trigger",
+        "voltage": "120V",
+        "motorType": "Brushless EC",
+        "dimensions": "Ø20×32 cm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2760,
+        "usd": 119.99,
+        "eur": 111.1
+      },
+      "category": "exhaust_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudline-t8/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDLINE T10",
+      "brand": "AC Infinity",
+      "description": "The 10-inch CLOUDLINE T10 is engineered for large-scale tent grows and commercial rooms requiring high-volume air exchange. Moving over 1000 CFM, it is strong enough to maintain negative pressure in rooms up to 20 m². The same smart controller platform as the T4/T6 keeps the ecosystem consistent across multiple controllers.",
+      "specs": {
+        "diameter": "10 inch",
+        "cfm": 1060,
+        "noiseDb": "38 dB (low)",
+        "speedSettings": "10-speed + programmable",
+        "voltage": "120V",
+        "motorType": "Brushless EC",
+        "dimensions": "Ø25×36 cm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3220,
+        "usd": 139.99,
+        "eur": 129.62
+      },
+      "category": "exhaust_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudline-t10/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDRAY S4",
+      "brand": "AC Infinity",
+      "description": "The CLOUDRAY S4 is a 4-inch clip fan with a magnetic 360° adjustable mount that attaches to poles up to 25 mm in diameter. Its whisper-quiet brushless motor runs at three speeds while consuming minimal power. Perfect for adding gentle oscillating airflow within smaller tents to strengthen stems and prevent hot spots.",
+      "specs": {
+        "diameter": "4 inch",
+        "speedSettings": "3-speed",
+        "noiseDb": "25 dB (low)",
+        "voltage": "5V USB / 12V DC",
+        "motorType": "Brushless",
+        "mountType": "Magnetic clip, fits poles ≤25mm"
+      },
+      "imageUrl": "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/531/11626/GrowTentMountingBars_AC-HCA33_Image_1__66091.1739579723.jpg?c=2",
+      "images": [
+        "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/531/11626/GrowTentMountingBars_AC-HCA33_Image_1__66091.1739579723.jpg?c=2"
+      ],
+      "prices": {
+        "czk": 1150,
+        "usd": 49.99,
+        "eur": 46.29
+      },
+      "category": "circulation_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudray-s4/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDRAY S6",
+      "brand": "AC Infinity",
+      "description": "The CLOUDRAY S6 is a versatile 6-inch clip fan delivering stronger airflow than the S4 for medium-to-large tent environments. A 3-speed control and 360° magnetic mount provide flexible placement for targeted stem strengthening or canopy cooling. Low noise output ensures it does not interfere with grow room ambience.",
+      "specs": {
+        "diameter": "6 inch",
+        "speedSettings": "3-speed",
+        "noiseDb": "28 dB (low)",
+        "voltage": "12V DC (adapter included)",
+        "motorType": "Brushless",
+        "mountType": "Magnetic clip, fits poles ≤32mm"
+      },
+      "imageUrl": "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/532/11630/GrowTentMountingBars_AC-HCA44_Image_1__22744.1739579750.jpg?c=2",
+      "images": [
+        "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/532/11630/GrowTentMountingBars_AC-HCA44_Image_1__22744.1739579750.jpg?c=2"
+      ],
+      "prices": {
+        "czk": 1380,
+        "usd": 59.99,
+        "eur": 55.55
+      },
+      "category": "circulation_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudray-s6/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDRAY S8",
+      "brand": "AC Infinity",
+      "description": "The CLOUDRAY S8 provides high-volume circulation airflow for large 5×5 ft and 4×8 ft tents where smaller fans struggle to move air to lower canopy layers. Its powerful yet quiet brushless motor and heavy-duty magnetic mount are designed for continuous use in professional grows. Three speeds allow fine-tuning of airflow intensity.",
+      "specs": {
+        "diameter": "8 inch",
+        "speedSettings": "3-speed",
+        "noiseDb": "32 dB (low)",
+        "voltage": "12V DC (adapter included)",
+        "motorType": "Brushless",
+        "mountType": "Magnetic clip, fits poles ≤32mm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1840,
+        "usd": 79.99,
+        "eur": 74.07
+      },
+      "category": "circulation_fan",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/cloudray-s8/",
+      "isGenerated": false
+    },
+    {
+      "name": "Rhino Hobby Carbon Filter 100mm",
+      "brand": "Rhino",
+      "description": "The Rhino Hobby 100mm carbon filter is a compact, budget-friendly odour scrubber for small tents up to 1×1 m. Packed with Australian RC412 activated carbon, it effectively neutralises grow room odours when paired with an inline fan. Pre-filter sleeve included to extend carbon bed life.",
+      "specs": {
+        "diameter": "100mm (4 inch)",
+        "height": "30 cm",
+        "carbonType": "Australian RC412 Activated Carbon",
+        "carbonWeight": "0.9 kg",
+        "recommendedCFM": "up to 190 CFM",
+        "coverageArea": "up to 1×1 m tent"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/RHOB125300",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/RHOB125300"
+      ],
+      "prices": {
+        "czk": 999,
+        "usd": 43.43,
+        "eur": 39.96
+      },
+      "category": "carbon_filter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/hobby/rhino-filters-hobby-500m3-h-125mm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Rhino Pro Carbon Filter 150mm",
+      "brand": "Rhino",
+      "description": "The Rhino Pro 150mm is the most popular carbon filter size for 4×4 ft tent setups with a 6-inch exhaust fan. Its deep 100 mm carbon bed ensures odours are fully absorbed before air exits the growing space. Rated for 18–24 months of continuous use depending on humidity levels.",
+      "specs": {
+        "diameter": "150mm (6 inch)",
+        "height": "60 cm",
+        "carbonType": "Australian RC412 Activated Carbon",
+        "carbonWeight": "4.2 kg",
+        "recommendedCFM": "up to 400 CFM",
+        "lifespan": "18–24 months"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1999,
+        "usd": 86.91,
+        "eur": 79.96
+      },
+      "category": "carbon_filter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/phresh-filter-2/uhlikovy-filtr-phresh-filter-pro-595m3-h-150mm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Rhino Pro Carbon Filter 200mm",
+      "brand": "Rhino",
+      "description": "The Rhino Pro 200mm is designed for large 5×5 ft tents and commercial grows requiring complete air scrubbing at high flow rates. With a 200 mm flange matching 8-inch fans, it provides substantial carbon mass for sustained odour elimination. A pre-filter sleeve is included and easily machine-washable.",
+      "specs": {
+        "diameter": "200mm (8 inch)",
+        "height": "70 cm",
+        "carbonType": "Australian RC412 Activated Carbon",
+        "carbonWeight": "9.5 kg",
+        "recommendedCFM": "up to 800 CFM",
+        "lifespan": "18–24 months"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2599,
+        "usd": 113,
+        "eur": 103.96
+      },
+      "category": "carbon_filter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/eco/prima-klima-eco-k2603-1150m3-h-160mm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz All·Mix",
+      "brand": "Biobizz",
+      "description": "Biobizz All·Mix is a heavily pre-fertilised organic soil mix that contains enough nutrients to sustain a plant for the first 3–4 weeks without additional feeding. It contains a mix of organic components including perlite, worm castings, and peat for excellent drainage and water retention. Ideal for experienced growers who want to keep feedings simple with a living-soil approach.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.2",
+        "organic": true,
+        "preNutrients": "Yes — approx. 3–4 weeks supply",
+        "perliteContent": "~35%",
+        "wormCastings": "Yes"
+      },
+      "imageUrl": "https://biobizz.com/wp-content/uploads/2016/10/All%C2%B7Mix-Product-Page-600x403.jpg",
+      "images": [
+        "https://biobizz.com/wp-content/uploads/2016/10/All%C2%B7Mix-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 398,
+        "usd": 17.3,
+        "eur": 15.92
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://biobizz.com/producto/allmix/",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz Light·Mix",
+      "brand": "Biobizz",
+      "description": "Biobizz Light·Mix is a lightly fertilised soil designed to be used alongside Biobizz's liquid nutrient range for full control over feeding. The reduced nutrient baseline makes it ideal for seedlings and clones, as well as nutrient-sensitive plants. A light, airy structure promotes fast root development and healthy microbial colonies.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.0",
+        "organic": true,
+        "preNutrients": "Minimal — suitable for seedlings",
+        "perliteContent": "~25%",
+        "wormCastings": "Yes"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/15392_Light%C2%B7Mix_50L.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/15392_Light%C2%B7Mix_50L.jpg",
+        "https://biobizz.com/wp-content/uploads/2016/10/Light%C2%B7Mix-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 289,
+        "usd": 12.57,
+        "eur": 11.56
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/biobizz-2/biobizz-light-mix-50l-3/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Growmix",
+      "brand": "Plagron",
+      "description": "Plagron Growmix is a premium, heavily fertilised soil mix pre-loaded with organic nutrients sufficient for 4–6 weeks of growth without supplemental feeding. The rich blend of perlite, peat, and worm castings creates excellent drainage while retaining moisture around the roots. Highly recommended for no-fuss living soil cultivation.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.5",
+        "ec": "1.5 mS/cm",
+        "organic": true,
+        "preNutrients": "4–6 weeks"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 339,
+        "usd": 14.74,
+        "eur": 13.56
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/plagron-growmix-50-l--pestebni-substrat-s-perlitem/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Lightmix",
+      "brand": "Plagron",
+      "description": "Plagron Lightmix is a universal growing medium with minimal pre-fertilisation, designed to be used alongside liquid nutrients from day one for precise control. Its light, open structure encourages fast rooting and suits both fast-finishing autoflowers and photoperiod plants. Works equally well for indoor and outdoor cultivation.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.2",
+        "ec": "1.2 mS/cm",
+        "organic": true,
+        "preNutrients": "1–2 weeks"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/96689_li.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/96689_li.jpg"
+      ],
+      "prices": {
+        "czk": 299,
+        "usd": 13,
+        "eur": 11.96
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/plagron-2/plagron-lightmix-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Bio Lightmix",
+      "brand": "Plagron",
+      "description": "Plagron Bio Lightmix is a certified organic, lightly fertilised substrate suited to growers following strict organic production standards. Its composition encourages microbial activity and natural nutrient cycling while providing a clean base for organic liquid feedings. RHP-certified for quality assurance.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.2",
+        "ec": "1.2 mS/cm",
+        "organic": true,
+        "certification": "RHP Certified",
+        "preNutrients": "1–2 weeks"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 299,
+        "usd": 13,
+        "eur": 11.96
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://plagron.com/en/hobby/products/bio-lightmix",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz Coco·Mix",
+      "brand": "Biobizz",
+      "description": "Biobizz Coco·Mix is a pre-buffered coco coir substrate offering superior aeration and drainage compared to standard coco. The buffering process replaces sodium ions with calcium and magnesium, preventing early nutrient lockout. Suitable for use with both organic and mineral nutrient programmes despite being an inert medium.",
+      "specs": {
+        "volume": "50L",
+        "ph": "5.8",
+        "organic": true,
+        "buffered": true,
+        "rinseRequired": false
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2995_Coco%C2%B7Mix_50L.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2995_Coco%C2%B7Mix_50L.jpg",
+        "https://biobizz.com/wp-content/uploads/2019/07/Coco%C2%B7Mix-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 319,
+        "usd": 13.87,
+        "eur": 12.76
+      },
+      "category": "medium_coco",
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/biobizz-3/biobizz-cocomix-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Cocos Premium",
+      "brand": "Plagron",
+      "description": "Plagron Cocos Premium is a washed, buffered coco coir mix providing the ideal inert substrate for mineral nutrient programmes. Its consistent structure ensures stable drainage and moisture retention ratios across every bag. Recommended for coco-experienced growers running two-part nutrient systems.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.0",
+        "ec": "<0.5 mS/cm",
+        "organic": false,
+        "buffered": true,
+        "rinseRequired": false
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/1245_plagron-cococ-premium-50-l.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/1245_plagron-cococ-premium-50-l.jpg"
+      ],
+      "prices": {
+        "czk": 359,
+        "usd": 15.61,
+        "eur": 14.36
+      },
+      "category": "medium_coco",
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/plagron-3/plagron-cocos-premium-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Perlite",
+      "brand": "Plagron",
+      "description": "Plagron Perlite is a volcanic glass amendment added to soil or coco mixes to improve drainage and prevent compaction. A 10–20% addition dramatically increases aeration around the root zone, which is especially beneficial in heavy soils and fabric pots. Also used as a standalone medium component in recirculating drip systems.",
+      "specs": {
+        "volume": "10L",
+        "grade": "3–6mm expanded",
+        "ph": "7.0",
+        "organic": false,
+        "sterile": true
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 175,
+        "usd": 7.61,
+        "eur": 7
+      },
+      "category": "medium_soil",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://plagron.com/en/hobby/products/perlite",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Coco Professional Plus",
+      "brand": "CANNA",
+      "description": "CANNA Coco Professional Plus is the industry-standard coco coir substrate, derived from Indian coconut husks processed to CANNA's own quality specifications. Every batch is buffered, tested, and certified free of pathogens and harmful residues. The consistent chip-to-fibre ratio ensures predictable drainage and water retention run to run.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.0",
+        "ec": "<0.5 mS/cm",
+        "organic": false,
+        "buffered": true,
+        "certification": "RHP Certified"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3525_canna-cocos-professional-plus-50l.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3525_canna-cocos-professional-plus-50l.jpg"
+      ],
+      "prices": {
+        "czk": 379,
+        "usd": 16.48,
+        "eur": 15.16
+      },
+      "category": "medium_coco",
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/canna-4/canna-cocos-professional-plus-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Aqua Clay Pebbles",
+      "brand": "CANNA",
+      "description": "CANNA Aqua Clay Pebbles (CANNA Clay) are pH-neutral, pre-cleaned expanded clay aggregate suitable for all recirculating hydroponic systems. Their porous structure retains moisture around the roots while allowing excellent oxygenation, promoting rapid growth in DWC, NFT, and drip systems. Reusable after cleaning and sterilisation between cycles.",
+      "specs": {
+        "volume": "45L",
+        "grade": "8–16mm",
+        "ph": "6.0–7.0",
+        "organic": false,
+        "reusable": true
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 500,
+        "usd": 21.74,
+        "eur": 20
+      },
+      "category": "medium_hydro",
+      "compatibleMedia": [
+        "hydro"
+      ],
+      "sourceUrl": "https://www.canna.com/en/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Grodan Rockwool Slabs 100×15×7.5cm",
+      "brand": "Grodan",
+      "description": "Grodan stonewool slabs are the standard growing medium for high-intensity commercial and hobby hydroponic production of tomatoes, peppers, and cannabis. The engineered fibre structure provides optimal air-to-water ratio throughout the day without irrigation, reducing root stress. Each slab is pre-treated for hydroponic use and requires flushing to adjust to target pH 5.8.",
+      "specs": {
+        "dimensions": "100×15×7.5 cm",
+        "volume": "~11L",
+        "ph": "7.0 (adjust to 5.8 before use)",
+        "organic": false,
+        "waterRetention": "~80% at capacity",
+        "reusable": false
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 150,
+        "usd": 6.52,
+        "eur": 6
+      },
+      "category": "medium_hydro",
+      "compatibleMedia": [
+        "hydro"
+      ],
+      "sourceUrl": "https://www.canna.com/en/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Root Pouch Boxer Fabric Pot 7L",
+      "brand": "Root Pouch",
+      "description": "The Root Pouch Boxer is constructed from 100% recycled PET water bottles, making it both eco-friendly and extremely durable for outdoor and indoor use. Air-pruning prevents root circling by naturally killing root tips at the pot wall, encouraging a dense fibrous root system. Suitable for 2-gallon container plants in early-to-mid veg stages.",
+      "specs": {
+        "volumeLiters": 7,
+        "volumeGallons": 2,
+        "material": "100% Recycled PET (300 g/m²)",
+        "colour": "Brown",
+        "handles": true,
+        "reusable": true
+      },
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/a9134f2e-c425-4ab0-8338-e499e0296b4f/200+Gallon+Magnolia+Tree+Root+Pouch",
+      "images": [
+        "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/a9134f2e-c425-4ab0-8338-e499e0296b4f/200+Gallon+Magnolia+Tree+Root+Pouch"
+      ],
+      "prices": {
+        "czk": 80,
+        "usd": 3.48,
+        "eur": 3.2
+      },
+      "category": "fabric_pot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.rootpouch.com/boxer",
+      "isGenerated": false
+    },
+    {
+      "name": "Root Pouch Black Fabric Pot 15L",
+      "brand": "Root Pouch",
+      "description": "The Black Root Pouch is designed for both above-ground and in-ground applications, combining recycled PET with natural fibre for a balanced drainage and water-wicking characteristic. Air-pruning encourages a dense, fibrous root structure that maximises nutrient uptake during the flowering stage. An extended lifespan fabric suitable for 2–3 grows before replacement.",
+      "specs": {
+        "volumeLiters": 15,
+        "volumeGallons": 4,
+        "material": "Recycled PET + Natural Fibre (200 g/m²)",
+        "colour": "Black",
+        "handles": true,
+        "reusable": true
+      },
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/07e1e0c0-bad4-4adb-b183-5436129fa46e/Conifers+Black+Root+Pouches",
+      "images": [
+        "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/07e1e0c0-bad4-4adb-b183-5436129fa46e/Conifers+Black+Root+Pouches"
+      ],
+      "prices": {
+        "czk": 120,
+        "usd": 5.22,
+        "eur": 4.8
+      },
+      "category": "fabric_pot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.rootpouch.com/black",
+      "isGenerated": false
+    },
+    {
+      "name": "Root Pouch Grey Fabric Pot 25L",
+      "brand": "Root Pouch",
+      "description": "The Root Pouch Grey is the most versatile size for single-plant cannabis grows in 5–7 gallon containers, offering a balance of root volume and manageable pot weight at harvest. Made from a blend of recycled PET and natural fibres with a 250 g/m² fabric weight for excellent durability. Uniform grey colour helps moderate root temperature compared to black pots.",
+      "specs": {
+        "volumeLiters": 25,
+        "volumeGallons": 7,
+        "material": "Recycled PET + Natural Fibre Blend (250 g/m²)",
+        "colour": "Grey",
+        "handles": true,
+        "reusable": true
+      },
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/6d63b6c5-7835-4d9c-936b-58966f57cd16/Evergreens+Grey+Root+Pouch",
+      "images": [
+        "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/6d63b6c5-7835-4d9c-936b-58966f57cd16/Evergreens+Grey+Root+Pouch"
+      ],
+      "prices": {
+        "czk": 150,
+        "usd": 6.52,
+        "eur": 6
+      },
+      "category": "fabric_pot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.rootpouch.com/grey",
+      "isGenerated": false
+    },
+    {
+      "name": "Root Pouch Charcoal Fabric Pot 18L",
+      "brand": "Root Pouch",
+      "description": "The Root Pouch Charcoal is engineered for high-speed short-cycle crops, using a 150 g/m² lighter fabric that promotes rapid evaporation and faster drying between waterings. Its balanced drainage profile suits autoflowering strains and quick-finish photoperiods. The charcoal colour absorbs heat, making it beneficial in cool grow rooms.",
+      "specs": {
+        "volumeLiters": 18,
+        "volumeGallons": 5,
+        "material": "Recycled PET + Natural Fibre (150 g/m²)",
+        "colour": "Charcoal",
+        "handles": true,
+        "reusable": true
+      },
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/cb47ab13-c215-4aa4-9192-88c830f1c1cb/Indoor+Cannabis+Root+Pouch",
+      "images": [
+        "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/cb47ab13-c215-4aa4-9192-88c830f1c1cb/Indoor+Cannabis+Root+Pouch"
+      ],
+      "prices": {
+        "czk": 130,
+        "usd": 5.65,
+        "eur": 5.2
+      },
+      "category": "fabric_pot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.rootpouch.com/charcoal",
+      "isGenerated": false
+    },
+    {
+      "name": "Root Pouch Thin Black 5L Seedling Pot",
+      "brand": "Root Pouch",
+      "description": "The Root Pouch Thin Black is a lightweight 90 g/m² propagation container ideal for starting seeds and rooting clones before transplanting. Extreme breathability encourages rapid root air-pruning even in young plants, promoting a head start for transplant success. Cost-effective at low volumes; a pack of 10 is the standard offering.",
+      "specs": {
+        "volumeLiters": 5,
+        "volumeGallons": 1.3,
+        "material": "Recycled PET (90 g/m²)",
+        "colour": "Black",
+        "handles": false,
+        "reusable": true
+      },
+      "imageUrl": "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/79508c4d-8204-4cec-a8f3-372cacb2982b/IndoorCannabisGrower.jpg",
+      "images": [
+        "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/79508c4d-8204-4cec-a8f3-372cacb2982b/IndoorCannabisGrower.jpg"
+      ],
+      "prices": {
+        "czk": 60,
+        "usd": 2.61,
+        "eur": 2.4
+      },
+      "category": "fabric_pot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.rootpouch.com/thin-black",
+      "isGenerated": false
+    },
+    {
+      "name": "Autopot Easy2Grow 15L Kit (2-pot)",
+      "brand": "Autopot",
+      "description": "The Autopot Easy2Grow is a gravity-fed, pump-free automatic watering system that delivers solution to plant roots on demand via the patented AQUAvalve5 float valve. No electricity, no timer, and no runoff make it ideal for living soil or coco grows where minimal intervention is desired. The 2-pot starter kit includes two 15L pots, connecting pipes, and one AQUAvalve unit.",
+      "specs": {
+        "numberOfPots": 2,
+        "potVolumeLiters": 15,
+        "systemType": "Gravity-fed, pump-free",
+        "valve": "AQUAvalve5",
+        "reservoirRequired": "Sold separately (47L or larger)",
+        "compatible": "Soil / Coco"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1500,
+        "usd": 65.22,
+        "eur": 60
+      },
+      "category": "airpot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.autopot.co.uk/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Air-Pot 15L",
+      "brand": "Air-Pot",
+      "description": "The Air-Pot uses a distinctive conical wall design with inward-facing cones and open holes to guide roots outward where they are air-pruned at the wall surface. This creates an extraordinarily dense, fibrous root system that maximises surface area for nutrient uptake. Unlike fabric pots, Air-Pots dry more slowly and retain more moisture in the root zone.",
+      "specs": {
+        "volumeLiters": 15,
+        "material": "Recycled HDPE",
+        "colour": "Black",
+        "wallDesign": "Conical air-pruning holes",
+        "reusable": true,
+        "washable": true
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 350,
+        "usd": 15.22,
+        "eur": 14
+      },
+      "category": "airpot",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.autopot.co.uk/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Blumat Classic Starter Kit (5 plants)",
+      "brand": "Blumat",
+      "description": "The Blumat Classic is a ceramic-tipped capillary stake that monitors soil moisture tension and delivers water from a reservoir only when the root zone dries below a set threshold. The fully mechanical, no-electricity system is beloved by living soil growers for replicating natural rain-driven irrigation cycles. The starter kit includes five Blumat stakes, distribution tubing, and connectors for up to five medium-sized containers.",
+      "specs": {
+        "numberOfPlants": 5,
+        "systemType": "Capillary ceramic stake, gravity-fed",
+        "flowRate": "Demand-triggered (0–80 mL/h per stake)",
+        "suitable": "Soil and pre-buffered coco",
+        "reservoirRequired": "Any container placed above pot level",
+        "electricity": "None"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1800,
+        "usd": 78.26,
+        "eur": 72
+      },
+      "category": "watering_blumat",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.blumat.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Tropf-Blumat 12-Plant Kit",
+      "brand": "Blumat",
+      "description": "The Tropf-Blumat 12-plant kit scales the Blumat passive irrigation concept to a full tent, supplying up to twelve plants from a single reservoir without pumps or timers. Each stake independently monitors its own container's moisture, adjusting flow in real time to match the plant's transpiration demand. Perfect for extended-absence grows where daily watering is not possible.",
+      "specs": {
+        "numberOfPlants": 12,
+        "systemType": "Capillary ceramic stakes, gravity-fed",
+        "includes": "12 stakes, main tube, distribution connectors, drip arrows",
+        "suitable": "Soil and lightly buffered coco",
+        "electricity": "None"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3200,
+        "usd": 139.13,
+        "eur": 128
+      },
+      "category": "watering_blumat",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.blumat.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Blumat Junior 2-Pack",
+      "brand": "Blumat",
+      "description": "The Blumat Junior is a smaller, simplified version of the Classic stake designed for individual pots and houseplants. It inserts into any container and draws water from a bottle or small reservoir placed above, dispensing water only when the soil moisture drops below the stake's ceramic sensor threshold. A great entry-level product for growers testing the Blumat system.",
+      "specs": {
+        "numberOfPlants": 2,
+        "systemType": "Capillary ceramic stake, gravity-fed",
+        "reservoirType": "Bottle with flip-cap or small tank",
+        "suitable": "Soil",
+        "stakeHeight": "18 cm"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 650,
+        "usd": 28.26,
+        "eur": 26
+      },
+      "category": "watering_blumat",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.blumat.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "FloraFlex Drip Ring 6-inch",
+      "brand": "FloraFlex",
+      "description": "The FloraFlex 6-inch Drip Ring sits atop the growing media and distributes nutrient solution evenly across the entire pot surface through a ring of micro-holes. Even irrigation eliminates dry spots and hot spots in the substrate, resulting in more consistent root development and faster cycling. Compatible with standard 1/4-inch drip tubing and most pump-driven systems.",
+      "specs": {
+        "diameter": "6 inch",
+        "outlets": "Multiple micro-drip holes",
+        "tubing": "1/4 inch barbed inlet",
+        "material": "Food-grade polypropylene",
+        "suitable": "Coco / Soil"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 350,
+        "usd": 15.22,
+        "eur": 14
+      },
+      "category": "watering_drip",
+      "compatibleMedia": [
+        "coco",
+        "soil"
+      ],
+      "sourceUrl": "https://www.autowatershop.com",
+      "isGenerated": true
+    },
+    {
+      "name": "Biobizz Bio·Grow",
+      "brand": "Biobizz",
+      "description": "Bio·Grow is Biobizz's flagship liquid fertiliser for the vegetative growth stage, derived from sugar beet extract with a rich microorganism profile. Its NPK of 4-3-6 provides a nitrogen-forward formula that promotes lush, green canopy development. Applied from week one through mid-flower, it feeds both the plant and the living soil ecosystem simultaneously.",
+      "specs": {
+        "npk": "4-3-6",
+        "volume": "1L",
+        "organic": true,
+        "base": "Sugar beet extract",
+        "applicationRate": "1–4 mL/L",
+        "suitable": "Soil / Coco"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/87_biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/87_biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust.jpg",
+        "https://biobizz.com/wp-content/uploads/2019/07/Bio%C2%B7Grow-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 209,
+        "usd": 9.09,
+        "eur": 8.36
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust/",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz Bio·Bloom",
+      "brand": "Biobizz",
+      "description": "Bio·Bloom is Biobizz's phosphorus and potassium-forward organic flowering nutrient, formulated to trigger and sustain dense bud development through the full flowering phase. Its NPK of 2-7-4 is balanced with amino acids and enzymes derived from natural fermentation. Used alongside Bio·Grow from week 2 of flower through the final flush.",
+      "specs": {
+        "npk": "2-7-4",
+        "volume": "1L",
+        "organic": true,
+        "applicationRate": "1–4 mL/L",
+        "suitable": "Soil / Coco"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/99_biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/99_biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet.jpg",
+        "https://biobizz.com/wp-content/uploads/2019/07/Bio%C2%B7Bloom-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 251,
+        "usd": 10.91,
+        "eur": 10.04
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet/",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz Fish·Mix",
+      "brand": "Biobizz",
+      "description": "Fish·Mix is a high-nitrogen growth accelerator made from hydrolysed fish emulsion combined with Dutch sugar beet extract. Its high NPK of 5-1-1 delivers fast-acting nitrogen to support rapid vegetative growth during the plant's most intensive cell-division phase. Fish·Mix also stimulates microbial life in the soil, improving long-term nutrient cycling.",
+      "specs": {
+        "npk": "5-1-1",
+        "volume": "1L",
+        "organic": true,
+        "base": "Hydrolysed fish emulsion + sugar beet",
+        "applicationRate": "1–5 mL/L",
+        "suitable": "Soil / Coco"
+      },
+      "imageUrl": "https://biobizz.com/wp-content/uploads/2019/07/Fish%C2%B7Mix-Product-Page-600x403.jpg",
+      "images": [
+        "https://biobizz.com/wp-content/uploads/2019/07/Fish%C2%B7Mix-Product-Page-600x403.jpg"
+      ],
+      "prices": {
+        "czk": 209,
+        "usd": 9.09,
+        "eur": 8.36
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/biobizz-fish-mix-1-l--zakladni-bio-hnojivo-na-rust/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Alga Bloom",
+      "brand": "Plagron",
+      "description": "Plagron Alga Bloom is a seaweed-derived organic base nutrient designed for the flowering phase in soil and coco, providing phosphorus and potassium from natural sources. Its biological action feeds the soil food web rather than the plant directly, resulting in slower but more natural nutrient uptake. Part of Plagron's Alga Line alongside Alga Grow.",
+      "specs": {
+        "npk": "4-5-6",
+        "volume": "1L",
+        "organic": true,
+        "base": "Seaweed extract",
+        "ph": "6.5",
+        "ec": "1.5 mS/cm (1 mL/L)",
+        "applicationRate": "1–4 mL/L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 851,
+        "usd": 37,
+        "eur": 34.26
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://plagron.com/en/hobby/products/alga-bloom",
+      "isGenerated": false
+    },
+    {
+      "name": "BioTabs Starter Pack",
+      "brand": "BioTabs",
+      "description": "The BioTabs Starter Pack contains a selection of BioTabs organic nutrient tablets and powders designed to transform any soil into a self-sustaining living soil system. The tablets are buried around the root zone at transplant time and slowly release nutrients over 8–10 weeks via microbial breakdown. An ideal all-in-one solution for low-maintenance living soil cultivation.",
+      "specs": {
+        "includes": "BioTabs x10, Orgatrex 500mL, Bactrex 100g, Mycotrex 100g",
+        "npk": "Various (see individual products)",
+        "organic": true,
+        "applicationStage": "Transplant (single application)",
+        "suitable": "Soil only"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 875,
+        "usd": 38.04,
+        "eur": 35
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.biotabs.nl/",
+      "isGenerated": true
+    },
+    {
+      "name": "BioTabs Orgatrex Liquid Organic Feed",
+      "brand": "BioTabs",
+      "description": "Orgatrex is BioTabs' organic liquid fertiliser derived from worm castings, guano, and plant extracts for use alongside the solid tablet system. It provides a gentle, balanced nutrient boost during the flowering phase without disrupting the microbial life in living soil. Applied at low doses once per week from week 4 through week 8 of flowering.",
+      "specs": {
+        "npk": "3-1-3",
+        "volume": "500mL",
+        "organic": true,
+        "base": "Worm castings + guano + plant extracts",
+        "applicationRate": "2–4 mL/L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 575,
+        "usd": 25,
+        "eur": 23
+      },
+      "category": "nutrients_organic",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.biotabs.nl/",
+      "isGenerated": true
+    },
+    {
+      "name": "Plagron Cocos A&B",
+      "brand": "Plagron",
+      "description": "Plagron Cocos A&B is a professional two-part mineral nutrient system specifically formulated for plants grown in coco coir. Part A delivers macro minerals and calcium; Part B delivers phosphorus, potassium, and trace elements — always used together at equal ratios. The complete formula covers both vegetative and early flowering stages without switching products.",
+      "specs": {
+        "npk": "3-2-4 (combined A+B)",
+        "volume": "1L each (set)",
+        "organic": false,
+        "ph": "6.0",
+        "ec": "1.8 mS/cm (1 mL/L each)",
+        "applicationRate": "1–3 mL/L each"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 506,
+        "usd": 22,
+        "eur": 20.37
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://plagron.com/en/hobby/products/cocos-a-cocos-b",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Hydro A&B",
+      "brand": "Plagron",
+      "description": "Plagron Hydro A&B is a two-component mineral nutrient solution engineered for recirculating and run-to-waste hydroponic systems. The A+B system provides complete plant nutrition in the correct ionic balance for hydroponic root zone pH (5.5–6.0). Supports both the vegetative and flowering phases with a single product set.",
+      "specs": {
+        "npk": "3-2-4 (combined A+B)",
+        "volume": "1L each (set)",
+        "organic": false,
+        "ph": "6.0",
+        "ec": "1.8 mS/cm (1 mL/L each)",
+        "applicationRate": "1–3 mL/L each"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 437,
+        "usd": 19,
+        "eur": 17.59
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "hydro"
+      ],
+      "sourceUrl": "https://plagron.com/en/hobby/products/hydro-a-hydro-b",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Aqua Vega",
+      "brand": "CANNA",
+      "description": "CANNA Aqua Vega is a complete mineral nutrient solution for the vegetative growth phase in recirculating hydroponic systems (DWC, NFT, Flood & Drain). Its ionic composition is optimised for the higher pH stability requirements of recirculating systems and supports explosive vegetative growth with dense internodal spacing. Part of CANNA's Aqua line, pairs with Aqua Flores for a full cycle.",
+      "specs": {
+        "npk": "5-4-3",
+        "volume": "1L",
+        "organic": false,
+        "ph": "5.5–6.2",
+        "ec": "1.2 mS/cm (25 mL/10L)",
+        "applicationRate": "25 mL/10L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 259,
+        "usd": 11.26,
+        "eur": 10.36
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "hydro"
+      ],
+      "sourceUrl": "https://www.canna.com/en/products",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Aqua Flores",
+      "brand": "CANNA",
+      "description": "CANNA Aqua Flores is the flowering-phase counterpart to Aqua Vega, providing a phosphorus and potassium-forward mineral formula for recirculating hydroponic systems. It transitions plants from vegetative growth into heavy bud production by shifting the N-P-K ratio at the correct growth trigger. Suitable for use in all recirculating systems from week 2 of flower.",
+      "specs": {
+        "npk": "2-5-6",
+        "volume": "1L",
+        "organic": false,
+        "ph": "5.5–6.2",
+        "ec": "1.4 mS/cm (25 mL/10L)",
+        "applicationRate": "25 mL/10L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 259,
+        "usd": 11.26,
+        "eur": 10.36
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "hydro"
+      ],
+      "sourceUrl": "https://www.canna.com/en/products",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Terra Vega",
+      "brand": "CANNA",
+      "description": "CANNA Terra Vega is the vegetative growth nutrient from CANNA's Terra line, formulated specifically for plants grown in pre-fertilised soil mixes. Its high nitrogen content supports rapid shoot and canopy development during the long vegetative phase. Compatible with all soil substrates and works especially well combined with CANNA Terra Flores in flower.",
+      "specs": {
+        "npk": "5-4-4",
+        "volume": "1L",
+        "organic": false,
+        "ph": "5.5–6.5",
+        "ec": "1.2 mS/cm (25 mL/10L)",
+        "applicationRate": "25 mL/10L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 259,
+        "usd": 11.26,
+        "eur": 10.36
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/canna-terra-vega-1-l--zakladni-hnojivo-na-rust/",
+      "isGenerated": false
+    },
+    {
+      "name": "Biobizz CalMag",
+      "brand": "Biobizz",
+      "description": "Biobizz CalMag is a calcium-magnesium supplement designed to prevent secondary nutrient deficiencies that commonly affect fast-growing strains in coco and reverse-osmosis water environments. Calcium strengthens cell walls while magnesium is the central atom of every chlorophyll molecule, making deficiency highly visible. Added to the base nutrient programme from week 1 at low doses throughout the cycle.",
+      "specs": {
+        "npk": "0-0-0 (Ca: 4.2%, Mg: 1.4%)",
+        "volume": "1L",
+        "organic": false,
+        "applicationRate": "1–3 mL/L",
+        "suitable": "Soil / Coco / Hydro"
+      },
+      "imageUrl": "https://biobizz.com/wp-content/uploads/2020/03/Baja-Calmag-Product-Page-600x403.png",
+      "images": [
+        "https://biobizz.com/wp-content/uploads/2020/03/Baja-Calmag-Product-Page-600x403.png"
+      ],
+      "prices": {
+        "czk": 400,
+        "usd": 17.39,
+        "eur": 16
+      },
+      "category": "nutrients_mineral",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://biobizz.com/producto/calmag/",
+      "isGenerated": true
+    },
+    {
+      "name": "Bluelab pH Meter",
+      "brand": "Bluelab",
+      "description": "The Bluelab pH Meter is a professional-grade pen meter with a replaceable probe, offering accurate pH measurement to ±0.1 pH across the full 0–14 range. Its ergonomic design, waterproof casing, and auto-off function make it the go-to tool for growers who need fast, repeatable readings. Calibration to two points (4.0 and 7.0 solutions) ensures long-term accuracy.",
+      "specs": {
+        "measurementRange": "0–14 pH",
+        "accuracy": "±0.1 pH",
+        "calibrationPoints": "2-point (4.0 + 7.0)",
+        "probeType": "Replaceable glass probe",
+        "display": "3-digit LCD",
+        "waterproof": true,
+        "battery": "2× AAA"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3450,
+        "usd": 150,
+        "eur": 138.89
+      },
+      "category": "ph_meter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://bluelab.com/products/bluelab-ph-meter",
+      "isGenerated": false
+    },
+    {
+      "name": "Bluelab EC Meter",
+      "brand": "Bluelab",
+      "description": "The Bluelab EC Meter provides quick and reliable conductivity measurements to verify nutrient solution strength before every watering. Its rugged, waterproof design with integrated conductivity cell requires no calibration fluids — simply rinse with clean water between readings. Displays EC in three selectable units (EC, CF, TDS ppm) for compatibility with any nutrient chart.",
+      "specs": {
+        "measurementRange": "0–9.9 EC (0–99 CF)",
+        "accuracy": "±0.1 EC",
+        "units": "EC / CF / TDS ppm",
+        "calibrationRequired": false,
+        "display": "3-digit LCD",
+        "waterproof": true,
+        "battery": "2× AAA"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3795,
+        "usd": 165,
+        "eur": 152.78
+      },
+      "category": "ec_meter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://bluelab.com/products/bluelab-ec-meter",
+      "isGenerated": false
+    },
+    {
+      "name": "Bluelab Combo Meter",
+      "brand": "Bluelab",
+      "description": "The Bluelab Combo Meter is a three-in-one handheld device that simultaneously measures pH, electrical conductivity (EC/CF/ppm), and temperature from a single dip of the probe. It is the single most useful tool a grower can own, replacing three separate meters with one reliable instrument. Automatic calibration reminder ensures reading accuracy is maintained over time.",
+      "specs": {
+        "measurements": "pH + EC + Temperature",
+        "pHRange": "0–14 pH (±0.1)",
+        "ecRange": "0–9.9 EC (±0.1 EC)",
+        "tempRange": "0–50°C (±0.5°C)",
+        "calibrationPoints": "2-point pH (4.0 + 7.0)",
+        "display": "Multi-segment LCD",
+        "waterproof": true,
+        "battery": "4× AA"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 8188,
+        "usd": 356,
+        "eur": 329.63
+      },
+      "category": "ph_meter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://bluelab.com/products/bluelab-combo-meter",
+      "isGenerated": false
+    },
+    {
+      "name": "Milwaukee MW101 pH Meter",
+      "brand": "Milwaukee",
+      "description": "The Milwaukee MW101 is a compact, affordable pH pen meter ideal for growers entering nutrient management for the first time. Its replaceable probe and simple one-point calibration provide sufficient accuracy for hobby applications without the cost of professional meters. Includes calibration sachet and storage solution cap.",
+      "specs": {
+        "measurementRange": "0–14 pH",
+        "accuracy": "±0.1 pH",
+        "calibrationPoints": "1-point",
+        "probeType": "Replaceable glass probe",
+        "display": "3-digit LCD",
+        "waterproof": false,
+        "battery": "1× 9V"
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png",
+      "images": [
+        "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png"
+      ],
+      "prices": {
+        "czk": 659,
+        "usd": 28.65,
+        "eur": 26.36
+      },
+      "category": "ph_meter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/milwaukee-ph-tester-ph600-p1242/",
+      "isGenerated": false
+    },
+    {
+      "name": "Hanna HI98130 pH/EC/TDS Combo",
+      "brand": "Hanna Instruments",
+      "description": "The Hanna HI98130 is a professional-grade waterproof combo pen measuring pH, EC, and TDS with three-point pH calibration for maximum accuracy in mineral nutrient solutions. Its dual-LCD display shows two parameters simultaneously, reducing reading time during grow room maintenance rounds. CAL Check diagnostics detect probe failure before data integrity is compromised.",
+      "specs": {
+        "measurements": "pH + EC + TDS + Temperature",
+        "pHRange": "0.00–14.00 pH (±0.05 pH)",
+        "ecRange": "0–3999 µS/cm",
+        "calibrationPoints": "3-point pH",
+        "display": "Dual LCD",
+        "waterproof": true,
+        "battery": "1× 9V"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2300,
+        "usd": 100,
+        "eur": 92.59
+      },
+      "category": "ec_meter",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hanna-instruments.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Inkbird IBS-TH2 Plus Bluetooth Thermohygrometer",
+      "brand": "Inkbird",
+      "description": "The Inkbird IBS-TH2 Plus is a Bluetooth-enabled temperature and humidity sensor that streams live environmental data to a smartphone via the Inkbird Home app. Its external wired probe allows placement of the sensor unit outside the tent while the probe monitors conditions inside the canopy. Data logging and high/low alarms notify growers of environmental deviations without manual checking.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "tempRange": "-40°C to +60°C (±0.4°C)",
+        "humidityRange": "0–99.9% RH (±3%)",
+        "connectivity": "Bluetooth 5.0",
+        "display": "LCD",
+        "dataLogging": true,
+        "battery": "AAA × 2",
+        "externalProbe": true
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg",
+      "images": [
+        "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg"
+      ],
+      "prices": {
+        "czk": 679,
+        "usd": 29.52,
+        "eur": 27.16
+      },
+      "category": "thermohygrometer",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.inkbird.com/products",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity CLOUDCOM B1",
+      "brand": "AC Infinity",
+      "description": "The AC Infinity CLOUDCOM B1 is a wireless temperature and humidity sensor designed to integrate with the AC Infinity CONTROLLER ecosystem, automatically adjusting fan speed in response to environmental triggers. The 4.5-inch digital display is readable from across the tent and shows current, max, and min values at a glance. Wireless data transmission eliminates cable routing through tent walls.",
+      "specs": {
+        "measurements": "Temperature + Humidity + VPD",
+        "tempRange": "-10°C to +70°C (±0.5°C)",
+        "humidityRange": "1–99% RH (±3%)",
+        "connectivity": "RF Wireless (AC Infinity ecosystem)",
+        "display": "4.5 inch digital LCD",
+        "vpd": true,
+        "battery": "Wired (adapter included)"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/4554_garden-high-pro-prohygro-premium--teplomer-a-vlhkomer-se-sondou.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/4554_garden-high-pro-prohygro-premium--teplomer-a-vlhkomer-se-sondou.jpg"
+      ],
+      "prices": {
+        "czk": 314,
+        "usd": 13.65,
+        "eur": 12.56
+      },
+      "category": "thermohygrometer",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.acinfinity.com/products",
+      "isGenerated": false
+    },
+    {
+      "name": "Govee H5075 Thermo-Hygrometer",
+      "brand": "Govee",
+      "description": "The Govee H5075 is a budget-friendly wireless temperature and humidity monitor with Bluetooth connectivity and a compact display. It stores up to 20 days of data readable through the Govee Home app and sends push notifications when temperature or humidity exceeds user-defined thresholds. An affordable first sensor for small tent setups.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "tempRange": "-20°C to +60°C (±0.5°C)",
+        "humidityRange": "0–99% RH (±3%)",
+        "connectivity": "Bluetooth 5.0",
+        "display": "1.5 inch e-ink",
+        "dataLogging": "20 days",
+        "battery": "2× AAA"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg"
+      ],
+      "prices": {
+        "czk": 109,
+        "usd": 4.74,
+        "eur": 4.36
+      },
+      "category": "thermohygrometer",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.inkbird.com/products",
+      "isGenerated": false
+    },
+    {
+      "name": "Inkbird IHC-200 Digital Timer",
+      "brand": "Inkbird",
+      "description": "The Inkbird IHC-200 is a digital outlet timer supporting up to 20 programmable on/off events per day, making it ideal for controlling lights, CO2, pumps, and fans on independent schedules. Its large LCD displays current time and next activation event clearly. A built-in battery backup retains programming through power outages.",
+      "specs": {
+        "maxLoad": "1800W / 15A",
+        "programs": "20 on/off events per day",
+        "resolution": "1 minute",
+        "display": "LCD",
+        "batteryBackup": true,
+        "outlets": "1 outlet",
+        "voltage": "120V / 240V"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 600,
+        "usd": 26.09,
+        "eur": 24
+      },
+      "category": "timer",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.inkbird.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "BN-LINK Mechanical Grounded Timer",
+      "brand": "BN-LINK",
+      "description": "The BN-LINK mechanical timer is a classic dial-type outlet timer for controlling grow lights on a fixed 24-hour cycle using push-in pins at 30-minute resolution. It requires no programming knowledge and is virtually failure-proof for basic on/off lighting schedules. A grounded 3-prong outlet accepts high-wattage loads up to 1875W.",
+      "specs": {
+        "maxLoad": "1875W / 15A",
+        "resolution": "30 minutes",
+        "type": "Mechanical dial",
+        "outlets": "1 grounded outlet",
+        "battery": "None required",
+        "voltage": "125V"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 250,
+        "usd": 10.87,
+        "eur": 10
+      },
+      "category": "timer",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.inkbird.com/products",
+      "isGenerated": true
+    },
+    {
+      "name": "Soft Plant Wire Tie Set (100-pack)",
+      "brand": "Generic",
+      "description": "A 100-piece set of soft rubber-coated wire ties used for low-stress training (LST) to bend and hold branches in place without damaging stems. The flexible wire conforms to stem shapes and can be repositioned multiple times as the plant grows and changes. An essential low-cost tool for maximising yield through canopy management.",
+      "specs": {
+        "quantity": 100,
+        "length": "15 cm",
+        "material": "PVC-coated steel wire",
+        "colour": "Green",
+        "reusable": true,
+        "suitable": "All plant sizes"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 120,
+        "usd": 5.22,
+        "eur": 4.8
+      },
+      "category": "lst_tools",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growland.eu",
+      "isGenerated": true
+    },
+    {
+      "name": "Tomato Clip Plant Support (50-pack)",
+      "brand": "Generic",
+      "description": "Tomato clips provide a quick and non-invasive way to attach branches to a trellis or support wire, allowing staged LST adjustments throughout the grow without cutting or tying. The spring-loaded plastic clips accommodate stem diameters from 3–12 mm and are reusable across multiple grows. Ideal for ScrOG training where branches need regular repositioning.",
+      "specs": {
+        "quantity": 50,
+        "stemRange": "3–12mm diameter",
+        "material": "Polypropylene",
+        "colour": "White",
+        "reusable": true,
+        "suitable": "Trellis / scrog net / support wire"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 90,
+        "usd": 3.91,
+        "eur": 3.6
+      },
+      "category": "lst_tools",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growland.eu",
+      "isGenerated": true
+    },
+    {
+      "name": "Lumatek ZEUS 600W PRO 2.9 LED",
+      "brand": "Lumatek",
+      "description": "The Lumatek ZEUS 600W PRO 2.9 LED is a 600W LED grow light from Lumatek designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower, efficiency 2.9 µmol/J. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 600,
+        "efficiency": "2.9 µmol/J"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/25755-5_zeus600wpro29-02.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/25755-5_zeus600wpro29-02.jpg"
+      ],
+      "prices": {
+        "czk": 16499,
+        "usd": 717.35,
+        "eur": 659.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/lumatek-3/novy-lumatek-zeus-600w-pro-2-9--mol-j/",
+      "isGenerated": false
+    },
+    {
+      "name": "ViparSpectra Pro Series P600 100W",
+      "brand": "ViparSpectra",
+      "description": "The ViparSpectra Pro Series P600 100W is a 100W LED grow light from ViparSpectra designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 100,
+        "coverageArea": "2×2 ft"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/36976-2_viparspectra-pro-series-p600-100w-2024-upgraded.png",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/36976-2_viparspectra-pro-series-p600-100w-2024-upgraded.png"
+      ],
+      "prices": {
+        "czk": 1999,
+        "usd": 86.91,
+        "eur": 79.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/viparspectra/viparspectra-pro-series-p600-2023-upgrade-2-0/",
+      "isGenerated": false
+    },
+    {
+      "name": "ViparSpectra Pro Series P2000 250W",
+      "brand": "ViparSpectra",
+      "description": "The ViparSpectra Pro Series P2000 250W is a 250W LED grow light from ViparSpectra designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 250,
+        "coverageArea": "3×4 ft"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3999,
+        "usd": 173.87,
+        "eur": 159.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/viparspectra/viparspectra-pro-series-p2000-2023-upgrade/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek ATTIS 300W PRO 2.7 µmol/J",
+      "brand": "Lumatek",
+      "description": "The Lumatek ATTIS 300W PRO 2.7 µmol/J is a 300W LED grow light from Lumatek designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower, efficiency 2.7 µmol/J. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 300,
+        "efficiency": "2.7 µmol/J"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 5999,
+        "usd": 260.83,
+        "eur": 239.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/lumatek-3/lumatek-attis-300w-pro-2-7--mol-j/",
+      "isGenerated": false
+    },
+    {
+      "name": "SunPro HITTER 200W LED 2.7 µmol/J",
+      "brand": "SunPro",
+      "description": "The SunPro HITTER 200W LED 2.7 µmol/J is a 200W LED grow light from SunPro designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower, efficiency 2.7 µmol/J. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 200,
+        "efficiency": "2.7 µmol/J"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 2999,
+        "usd": 130.39,
+        "eur": 119.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/sunpro-hitter-200w-led-2-7-umol-j-p35402/",
+      "isGenerated": false
+    },
+    {
+      "name": "SunPro HITTER 300W LED 2.7 µmol/J",
+      "brand": "SunPro",
+      "description": "The SunPro HITTER 300W LED 2.7 µmol/J is a 300W LED grow light from SunPro designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower, efficiency 2.7 µmol/J. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 300,
+        "efficiency": "2.7 µmol/J"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3299,
+        "usd": 143.43,
+        "eur": 131.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/sunpro-hitter-300w-led-2-7-umol-j-p35404/",
+      "isGenerated": false
+    },
+    {
+      "name": "SunPro HITTER 720W LED 2.9 µmol/J",
+      "brand": "SunPro",
+      "description": "The SunPro HITTER 720W LED 2.9 µmol/J is a 720W LED grow light from SunPro designed for indoor cannabis cultivation. It delivers full-spectrum light optimised for all growth stages from seedling to late flower, efficiency 2.9 µmol/J. A popular choice in Czech grow shops for its performance-to-price ratio.",
+      "specs": {
+        "watts": 720,
+        "efficiency": "2.9 µmol/J"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 5999,
+        "usd": 260.83,
+        "eur": 239.96
+      },
+      "category": "light_led",
+      "lightType": "led",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/sunpro-hitter-720w-led-2-9-umol-j-p35413/",
+      "isGenerated": false
+    },
+    {
+      "name": "LUMii Black 600W HPS Lamp",
+      "brand": "LUMii",
+      "description": "The LUMii Black 600W HPS Lamp is an HPS lamp from LUMii for use in digital and magnetic ballast setups. It provides high-intensity light in the orange-red spectrum ideal for the flowering phase. A reliable and affordable lamp widely available through Czech grow shops.",
+      "specs": {
+        "watts": 600,
+        "lampType": "HPS"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13023_s-l300.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13023_s-l300.jpg"
+      ],
+      "prices": {
+        "czk": 499,
+        "usd": 21.7,
+        "eur": 19.96
+      },
+      "category": "light_hps",
+      "lightType": "hps",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/kvet/vybojka-lumii-black-600w-hps/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek 1000W 400V DE Dual Spectrum HPS Lamp",
+      "brand": "Lumatek",
+      "description": "The Lumatek 1000W 400V DE Dual Spectrum HPS Lamp is an HPS lamp from Lumatek for use in digital and magnetic ballast setups. It provides high-intensity light in the orange-red spectrum ideal for the flowering phase. A reliable and affordable lamp widely available through Czech grow shops.",
+      "specs": {
+        "watts": 1000,
+        "lampType": "DE HPS",
+        "voltage": "400V"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/6199_lumatek-1000w-400v-de-hps-lamp.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/6199_lumatek-1000w-400v-de-hps-lamp.jpg"
+      ],
+      "prices": {
+        "czk": 999,
+        "usd": 43.43,
+        "eur": 39.96
+      },
+      "category": "light_hps",
+      "lightType": "hps",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/double-ended-2/vybojka-lumatek-1000w-400v-de-dual-spectrum-hps/",
+      "isGenerated": false
+    },
+    {
+      "name": "Adjust-A-Wings CMH 315W Kit",
+      "brand": "Adjust-A-Wings",
+      "description": "The Adjust-A-Wings CMH 315W Kit is a ceramic metal halide (CMH/LEC) product from Adjust-A-Wings providing a full-spectrum light closely replicating natural sunlight including UV. CMH is prized for enhancing terpene production and quality over standard HPS. Widely used in premium soil and living-soil grows across Central Europe.",
+      "specs": {
+        "watts": 315,
+        "lampType": "CMH/LEC",
+        "colorTemperature": "3100K"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14975_vyr-7013-14975-cmh315-kit-box-1.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14975_vyr-7013-14975-cmh315-kit-box-1.jpg"
+      ],
+      "prices": {
+        "czk": 2799,
+        "usd": 121.7,
+        "eur": 111.96
+      },
+      "category": "light_cmh",
+      "lightType": "cmh",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/315w/digitalni-kit-adjust-a-wings-cmh-315w/",
+      "isGenerated": false
+    },
+    {
+      "name": "Adjust-A-Wings CMH 630W 3100K Lamp",
+      "brand": "Adjust-A-Wings",
+      "description": "The Adjust-A-Wings CMH 630W 3100K Lamp is a ceramic metal halide (CMH/LEC) product from Adjust-A-Wings providing a full-spectrum light closely replicating natural sunlight including UV. CMH is prized for enhancing terpene production and quality over standard HPS. Widely used in premium soil and living-soil grows across Central Europe.",
+      "specs": {
+        "watts": 630,
+        "lampType": "CMH",
+        "colorTemperature": "3100K"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14708_cmh630-lamp-box-1.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14708_cmh630-lamp-box-1.jpg"
+      ],
+      "prices": {
+        "czk": 1499,
+        "usd": 65.17,
+        "eur": 59.96
+      },
+      "category": "light_cmh",
+      "lightType": "cmh",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/630w-2/vybojka-adjust-a-wings-cmh-630w-3100k/",
+      "isGenerated": false
+    },
+    {
+      "name": "Lumatek CMH 315W 3100K Lamp",
+      "brand": "Lumatek",
+      "description": "The Lumatek CMH 315W 3100K Lamp is a ceramic metal halide (CMH/LEC) product from Lumatek providing a full-spectrum light closely replicating natural sunlight including UV. CMH is prized for enhancing terpene production and quality over standard HPS. Widely used in premium soil and living-soil grows across Central Europe.",
+      "specs": {
+        "watts": 315,
+        "lampType": "CMH",
+        "colorTemperature": "3100K"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 999,
+        "usd": 43.43,
+        "eur": 39.96
+      },
+      "category": "light_cmh",
+      "lightType": "cmh",
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/315w-2/vybojka-lumatek-cmh-315w/",
+      "isGenerated": false
+    },
+    {
+      "name": "Vents TT 125 Inline Fan 280m³/h",
+      "brand": "Vents",
+      "description": "The Vents TT 125 Inline Fan 280m³/h is a 125mm inline duct fan from Vents designed for tent and room exhaust ventilation. It provides reliable airflow for maintaining negative pressure and temperature control in indoor gardens. Sold through major Czech grow shop distributors.",
+      "specs": {
+        "diameter": "125mm",
+        "cfm": 164,
+        "m3h": 280,
+        "speedSettings": "2-speed"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2157-1_tt125.png",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2157-1_tt125.png"
+      ],
+      "prices": {
+        "czk": 799,
+        "usd": 34.74,
+        "eur": 31.96
+      },
+      "category": "exhaust_fan",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/vzduchotechnika/ventilator-tt-125-220-280-m3-h/",
+      "isGenerated": false
+    },
+    {
+      "name": "Prima Klima CTRL 125 Fan 400m³/h",
+      "brand": "Prima Klima",
+      "description": "The Prima Klima CTRL 125 Fan 400m³/h is a 125mm inline duct fan from Prima Klima designed for tent and room exhaust ventilation. It provides reliable airflow for maintaining negative pressure and temperature control in indoor gardens. Sold through major Czech grow shop distributors.",
+      "specs": {
+        "diameter": "125mm",
+        "cfm": 235,
+        "m3h": 400,
+        "controller": "integrated thermostat"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3299,
+        "usd": 143.43,
+        "eur": 131.96
+      },
+      "category": "exhaust_fan",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/regulace-otacek-termostat/ventilator-prima-klima-ctrl-125-400m3-h-125mm-regulator-termostat/",
+      "isGenerated": false
+    },
+    {
+      "name": "Prima Klima CTRL 160 Fan 800m³/h",
+      "brand": "Prima Klima",
+      "description": "The Prima Klima CTRL 160 Fan 800m³/h is a 160mm inline duct fan from Prima Klima designed for tent and room exhaust ventilation. It provides reliable airflow for maintaining negative pressure and temperature control in indoor gardens. Sold through major Czech grow shop distributors.",
+      "specs": {
+        "diameter": "160mm",
+        "cfm": 471,
+        "m3h": 800,
+        "controller": "integrated thermostat"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 3699,
+        "usd": 160.83,
+        "eur": 147.96
+      },
+      "category": "exhaust_fan",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/podlahove-ventilatory/ventilator-prima-klima-tc-160-800m3-h-160mm-regulator-termostat/",
+      "isGenerated": false
+    },
+    {
+      "name": "GENT Clip Fan 5W",
+      "brand": "GENT",
+      "description": "The GENT Clip Fan 5W is a clip fan from GENT providing gentle circulation airflow within grow tents. It mounts directly onto tent poles and strengthens plant stems while preventing hot spots in the canopy. A standard accessory found in every Czech grow shop.",
+      "specs": {
+        "watts": 5,
+        "diameter": "15cm",
+        "type": "clip fan"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20892-1_gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20892-1_gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm.jpg"
+      ],
+      "prices": {
+        "czk": 499,
+        "usd": 21.7,
+        "eur": 19.96
+      },
+      "category": "circulation_fan",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Garden HighPro ProFan 12W Clip Fan",
+      "brand": "Garden HighPro",
+      "description": "The Garden HighPro ProFan 12W Clip Fan is a clip fan from Garden HighPro providing gentle circulation airflow within grow tents. It mounts directly onto tent poles and strengthens plant stems while preventing hot spots in the canopy. A standard accessory found in every Czech grow shop.",
+      "specs": {
+        "watts": 12,
+        "diameter": "20cm",
+        "type": "clip fan"
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/8d22caf6f9af0e96/2/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm.jpg",
+      "images": [
+        "https://cdn.growshop.cz/images/0/8d22caf6f9af0e96/2/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm.jpg"
+      ],
+      "prices": {
+        "czk": 549,
+        "usd": 23.87,
+        "eur": 21.96
+      },
+      "category": "circulation_fan",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm-p15024/",
+      "isGenerated": false
+    },
+    {
+      "name": "Prima Klima ECO K2600 100mm Carbon Filter",
+      "brand": "Prima Klima",
+      "description": "The Prima Klima ECO K2600 100mm Carbon Filter is a carbon odour filter from Prima Klima for grow room exhaust systems. Packed with activated carbon, it completely neutralises grow room odours before air is expelled. Standard equipment in Czech indoor grows paired with a matching inline fan.",
+      "specs": {
+        "diameter": "100mm",
+        "m3h": 360,
+        "carbonType": "CTC 75"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/1026_prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/1026_prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr.jpg"
+      ],
+      "prices": {
+        "czk": 997,
+        "usd": 43.35,
+        "eur": 39.88
+      },
+      "category": "carbon_filter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr/",
+      "isGenerated": false
+    },
+    {
+      "name": "Prima Klima ECO K2601 125mm Carbon Filter",
+      "brand": "Prima Klima",
+      "description": "The Prima Klima ECO K2601 125mm Carbon Filter is a carbon odour filter from Prima Klima for grow room exhaust systems. Packed with activated carbon, it completely neutralises grow room odours before air is expelled. Standard equipment in Czech indoor grows paired with a matching inline fan.",
+      "specs": {
+        "diameter": "125mm",
+        "m3h": 480,
+        "carbonType": "CTC 75"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1199,
+        "usd": 52.13,
+        "eur": 47.96
+      },
+      "category": "carbon_filter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/eco/prima-klima-filtr-eco-k2601-480m3-h-125mm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Urban Premium Carbon Filter 150mm",
+      "brand": "Urban",
+      "description": "The Urban Premium Carbon Filter 150mm is a carbon odour filter from Urban for grow room exhaust systems. Packed with activated carbon, it completely neutralises grow room odours before air is expelled. Standard equipment in Czech indoor grows paired with a matching inline fan.",
+      "specs": {
+        "diameter": "150mm",
+        "m3h": "460–690"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/51339_2_urban_premium_2.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/51339_2_urban_premium_2.jpg"
+      ],
+      "prices": {
+        "czk": 1699,
+        "usd": 73.87,
+        "eur": 67.96
+      },
+      "category": "carbon_filter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/urban-premium-uhlikovy-filtr-460-690-m3-h--150-mm/",
+      "isGenerated": false
+    },
+    {
+      "name": "Can-Lite Carbon Filter 160mm",
+      "brand": "Can Filters",
+      "description": "The Can-Lite Carbon Filter 160mm is a carbon odour filter from Can Filters for grow room exhaust systems. Packed with activated carbon, it completely neutralises grow room odours before air is expelled. Standard equipment in Czech indoor grows paired with a matching inline fan.",
+      "specs": {
+        "diameter": "160mm",
+        "m3h": "425–467"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr.jpg"
+      ],
+      "prices": {
+        "czk": 1784,
+        "usd": 77.57,
+        "eur": 71.36
+      },
+      "category": "carbon_filter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr/",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Terra Professional 50L",
+      "brand": "CANNA",
+      "description": "CANNA Terra Professional 50L (50L) is a growing substrate from CANNA suitable for indoor plant cultivation. Formulated for optimal drainage, aeration, and nutrient retention across all growth stages. One of the most popular soil products sold in Czech grow shops.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.5",
+        "organic": true
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3521_canna-terra-professional-50l.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3521_canna-terra-professional-50l.jpg"
+      ],
+      "prices": {
+        "czk": 249,
+        "usd": 10.83,
+        "eur": 9.96
+      },
+      "category": "medium_soil",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/canna-3/canna-terra-professional-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Coco Natural 50L",
+      "brand": "CANNA",
+      "description": "CANNA Coco Natural 50L (50L) is a coco coir substrate from CANNA providing excellent aeration and drainage for mineral or organic nutrient programmes. Pre-buffered to prevent early calcium and magnesium lockout. Widely available in Czech grow shops.",
+      "specs": {
+        "volume": "50L",
+        "ph": "6.0",
+        "buffered": false
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3526_Canna-coco-50l.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3526_Canna-coco-50l.jpg"
+      ],
+      "prices": {
+        "czk": 289,
+        "usd": 12.57,
+        "eur": 11.56
+      },
+      "category": "medium_coco",
+      "lightType": null,
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/canna-4/canna-cocos-natural-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "Atami Cocos Substrate 50L",
+      "brand": "Atami",
+      "description": "Atami Cocos Substrate 50L (50L) is a coco coir substrate from Atami providing excellent aeration and drainage for mineral or organic nutrient programmes. Pre-buffered to prevent early calcium and magnesium lockout. Widely available in Czech grow shops.",
+      "specs": {
+        "volume": "50L",
+        "ph": "5.8",
+        "buffered": true
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3519_cocos-substrate.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3519_cocos-substrate.jpg"
+      ],
+      "prices": {
+        "czk": 349,
+        "usd": 15.17,
+        "eur": 13.96
+      },
+      "category": "medium_coco",
+      "lightType": null,
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/atami-4/atami-coco-50l/",
+      "isGenerated": false
+    },
+    {
+      "name": "U Gro XL Rhiza 70L Coco with Mycorrhiza",
+      "brand": "U Gro",
+      "description": "U Gro XL Rhiza 70L Coco with Mycorrhiza (70L) is a coco coir substrate from U Gro providing excellent aeration and drainage for mineral or organic nutrient programmes. Pre-buffered to prevent early calcium and magnesium lockout. Widely available in Czech grow shops.",
+      "specs": {
+        "volume": "70L",
+        "mycorrhiza": true,
+        "dehydrated": true
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 475,
+        "usd": 20.65,
+        "eur": 19
+      },
+      "category": "medium_coco",
+      "lightType": null,
+      "compatibleMedia": [
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/u-gro-xl-rhiza-70-l--dehydrovany-kokosovy-substrat-s-mykorhizou/",
+      "isGenerated": false
+    },
+    {
+      "name": "Dirt Bag Grey Fabric Pot 26.5L",
+      "brand": "Dirt Bag",
+      "description": "The Dirt Bag Grey Fabric Pot 26.5L is a 26.5L fabric pot from Dirt Bag promoting root air-pruning for a dense, fibrous root system. Breathable fabric prevents root circling and improves drainage compared to standard plastic pots. A common sight in Czech indoor growing setups.",
+      "specs": {
+        "volumeLiters": 26.5,
+        "dimensions": "34×30cm",
+        "material": "Fabric",
+        "colour": "Grey"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23340_dirt-bag-grey-textilni-kvetinac-34x30-cm-26-5-l.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23340_dirt-bag-grey-textilni-kvetinac-34x30-cm-26-5-l.jpg"
+      ],
+      "prices": {
+        "czk": 59,
+        "usd": 2.57,
+        "eur": 2.36
+      },
+      "category": "fabric_pot",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/dirt-bag-grey-textilni-kvetinac-33x30-cm-26-5-l/",
+      "isGenerated": false
+    },
+    {
+      "name": "Pure Pot Fabric Pot 19L with Handles",
+      "brand": "Pure Factory",
+      "description": "The Pure Pot Fabric Pot 19L with Handles is a 19L fabric pot from Pure Factory promoting root air-pruning for a dense, fibrous root system. Breathable fabric prevents root circling and improves drainage compared to standard plastic pots. A common sight in Czech indoor growing setups.",
+      "specs": {
+        "volumeLiters": 19,
+        "dimensions": "30×25cm",
+        "handles": true
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 62,
+        "usd": 2.7,
+        "eur": 2.48
+      },
+      "category": "fabric_pot",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/pure-pot-textilni-kvetinac-s-uchyty-30x25-cm-19-l/",
+      "isGenerated": false
+    },
+    {
+      "name": "AC Infinity Heavy Duty Fabric Pot 19L 5-Pack",
+      "brand": "AC Infinity",
+      "description": "The AC Infinity Heavy Duty Fabric Pot 19L 5-Pack is a 19L fabric pot from AC Infinity promoting root air-pruning for a dense, fibrous root system. Breathable fabric prevents root circling and improves drainage compared to standard plastic pots. A common sight in Czech indoor growing setups.",
+      "specs": {
+        "volumeLiters": 19,
+        "quantity": "5-pack",
+        "material": "Heavy duty fabric"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 675,
+        "usd": 29.35,
+        "eur": 27
+      },
+      "category": "fabric_pot",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco"
+      ],
+      "sourceUrl": "https://www.hotchilli.cz/ac-infinity-fabric-pots-and-water-pots/ac-infinity-heavy-duty-reusable-fabric-pots--19-liter--5-pack/",
+      "isGenerated": false
+    },
+    {
+      "name": "Milwaukee pH600 pH Meter",
+      "brand": "Milwaukee",
+      "description": "The Milwaukee pH600 pH Meter is a pH measurement instrument from Milwaukee for monitoring nutrient solution acidity. Essential for any feeding programme in soil, coco, or hydro to prevent nutrient lockout. Stocked in all major Czech grow shops.",
+      "specs": {
+        "measurementRange": "0–14 pH",
+        "accuracy": "±0.1 pH",
+        "calibrationPoints": "1-point"
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png",
+      "images": [
+        "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png"
+      ],
+      "prices": {
+        "czk": 659,
+        "usd": 28.65,
+        "eur": 26.36
+      },
+      "category": "ph_meter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/milwaukee-ph-tester-ph600-p1242/",
+      "isGenerated": false
+    },
+    {
+      "name": "Aqua Master Tools P50 PRO 2.0 pH/Temp",
+      "brand": "Aqua Master Tools",
+      "description": "The Aqua Master Tools P50 PRO 2.0 pH/Temp is a pH measurement instrument from Aqua Master Tools for monitoring nutrient solution acidity. Essential for any feeding programme in soil, coco, or hydro to prevent nutrient lockout. Stocked in all major Czech grow shops.",
+      "specs": {
+        "measurements": "pH + Temperature",
+        "accuracy": "±0.01 pH"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 1574,
+        "usd": 68.43,
+        "eur": 62.96
+      },
+      "category": "ph_meter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/aqua-master-tools-ph-metr-p50-pro-2-0--ph--teplota/",
+      "isGenerated": false
+    },
+    {
+      "name": "Aqua Master Tools E60 PRO 2.0 EC Meter",
+      "brand": "Aqua Master Tools",
+      "description": "The Aqua Master Tools E60 PRO 2.0 EC Meter is an EC/TDS conductivity meter from Aqua Master Tools for measuring nutrient solution strength. Ensures plants receive the correct feed concentration at every watering. A standard tool across Czech indoor grow operations.",
+      "specs": {
+        "measurements": "EC + PPM + TDS + Temperature"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23412_aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23412_aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota.jpg"
+      ],
+      "prices": {
+        "czk": 1469,
+        "usd": 63.87,
+        "eur": 58.76
+      },
+      "category": "ec_meter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota/",
+      "isGenerated": false
+    },
+    {
+      "name": "Milwaukee CD611 EC Meter",
+      "brand": "Milwaukee",
+      "description": "The Milwaukee CD611 EC Meter is an EC/TDS conductivity meter from Milwaukee for measuring nutrient solution strength. Ensures plants receive the correct feed concentration at every watering. A standard tool across Czech indoor grow operations.",
+      "specs": {
+        "measurements": "EC"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/3444_milwaukee-cd611--ec-metr.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/3444_milwaukee-cd611--ec-metr.jpg"
+      ],
+      "prices": {
+        "czk": 787,
+        "usd": 34.22,
+        "eur": 31.48
+      },
+      "category": "ec_meter",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/milwaukee-cd611--ec-metr/",
+      "isGenerated": false
+    },
+    {
+      "name": "Garden HighPro Thermo-Hygro MEDIUM with Probe",
+      "brand": "Garden HighPro",
+      "description": "The Garden HighPro Thermo-Hygro MEDIUM with Probe is a temperature and humidity monitor from Garden HighPro for grow room environmental tracking. Keeping temperature and humidity within optimal ranges is essential for healthy growth and avoiding mould. Stocked in Czech grow shops as a basic grow room accessory.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "probe": true
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/274f3a0db3e10ebf/2/digitalni-thermo-hygro-metr-medium-se-sondou.png",
+      "images": [
+        "https://cdn.growshop.cz/images/0/274f3a0db3e10ebf/2/digitalni-thermo-hygro-metr-medium-se-sondou.png"
+      ],
+      "prices": {
+        "czk": 239,
+        "usd": 10.39,
+        "eur": 9.56
+      },
+      "category": "thermohygrometer",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/digitalni-thermo-hygro-metr-medium-se-sondou-p15037/",
+      "isGenerated": false
+    },
+    {
+      "name": "Garden HighPro Thermo-Hygro PRO with Probe",
+      "brand": "Garden HighPro",
+      "description": "The Garden HighPro Thermo-Hygro PRO with Probe is a temperature and humidity monitor from Garden HighPro for grow room environmental tracking. Keeping temperature and humidity within optimal ranges is essential for healthy growth and avoiding mould. Stocked in Czech grow shops as a basic grow room accessory.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "probe": true,
+        "memoryMinMax": true
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/a3336f8cf09446bb/2/digitalni-thermo-hygro-metr-pro-se-sondou.png",
+      "images": [
+        "https://cdn.growshop.cz/images/0/a3336f8cf09446bb/2/digitalni-thermo-hygro-metr-pro-se-sondou.png"
+      ],
+      "prices": {
+        "czk": 389,
+        "usd": 16.91,
+        "eur": 15.56
+      },
+      "category": "thermohygrometer",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/digitalni-thermo-hygro-metr-pro-se-sondou-p25841/",
+      "isGenerated": false
+    },
+    {
+      "name": "VIVOSUN AeroLab THB1S Bluetooth Thermohygrometer",
+      "brand": "VIVOSUN",
+      "description": "The VIVOSUN AeroLab THB1S Bluetooth Thermohygrometer is a temperature and humidity monitor from VIVOSUN for grow room environmental tracking. Keeping temperature and humidity within optimal ranges is essential for healthy growth and avoiding mould. Stocked in Czech grow shops as a basic grow room accessory.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "connectivity": "Bluetooth",
+        "probe": true
+      },
+      "imageUrl": "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg",
+      "images": [
+        "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg"
+      ],
+      "prices": {
+        "czk": 679,
+        "usd": 29.52,
+        "eur": 27.16
+      },
+      "category": "thermohygrometer",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growshop.cz/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy-p37690/",
+      "isGenerated": false
+    },
+    {
+      "name": "Urban Thermo-Hygrometer LITE",
+      "brand": "Urban",
+      "description": "The Urban Thermo-Hygrometer LITE is a temperature and humidity monitor from Urban for grow room environmental tracking. Keeping temperature and humidity within optimal ranges is essential for healthy growth and avoiding mould. Stocked in Czech grow shops as a basic grow room accessory.",
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "display": "Large LCD"
+      },
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg",
+      "images": [
+        "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg"
+      ],
+      "prices": {
+        "czk": 109,
+        "usd": 4.74,
+        "eur": 4.36
+      },
+      "category": "thermohygrometer",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil",
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej/",
+      "isGenerated": false
+    },
+    {
+      "name": "Plagron Alga Grow 1L",
+      "brand": "Plagron",
+      "description": "Plagron Alga Grow 1L 1L is a plant nutrient from Plagron formulated for indoor growing. It provides essential macro and micro elements to support healthy growth and flowering. Available from major Czech and European grow shop distributors.",
+      "specs": {
+        "npk": "4-2-4",
+        "volume": "1L",
+        "organic": true,
+        "applicationRate": "1–4 mL/L"
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 349,
+        "usd": 15.17,
+        "eur": 13.96
+      },
+      "category": "nutrients_organic",
+      "lightType": null,
+      "compatibleMedia": [
+        "soil"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/plagron-alga-grow-1-l--zakladni-hnojivo-na-rust/",
+      "isGenerated": false
+    },
+    {
+      "name": "CANNA Terra Flores 1L",
+      "brand": "CANNA",
+      "description": "CANNA Terra Flores 1L 1L is a plant nutrient from CANNA formulated for indoor growing. It provides essential macro and micro elements to support healthy growth and flowering. Available from major Czech and European grow shop distributors.",
+      "specs": {
+        "npk": "2-5-6",
+        "volume": "1L",
+        "organic": false
+      },
+      "imageUrl": "",
+      "images": [],
+      "prices": {
+        "czk": 259,
+        "usd": 11.26,
+        "eur": 10.36
+      },
+      "category": "nutrients_mineral",
+      "lightType": null,
+      "compatibleMedia": [
+        "coco",
+        "hydro"
+      ],
+      "sourceUrl": "https://www.growmarket.cz/canna-terra-flores-1-l--zakladni-hnojivo-na-kvet/",
+      "isGenerated": false
+    }
+  ]
+}

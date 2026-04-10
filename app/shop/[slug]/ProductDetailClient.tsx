@@ -610,30 +610,6 @@ export default function ProductDetailClient({
             </>
           )}
 
-          {/* Virtual grow chip — only for seeds/clones */}
-          {!isFlower && product.category !== 'merch' && (
-            <Link
-              href="/hub"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                padding: '6px 12px',
-                borderRadius: '4px',
-                border: '0.5px solid rgba(240,168,48,0.3)',
-                background: 'rgba(240,168,48,0.07)',
-                marginBottom: '28px',
-                textDecoration: 'none',
-                transition: 'all 0.15s',
-              }}
-              className="hover:bg-[rgba(240,168,48,0.14)] hover:border-[rgba(240,168,48,0.5)]"
-            >
-              <span style={{ fontSize: '11px' }}>🌱</span>
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', color: '#f0a830', textTransform: 'uppercase' }}>
-                Simulate a Grow →
-              </span>
-            </Link>
-          )}
 
           {/* Tags — only non-badge tags shown here */}
           {(() => {

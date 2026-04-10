@@ -98,6 +98,27 @@ const BATCHES: BatchSpec[] = [
   { phase: 3, count: 10, options: 6, difficulty: 'hard',   timed: true  },
 ]
 
+function validateQuestions(questions: QuestionData[], batch: BatchSpec): { valid: boolean; reason?: string } {
+  // Check all correctIndexes are in bounds
+  for (const q of questions) {
+    if (q.correctIndex < 0 || q.correctIndex >= q.options.length) {
+      return { valid: false, reason: `correctIndex ${q.correctIndex} out of bounds for options length ${q.options.length}` }
+    }
+  }
+
+  // Check distribution — reject if >60% have the same correctIndex
+  const dist: Record<number, number> = {}
+  for (const q of questions) dist[q.correctIndex] = (dist[q.correctIndex] ?? 0) + 1
+  const maxCount = Math.max(...Object.values(dist))
+  const threshold = Math.ceil(questions.length * 0.6)
+  if (maxCount > threshold) {
+    const dominant = Object.entries(dist).find(([, c]) => c === maxCount)!
+    return { valid: false, reason: `correctIndex ${dominant[0]} appears ${dominant[1]}/${questions.length} times (>${threshold} threshold)` }
+  }
+
+  return { valid: true }
+}
+
 async function generateBatch(
   topic: typeof TOPICS[0],
   lang: 'cs' | 'en',
@@ -119,10 +140,16 @@ Požadavky:
 - isTimed: ${batch.timed}, timeLimit: 20
 - Stručné vysvětlení (1–2 věty) po zodpovězení
 - VŽDY v ČEŠTINĚ (ne slovensky!)
-- correctIndex je 0-based index správné odpovědi
+- correctIndex je 0-based index správné odpovědi v poli options
+
+KRITICKÉ — ROZLOŽENÍ SPRÁVNÝCH ODPOVĚDÍ:
+Správné odpovědi MUSÍ být rovnoměrně rozloženy mezi všechny pozice 0–${batch.options - 1}.
+NIKDY nedávej správnou odpověď vždy na index 0. To je vážná chyba.
+Požadované rozložení: přibližně stejný počet otázek pro každý index.
+Před vrácením ZKONTROLUJ: je correctIndex skutečně ta správná odpověď v poli options?
 
 Vrať POUZE JSON array, žádný markdown:
-[{"phase":${batch.phase},"question":"...","options":[${exampleOptions}],"correctIndex":0,"explanation":"...","isTimed":${batch.timed},"timeLimit":20,"difficulty":"${batch.difficulty}"}]`
+[{"phase":${batch.phase},"question":"...","options":[${exampleOptions}],"correctIndex":INDEX_SPRAVNE_ODPOVEDI,"explanation":"...","isTimed":${batch.timed},"timeLimit":20,"difficulty":"${batch.difficulty}"}]`
     : `Generate ${batch.count} quiz questions (phase ${batch.phase}) for topic: "${topic.title}"
 
 Context: ${context}
@@ -134,14 +161,20 @@ Requirements:
 - isTimed: ${batch.timed}, timeLimit: 20
 - Brief explanation (1–2 sentences) shown after answering
 - ALL in English
-- correctIndex is the 0-based index of the correct answer
+- correctIndex is the 0-based index of the correct answer in the options array
+
+CRITICAL — ANSWER DISTRIBUTION:
+Correct answers MUST be spread evenly across all positions 0–${batch.options - 1}.
+NEVER put the correct answer always at index 0. That is a serious error.
+Required distribution: roughly equal count for each index position.
+Before returning, VERIFY: does correctIndex actually point to the correct option in the array?
 
 Return ONLY a JSON array, no markdown:
-[{"phase":${batch.phase},"question":"...","options":[${exampleOptions}],"correctIndex":0,"explanation":"...","isTimed":${batch.timed},"timeLimit":20,"difficulty":"${batch.difficulty}"}]`
+[{"phase":${batch.phase},"question":"...","options":[${exampleOptions}],"correctIndex":INDEX_OF_CORRECT_ANSWER,"explanation":"...","isTimed":${batch.timed},"timeLimit":20,"difficulty":"${batch.difficulty}"}]`
 
   const system = isCs
-    ? 'Jsi expert na pěstování konopí. Vracíš POUZE validní JSON array bez markdown.'
-    : 'You are a cannabis cultivation expert. Return ONLY a valid JSON array, no markdown.'
+    ? 'Jsi expert na pěstování konopí. Vracíš POUZE validní JSON array bez markdown. Správné odpovědi musí být rovnoměrně distribuovány mezi všechny pozice v poli options — NIKDY ne vždy na index 0.'
+    : 'You are a cannabis cultivation expert. Return ONLY a valid JSON array, no markdown. Correct answers must be evenly distributed across all option positions — NEVER always at index 0.'
 
   for (let attempt = 1; attempt <= 3; attempt++) {
     const message = await client.messages.create({
@@ -162,7 +195,18 @@ Return ONLY a JSON array, no markdown:
     }
     const extracted = text.slice(start, end + 1)
     try {
-      return JSON.parse(extracted) as QuestionData[]
+      const parsed = JSON.parse(extracted) as QuestionData[]
+      const validation = validateQuestions(parsed, batch)
+      if (!validation.valid) {
+        console.log(`    ⚠ Attempt ${attempt}: validation failed — ${validation.reason}. Retrying...`)
+        await new Promise(r => setTimeout(r, 1000))
+        continue
+      }
+      // Log distribution
+      const dist: Record<number, number> = {}
+      for (const q of parsed) dist[q.correctIndex] = (dist[q.correctIndex] ?? 0) + 1
+      console.log(`    ✓ Distribution: ${JSON.stringify(dist)}`)
+      return parsed
     } catch (e) {
       console.log(`    ⚠ Attempt ${attempt}: JSON parse failed, retrying...`)
       await new Promise(r => setTimeout(r, 1000))
@@ -249,7 +293,12 @@ async function main() {
       { totalQuestions: csQuestions.length },
     )
 
+    // Log final correctIndex distribution for this topic
+    const allForDist = [...csQuestions, ...enQuestions]
+    const finalDist: Record<number, number> = {}
+    for (const q of allForDist) finalDist[q.correctIndex] = (finalDist[q.correctIndex] ?? 0) + 1
     console.log(`  ✓ Saved ${allDocs.length} questions total (${csQuestions.length} CS + ${enQuestions.length} EN)`)
+    console.log(`  ✓ Final correctIndex distribution: ${JSON.stringify(finalDist)}`)
     console.log(`  Waiting 2 seconds before next topic...`)
     await new Promise(r => setTimeout(r, 2000))
   }

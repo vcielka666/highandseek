@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
 import { useState } from 'react'
 import type { Session } from 'next-auth'
-import { getXPProgress } from '@/lib/xp/utils'
+import { getXPProgress, LEVELS } from '@/lib/xp/utils'
 import { useLanguage } from '@/stores/languageStore'
 
 const NAV_ITEMS = [
@@ -20,9 +20,11 @@ const NAV_ITEMS = [
 ]
 
 interface HubSidebarProps {
-  session: Session
-  credits: number
-  avatar:  string
+  session:          Session
+  credits:          number
+  avatar:           string
+  xp:               number
+  criticalWarnings: number
 }
 
 function Avatar({ username, avatar }: { username: string; avatar: string }) {
@@ -59,10 +61,11 @@ function NavIcon({ href, seekers }: { href: string; seekers: boolean }) {
   return null
 }
 
-export default function HubSidebar({ session, credits, avatar }: HubSidebarProps) {
+export default function HubSidebar({ session, credits, avatar, xp, criticalWarnings }: HubSidebarProps) {
   const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
-  const { current, next, percent } = getXPProgress(session.user.xp)
+  const [showLevelPopup, setShowLevelPopup] = useState(false)
+  const { current, next, percent } = getXPProgress(xp)
   const { t } = useLanguage()
   const nav = t.hubNav
 
@@ -80,7 +83,6 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
         height: '100vh',
         position: 'sticky',
         top: 0,
-        background: 'rgba(13,0,20,0.95)',
         borderRight: '0.5px solid rgba(204,0,170,0.15)',
         overflowY: 'auto',
       }} className="hidden lg:flex flex-col">
@@ -93,9 +95,14 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
               <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: '#e8f0ef', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {session.user.username}
               </div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#f0a830', marginTop: '2px' }}>
-                ⚡ Lv.{current.level} · {current.name}
-              </div>
+              <button
+                onClick={() => setShowLevelPopup(true)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
+              >
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#f0a830', marginTop: '2px' }}>
+                  ⚡ Lv.{current.level} · {current.name}
+                </div>
+              </button>
             </div>
           </Link>
 
@@ -104,7 +111,7 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>XP</span>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
-                {session.user.xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+                {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
               </span>
             </div>
             <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -145,9 +152,19 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
               <span style={{
                 fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px',
                 color: isActive(href) ? '#cc00aa' : '#4a6066', transition: 'color 0.15s',
+                flex: 1,
               }}>
                 {nav[key]}
               </span>
+              {href === '/hub/grow' && criticalWarnings > 0 && (
+                <span style={{
+                  background: '#cc00aa', color: '#050508',
+                  fontFamily: 'var(--font-dm-mono)', fontSize: '8px', fontWeight: 700,
+                  borderRadius: '8px', padding: '1px 5px', flexShrink: 0,
+                }}>
+                  {criticalWarnings}
+                </span>
+              )}
             </Link>
           ))}
 
@@ -227,9 +244,14 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
               <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: '#e8f0ef', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {session.user.username}
               </div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830', marginTop: '1px' }}>
-                ⚡ Lv.{current.level} · {current.name}
-              </div>
+              <button
+                onClick={() => setShowLevelPopup(true)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, textAlign: 'left' }}
+              >
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830', marginTop: '1px' }}>
+                  ⚡ Lv.{current.level} · {current.name}
+                </div>
+              </button>
             </div>
           </Link>
           <button
@@ -245,7 +267,7 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>XP</span>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
-              {session.user.xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+              {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
             </span>
           </div>
           <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -355,7 +377,7 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
               style={{
                 flex: 1, display: 'flex', flexDirection: 'column',
                 alignItems: 'center', justifyContent: 'center',
-                gap: '2px', textDecoration: 'none',
+                gap: '2px', textDecoration: 'none', position: 'relative',
                 borderTop: active ? '1.5px solid #cc00aa' : '1.5px solid transparent',
               }}
             >
@@ -363,6 +385,16 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '0.5px', color: active ? '#cc00aa' : '#4a6066' }}>
                 {nav[labelKey]}
               </span>
+              {href === '/hub/grow' && criticalWarnings > 0 && (
+                <span style={{
+                  position: 'absolute', top: '4px', right: '12px',
+                  background: '#cc00aa', color: '#050508',
+                  fontFamily: 'var(--font-dm-mono)', fontSize: '7px', fontWeight: 700,
+                  borderRadius: '6px', padding: '1px 4px',
+                }}>
+                  {criticalWarnings}
+                </span>
+              )}
             </Link>
           )
         })}
@@ -387,6 +419,86 @@ export default function HubSidebar({ session, credits, avatar }: HubSidebarProps
           </span>
         </button>
       </nav>
+
+      {/* ── Level popup ── */}
+      {showLevelPopup && (
+        <>
+          <div
+            onClick={() => setShowLevelPopup(false)}
+            style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)' }}
+          />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+            zIndex: 201, width: 'min(92vw, 380px)',
+            background: 'rgba(8,0,16,0.98)', border: '0.5px solid rgba(240,168,48,0.3)',
+            borderRadius: '10px', overflow: 'hidden',
+          }}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px', borderBottom: '0.5px solid rgba(240,168,48,0.12)' }}>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', fontWeight: 700, color: '#f0a830', letterSpacing: '0.5px' }}>
+                {nav.levelPopupTitle}
+              </div>
+              <button
+                onClick={() => setShowLevelPopup(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', padding: '4px' }}
+              >
+                {nav.levelPopupClose}
+              </button>
+            </div>
+            {/* Current XP bar */}
+            <div style={{ padding: '12px 20px', borderBottom: '0.5px solid rgba(240,168,48,0.08)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>XP</span>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
+                  {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+                </span>
+              </div>
+              <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${percent}%`, background: 'linear-gradient(90deg, #f0a830, #ffc040)', borderRadius: '2px', transition: 'width 0.6s ease' }} />
+              </div>
+            </div>
+            {/* Level list */}
+            <div style={{ overflowY: 'auto', maxHeight: '60vh', padding: '8px 0' }}>
+              {LEVELS.map((lvl, i) => {
+                const isCurrent = lvl.level === current.level
+                const isReached = xp >= lvl.xpRequired
+                const perk = (nav.levelPerks as readonly string[])[i] ?? ''
+                return (
+                  <div key={lvl.level} style={{
+                    display: 'flex', gap: '12px', padding: '10px 20px',
+                    background: isCurrent ? 'rgba(240,168,48,0.08)' : 'transparent',
+                    borderLeft: isCurrent ? '2px solid #f0a830' : '2px solid transparent',
+                    alignItems: 'flex-start',
+                  }}>
+                    <div style={{ flexShrink: 0, width: '28px', textAlign: 'center', paddingTop: '1px' }}>
+                      <div style={{
+                        fontFamily: 'var(--font-orbitron)', fontSize: '11px', fontWeight: 700,
+                        color: isCurrent ? '#f0a830' : isReached ? 'rgba(240,168,48,0.5)' : '#4a6066',
+                      }}>
+                        {lvl.level}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2px' }}>
+                        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: isCurrent ? '#f0a830' : isReached ? 'rgba(240,168,48,0.6)' : '#4a6066', fontWeight: isCurrent ? 700 : 400 }}>
+                          {lvl.name}
+                          {isCurrent && <span style={{ marginLeft: '6px', fontSize: '8px', color: '#00d4c8' }}>← you</span>}
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', flexShrink: 0, marginLeft: '8px' }}>
+                          {lvl.xpRequired > 0 ? `${lvl.xpRequired.toLocaleString()} ${nav.levelPopupXpLabel}` : '—'}
+                        </div>
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: isReached ? 'rgba(232,240,239,0.5)' : 'rgba(74,96,102,0.7)', lineHeight: 1.4 }}>
+                        {isReached ? '✓ ' : ''}{perk}
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }

@@ -4,6 +4,7 @@ import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
 import Product from '@/lib/db/models/Product'
+import VirtualGrow from '@/lib/db/models/VirtualGrow'
 import { getXPProgress, LEVELS } from '@/lib/xp/index'
 import { BADGES } from '@/lib/badges/config'
 import { getServerT } from '@/lib/i18n/server'
@@ -55,7 +56,7 @@ export default async function HubPage() {
 
   await connectDB()
 
-  const [userData, recentXP, productCount] = await Promise.all([
+  const [userData, recentXP, productCount, activeGrow] = await Promise.all([
     User.findById(session.user.id).select('xp level badges credits').lean<{
       xp: number
       level: number
@@ -67,6 +68,15 @@ export default async function HubPage() {
       .limit(5)
       .lean<{ event: string; amount: number; createdAt: Date }[]>(),
     Product.countDocuments({ isAvailable: true }),
+    VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
+      .select('_id strainName strainType stage currentDay health yieldProjection setup dayDurationSeconds')
+      .lean<{
+        _id: { toString(): string }
+        strainName: string; strainType: string; stage: string
+        currentDay: number; health: number; yieldProjection: number
+        dayDurationSeconds: number
+        setup: { tentSize: string; lightType: string; lightWatts: number; medium: string }
+      }>(),
   ])
 
   const xp = userData?.xp ?? session.user.xp
@@ -121,28 +131,74 @@ export default async function HubPage() {
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '12px' }}>
             {d.growSim}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '16px 0' }}>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '24px', color: 'rgba(0,212,200,0.2)', letterSpacing: '-2px' }}>
-              ┌────────────┐<br />
-              │&nbsp;&nbsp;&nbsp;&nbsp;🌱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br />
-              └────────────┘
-            </div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>
-              {d.noActiveGrow}
-            </div>
-            <Link
-              href="/hub/grow"
-              style={{
-                fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px',
+          {activeGrow ? (
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px' }}>
+                <div>
+                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '15px', color: '#e8f0ef', marginBottom: '3px' }}>
+                    {activeGrow.strainName}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    {activeGrow.stage.replace('_', ' ')} · Day {activeGrow.currentDay}
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '20px', color: activeGrow.health > 60 ? '#00d4c8' : activeGrow.health > 30 ? '#f0a830' : '#cc00aa' }}>
+                    {activeGrow.health}%
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', textTransform: 'uppercase' }}>
+                    health
+                  </div>
+                </div>
+              </div>
+
+              {/* Health bar */}
+              <div style={{ height: '3px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden', marginBottom: '14px' }}>
+                <div style={{
+                  height: '100%',
+                  width: `${activeGrow.health}%`,
+                  background: activeGrow.health > 60 ? '#00d4c8' : activeGrow.health > 30 ? '#f0a830' : '#cc00aa',
+                  borderRadius: '2px', transition: 'width 0.5s',
+                }} />
+              </div>
+
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginBottom: '16px' }}>
+                {activeGrow.setup.tentSize} · {activeGrow.setup.lightWatts}W {activeGrow.setup.lightType.toUpperCase()} · {activeGrow.setup.medium.replace('_', ' ')}
+              </div>
+
+              <Link href={`/hub/grow/${activeGrow._id.toString()}`} style={{
+                fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px',
                 textTransform: 'uppercase', color: '#050508', background: '#cc00aa',
-                border: 'none', borderRadius: '4px', padding: '9px 20px',
-                textDecoration: 'none', transition: 'all 0.2s',
-              }}
-              className="hover:bg-[#e000bb] hover:shadow-[0_0_16px_rgba(204,0,170,0.4)]"
-            >
-              {d.startGrow}
-            </Link>
-          </div>
+                borderRadius: '4px', padding: '8px 18px',
+                textDecoration: 'none', display: 'inline-block',
+              }}>
+                {d.viewGrow}
+              </Link>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '16px 0' }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '24px', color: 'rgba(0,212,200,0.2)', letterSpacing: '-2px' }}>
+                ┌────────────┐<br />
+                │&nbsp;&nbsp;&nbsp;&nbsp;🌱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br />
+                └────────────┘
+              </div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                {d.noActiveGrow}
+              </div>
+              <Link
+                href="/hub/grow"
+                style={{
+                  fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px',
+                  textTransform: 'uppercase', color: '#050508', background: '#cc00aa',
+                  border: 'none', borderRadius: '4px', padding: '9px 20px',
+                  textDecoration: 'none', transition: 'all 0.2s',
+                }}
+                className="hover:bg-[#e000bb] hover:shadow-[0_0_16px_rgba(204,0,170,0.4)]"
+              >
+                {d.startGrow}
+              </Link>
+            </div>
+          )}
         </div>
 
         {/* C — Strain of the Day */}

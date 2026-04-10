@@ -365,6 +365,7 @@ strain profiles exist (strain data needed for flowering times)
 ## Key Decisions & Rules
 
 1. **No `any` in TypeScript** — use proper types or Zod inference
+0. **ALL user-facing text must go through the i18n system** — every string rendered to the UI must have an EN and CS translation in `lib/i18n/translations.ts`. Never hardcode text directly in components. Use `useLanguage()` on client components and `getServerT()` on server components. Locales: `en` (English) and `cs` (Czech). No Slovak — the project uses Czech as the "local" language, not Slovak. Violating this rule means a feature is not complete.
 2. **pnpm only** — `npm install` fails due to peer dep conflicts in this project
 3. **`proxy.ts` not `middleware.ts`** — Next.js 16 convention
 4. **Tailwind v4** — no `tailwind.config.js`, all config in `globals.css` via `@theme inline`
@@ -567,6 +568,112 @@ When integration happens:
 
 For now: H&S is fully standalone.
 Current Seekers DB: seekers_db (do not touch)
+
+---
+
+## Grow Equipment Database
+
+Model: `lib/db/models/GrowEquipment.ts`  
+Data: `data/grow-equipment.json` (82 products)  
+Seed: `pnpm tsx scripts/seed-grow-equipment.ts`
+
+### Model fields
+- `name` — String (required)
+- `slug` — String (unique, auto-generated from name)
+- `brand` — String
+- `description` — String (2–3 sentences, English)
+- `specs` — Mixed (product-type specific: watts/coverage for lights, CFM/dB for fans, NPK for nutrients, etc.)
+- `imageUrl` — String (main image, empty string if unavailable)
+- `images` — [String] (all product images)
+- `prices.czk` — Number (required, primary)
+- `prices.usd` — Number (secondary)
+- `prices.eur` — Number (optional)
+- `category` — String enum: `light_led | light_hps | light_cmh | light_cfl | light_t5 | exhaust_fan | circulation_fan | carbon_filter | medium_soil | medium_coco | medium_hydro | fabric_pot | plastic_pot | airpot | watering_blumat | watering_drip | watering_manual | nutrients_organic | nutrients_mineral | ph_meter | ec_meter | thermohygrometer | timer | lst_tools | other`
+- `lightType` — String enum (lights only): `led | hps | cmh | cfl | t5`
+- `compatibleMedia` — [String] e.g. `['soil', 'coco', 'hydro']`
+- `sourceUrl` — String
+- `isGenerated` — Boolean (true = price/data is estimated, not scraped — needs manual review)
+- `isActive` — Boolean (default true)
+
+### Grow Simulator dependency resolution
+Medium choice → filter `compatibleMedia`:
+- living_soil → `compatibleMedia` includes 'soil', exclude `nutrients_mineral` where `compatibleMedia` is coco/hydro-only
+- coco → `compatibleMedia` includes 'coco', exclude `nutrients_organic` where `compatibleMedia` is soil-only
+- hydro/dwc → `compatibleMedia` includes 'hydro', exclude soil/coco products
+
+### Data status (as of 2026-04-01)
+- 22 products have real scraped prices (Mars Hydro LEDs, AC Infinity fans, Plagron A&B, Bluelab meters)
+- 60 products are `isGenerated: true` — prices estimated, images missing
+- See `data/grow-equipment-report.md` for full breakdown
+
+---
+
+## Grow Simulator — Implementation Status
+
+**Built. Route: `/hub/grow`**
+
+### Files
+| File | Purpose |
+|------|---------|
+| `lib/db/models/VirtualGrow.ts` | MongoDB model |
+| `lib/grow/attributes.ts` | RPG attribute calculation (pure functions) |
+| `lib/grow/simulation.ts` | Day advancement, stage transitions, action effects |
+| `lib/grow/PlantSVG.tsx` | Procedural SVG plant component |
+| `app/hub/grow/page.tsx` | Entry — active grow card or strain picker |
+| `app/hub/grow/setup/page.tsx` | 6-step setup wizard (client) |
+| `app/hub/grow/[id]/page.tsx` | Active grow view — tent visual + attributes + actions |
+| `app/hub/grow/[id]/journal/new/page.tsx` | Journal entry form (with EXIF strip) |
+| `app/hub/grow/[id]/harvest/page.tsx` | Harvest report (server component) |
+
+### API Routes
+```
+GET  /api/hub/grow                  Active grow for current user
+POST /api/hub/grow/start            { strainSlug, setup, timeMode }
+POST /api/hub/grow/action           { type: water|feed|lst|defoliate|ph_check|top|flush }
+POST /api/hub/grow/advance-day      Rate-limited: 24h realtime / 2.4h accelerated
+POST /api/hub/grow/journal          multipart/form-data — EXIF stripped via sharp().rotate()
+POST /api/hub/grow/harvest          Only when stage=harvest
+GET  /api/hub/grow/history          Completed/failed grows, paginated
+```
+
+### VirtualGrow Model Key Fields
+```typescript
+userId, strainSlug, strainName, strainType, floweringTime
+setup: { tentSize, lightType, lightWatts, medium, potSize, watering, nutrients,
+         hasExhaustFan, exhaustCFM, hasCirculationFan, hasCarbonFilter,
+         hasPHMeter, hasECMeter, hasHygrometer }
+timeMode: 'realtime' | 'accelerated'
+stage: 'seedling' | 'veg' | 'flower' | 'late_flower' | 'harvest' | 'complete' | 'failed'
+health: number (0-100)
+attributes: { temperature, humidity, light, ventilation, nutrients, watering }
+  each: { value, optimal: { min, max }, status: 'optimal'|'warning'|'critical' }
+warnings: [{ attribute, message, guide, severity, triggeredAt, resolvedAt }]
+actions: [{ type, timestamp, xpEarned, effect }]
+journalEntries: [{ day, stage, photoUrl, temperature, humidity, ph, ec, notes, mood, xpEarned }]
+harvestData: { gramsYield, qualityScore, creditsEarned, completedAt }
+status: 'active' | 'completed' | 'failed' | 'abandoned'
+```
+
+### Key Rules
+- First grow is FREE (realtime only). Subsequent: 3 credits
+- Accelerated mode: 10x speed, `isPerkEligible: false`, no NFT cert
+- Journal photos: EXIF/GPS stripped via `sharp(buffer).rotate().toBuffer()` before Cloudinary upload
+- Medium dependency rules enforced in setup wizard: living_soil→organic only, coco→mineral required, hydro→mineral+drip only
+- Stage transitions: seedling (d1-7) → veg (d8-35) → flower (d36-35+floweringTime) → harvest
+
+### Cloudinary Assets Used
+```
+tent-bg:      v1775046694/tent-bg_tqvklk.png
+light-led:    v1775046794/light-led_o3w4p6.png
+light-hps:    v1775046794/light-hps_atpeyj.png
+fan-exhaust:  v1775046842/fan-exhaust_d6cc5c.png
+fan-circ:     v1775046841/fan-circulation_q6zbyi.png
+carbon-filter:v1775046888/carbon-filter_zk4axj.png
+pot-small:    v1775046945/pot-small_lr05r7.png
+pot-medium:   v1775046946/pot-medium_cmrorl.png
+pot-large:    v1775046949/pot-large_upcfrg.png
+medium-soil:  v1775046962/medium-soil_zbyoum.png
+```
 
 ---
 
