@@ -94,14 +94,16 @@ export async function POST(req: NextRequest) {
     if (grow.environment) grow.environment.lightHours = 12
     grow.stage = 'flower'
 
-    // Yield impact based on timing
+    // Yield impact based on veg days (not total days — clones enter veg at day 5, seeds at day 8)
+    const seedlingEnd = (grow as typeof grow & { isClone?: boolean }).isClone ? 4 : 7
+    const vegDays = day - seedlingEnd
     let yieldMult = 1.0
     let impactMsg = 'Optimal timing — no yield penalty.'
-    if (day < 21)       { yieldMult = 0.75; impactMsg = 'Very early flip — yield −25%. Plant was not ready.' }
-    else if (day < 28)  { yieldMult = 0.85; impactMsg = 'Early flip — yield −15%. Some stretch expected.' }
-    else if (day <= 35) { yieldMult = 1.0;  impactMsg = 'Perfect timing — no yield penalty.' }
-    else if (day <= 42) { yieldMult = 0.90; impactMsg = 'Late flip — yield −10%. Canopy management needed.' }
-    else                { yieldMult = 0.80; impactMsg = 'Very late flip — yield −20%. Defoliate to manage canopy.' }
+    if (vegDays < 10)       { yieldMult = 0.75; impactMsg = 'Very early flip — yield −25%. Plant was not ready.' }
+    else if (vegDays < 17)  { yieldMult = 0.85; impactMsg = 'Early flip — yield −15%. Some stretch expected.' }
+    else if (vegDays <= 28) { yieldMult = 1.0;  impactMsg = 'Perfect timing — no yield penalty.' }
+    else if (vegDays <= 35) { yieldMult = 0.90; impactMsg = 'Late flip — yield −10%. Canopy management needed.' }
+    else                    { yieldMult = 0.80; impactMsg = 'Very late flip — yield −20%. Defoliate to manage canopy.' }
 
     if (yieldMult < 1.0) {
       grow.yieldProjection = Math.round(grow.yieldProjection * yieldMult)

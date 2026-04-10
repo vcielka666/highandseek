@@ -80,12 +80,6 @@ body {
   position: relative;
 }
 
-/* ── Mobile touch targets ── */
-@media (max-width: 768px) {
-  button, [role="button"] {
-    min-height: 44px;
-  }
-}
 
 /* ── Disable hover-only transforms on touch devices ── */
 @media (hover: none) {

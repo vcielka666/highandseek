@@ -58,7 +58,7 @@ export default function CategorySwitcher({ current }: { current: string }) {
           userSelect: currentIsLocked ? 'none' : 'auto',
         }}
       >
-        {currentIsLocked ? '? ? ?' : currentCat.label}
+        {currentIsLocked ? '?' : currentCat.label}
         <svg
           width="10" height="10" viewBox="0 0 10 10" fill="none"
           style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)', opacity: 0.5 }}
@@ -117,7 +117,7 @@ export default function CategorySwitcher({ current }: { current: string }) {
                     </div>
                     {/* Question marks on top */}
                     <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-                      <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', letterSpacing: '4px', color: 'rgba(232,240,239,0.35)' }}>? ? ?</span>
+                      <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', letterSpacing: '4px', color: 'rgba(232,240,239,0.35)' }}>?</span>
                     </div>
                   </div>
                 ) : (

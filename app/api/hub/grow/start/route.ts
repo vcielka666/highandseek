@@ -194,7 +194,7 @@ export async function POST(req: NextRequest) {
     warnings:      initialWarnings,
     yieldProjection,
     creditsSpent:  totalCost,
-    lastAdvanced:  new Date(0), // allow immediate first advance
+    lastAdvanced:  new Date(Date.now() - dayDurationSeconds * 1000), // allow exactly 1 day on first load
   })
 
   await awardXP(session.user.id, 'GROW_STARTED')

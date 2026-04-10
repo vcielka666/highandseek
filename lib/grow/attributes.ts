@@ -87,12 +87,12 @@ interface OptimalRanges {
 
 export const STAGE_OPTIMAL: Record<GrowStage, OptimalRanges> = {
   seedling: {
-    temperature: { min: 22, max: 28 },
-    humidity:    { min: 55, max: 75 },
-    light:       { min: 50,  max: 400 },
-    ventilation: { min: 15, max: 40 },
-    nutrients:   { min: 0,  max: 20 },
-    watering:    { min: 55, max: 80 },
+    temperature: { min: 20, max: 30 },
+    humidity:    { min: 50, max: 80 },
+    light:       { min: 30,  max: 500 },
+    ventilation: { min: 5,  max: 45 },  // seedlings need gentle airflow — no fan is OK
+    nutrients:   { min: 0,  max: 70 },  // seedlings tolerate a wide range; soil/coco start high
+    watering:    { min: 50, max: 85 },
   },
   veg: {
     temperature: { min: 20, max: 28 },

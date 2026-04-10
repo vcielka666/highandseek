@@ -69,7 +69,7 @@ export default function HeroSection() {
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', opacity: 0, animation: 'fadeUp 0.6s ease forwards 1.1s' }}>
 
           {/* Collection button — image floats behind it */}
-          <div style={{ position: 'relative', overflow: 'hidden' }} className="w-full sm:w-auto sm:overflow-visible">
+          <div style={{ position: 'relative' }} className="w-full sm:w-auto overflow-hidden sm:overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/landingPage/behindCollection.png"
@@ -122,7 +122,7 @@ export default function HeroSection() {
           </div>
 
           {/* Hub button — steam floats behind it */}
-          <div style={{ position: 'relative', overflow: 'hidden' }} className="w-full sm:w-auto sm:overflow-visible">
+          <div style={{ position: 'relative' }} className="w-full sm:w-auto overflow-hidden sm:overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/landingPage/steam.png"
