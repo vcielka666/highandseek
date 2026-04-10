@@ -56,10 +56,11 @@ const CustomStrainSchema = z.object({
 const StartSchema = z.object({
   strainSlug:          z.string().min(1).optional(),
   customStrain:        CustomStrainSchema.optional(),
+  cloneStrainSlug:     z.string().min(1).optional(),   // use a clone from cloneBank
   setup:               SetupSchema,
   dayDurationSeconds:  z.number().int().min(60).max(86400).default(86400),
-}).refine(d => d.strainSlug || d.customStrain, {
-  message: 'Either strainSlug or customStrain is required',
+}).refine(d => d.strainSlug || d.customStrain || d.cloneStrainSlug, {
+  message: 'Either strainSlug, customStrain or cloneStrainSlug is required',
 })
 
 const GROW_COST_CREDITS       = 3
@@ -74,7 +75,7 @@ export async function POST(req: NextRequest) {
   if (!parsed.success) {
     return NextResponse.json({ error: 'Invalid input', issues: parsed.error.issues }, { status: 400 })
   }
-  const { strainSlug, customStrain, setup, dayDurationSeconds } = parsed.data
+  const { strainSlug, customStrain, cloneStrainSlug, setup, dayDurationSeconds } = parsed.data
 
   await connectDB()
 
@@ -85,8 +86,9 @@ export async function POST(req: NextRequest) {
   }
 
   // Check credits — first grow is free (realtime only)
-  const user = await User.findById(session.user.id).select('growsCompleted credits').lean<{
+  const user = await User.findById(session.user.id).select('growsCompleted credits cloneBank').lean<{
     growsCompleted: number; credits: number
+    cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
   }>()
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
@@ -105,8 +107,19 @@ export async function POST(req: NextRequest) {
 
   // Resolve strain data
   let strainData: { slug: string; name: string; type: 'indica' | 'sativa' | 'hybrid'; floweringTime: number }
+  let isClone = false
 
-  if (customStrain) {
+  if (cloneStrainSlug) {
+    // Clone grow — find in user's cloneBank (clones are free, no credit cost)
+    const clone = user?.cloneBank?.find(c => c.strainSlug === cloneStrainSlug)
+    if (!clone) return NextResponse.json({ error: 'Clone not found in your bank' }, { status: 404 })
+    strainData = { slug: clone.strainSlug, name: clone.strainName, type: clone.strainType, floweringTime: clone.floweringTime }
+    isClone = true
+    // Remove used clone from bank
+    await User.findByIdAndUpdate(session.user.id, {
+      $pull: { cloneBank: { strainSlug: cloneStrainSlug } },
+    })
+  } else if (customStrain) {
     // Deduct credits for custom strain
     await spendCredits(session.user.id, CUSTOM_STRAIN_COST, 'custom_strain_grow')
     if (!isFree) {
@@ -169,6 +182,7 @@ export async function POST(req: NextRequest) {
     strainName:    strainData.name,
     strainType:    strainData.type,
     floweringTime: strainData.floweringTime || 63,
+    isClone,
     setup:         fullSetup,
     dayDurationSeconds,
     timeMode:       dayDurationSeconds >= 86400 ? 'realtime' : 'accelerated',

@@ -8,11 +8,13 @@ export default function Footer() {
   return (
     <footer
       style={{
-        padding: '24px 48px',
+        padding: '20px 24px',
         borderTop: '0.5px solid rgba(0,212,200,0.08)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: '10px',
         background: 'rgba(10,36,40,0.3)',
       }}
     >

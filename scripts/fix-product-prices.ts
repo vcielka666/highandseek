@@ -1,7 +1,7 @@
 /**
  * One-time migration: products saved before the price bug fix had their price
  * multiplied by 100 on save (Math.round(price * 100)). This script divides
- * all product prices by 100 to restore the intended EUR value.
+ * all product prices by 100 to restore the intended CZK value.
  *
  * Usage: pnpm tsx scripts/fix-product-prices.ts
  */
@@ -28,11 +28,11 @@ async function main() {
     const oldPrice = p.price
     const newPrice = Math.round((oldPrice / 100) * 100) / 100  // divide by 100, keep 2dp
     await Product.updateOne({ _id: p._id }, { $set: { price: newPrice } })
-    console.log(`  ${p.name}: ${oldPrice} → ${newPrice} EUR  (≈ ${Math.round(newPrice * 25)} Kč)`)
+    console.log(`  ${p.name}: ${oldPrice} → ${newPrice} Kč`)
     updated++
   }
 
-  console.log(`\n✓ Updated ${updated} products. Re-enter EUR prices in admin as needed.`)
+  console.log(`\n✓ Updated ${updated} products. Re-enter CZK prices in admin as needed.`)
   await mongoose.disconnect()
 }
 

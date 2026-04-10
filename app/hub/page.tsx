@@ -16,11 +16,11 @@ function XPBar({ percent, xp, next }: { percent: number; xp: number; next: typeo
     <div style={{ marginTop: '8px' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
         <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
-          {xp.toLocaleString()} XP
+          {xp.toLocaleString('en-US')} XP
         </span>
         {next && (
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
-            {next.xpRequired.toLocaleString()} XP → {next.name}
+            {next.xpRequired.toLocaleString('en-US')} XP → {next.name}
           </span>
         )}
       </div>
@@ -176,14 +176,20 @@ export default async function HubPage() {
               </Link>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '16px 0' }}>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '24px', color: 'rgba(0,212,200,0.2)', letterSpacing: '-2px' }}>
-                ┌────────────┐<br />
-                │&nbsp;&nbsp;&nbsp;&nbsp;🌱&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;│<br />
-                └────────────┘
-              </div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>
-                {d.noActiveGrow}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', padding: '8px 0' }}>
+              {/* Tent image */}
+              <div style={{ position: 'relative', width: '100%', height: '120px', borderRadius: '6px', overflow: 'hidden', marginBottom: '4px' }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046694/tent-bg_tqvklk.png"
+                  alt="Grow tent"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }}
+                />
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'rgba(232,240,239,0.5)', letterSpacing: '1px', textTransform: 'uppercase' }}>
+                    {d.noActiveGrow}
+                  </div>
+                </div>
               </div>
               <Link
                 href="/hub/grow"
@@ -462,7 +468,7 @@ export default async function HubPage() {
                   </span>
                 </div>
                 <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: '#f0a830', flexShrink: 0 }}>
-                  {u.xp.toLocaleString()} XP
+                  {u.xp.toLocaleString('en-US')} XP
                 </span>
               </div>
             )

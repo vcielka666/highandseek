@@ -9,7 +9,6 @@ import { toast } from 'sonner'
 import type { ProductDTO } from '@/types/shop'
 
 function czk(price: number) { return `${price.toLocaleString('cs-CZ')} Kč` }
-function usd(price: number) { return `$${Math.round(price / 23)}` }
 
 const BADGE_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   indica:    { bg: 'rgba(204,0,170,0.15)',  color: '#cc00aa', label: 'INDICA'   },
@@ -303,9 +302,6 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
                 <>
                   <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
                     {czk(product.price)}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '6px' }}>
-                    {usd(product.price)}
                   </span>
                 </>
               ) : null}

@@ -292,7 +292,7 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
                 borderRadius: '4px',
                 cursor: 'pointer',
                 border: `0.5px solid ${active ? 'rgba(0,212,200,0.5)' : 'rgba(0,212,200,0.08)'}`,
-                background: active ? 'rgba(0,212,200,0.12)' : 'transparent',
+                background: active ? 'rgba(205, 0, 212, 0.12)' : 'transparent',
                 transition: 'all 0.15s',
                 overflow: 'hidden',
               }}

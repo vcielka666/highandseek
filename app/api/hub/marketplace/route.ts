@@ -21,8 +21,9 @@ const CreateSchema = z.object({
     telegram: z.string().max(80).optional(),
     signal:   z.string().max(40).optional(),
     threema:  z.string().max(40).optional(),
+    email:    z.string().email().max(120).optional(),
   }).refine(
-    c => !!(c.telegram || c.signal || c.threema),
+    c => !!(c.telegram || c.signal || c.threema || c.email),
     { message: 'At least one contact method required' },
   ),
   images: z.array(z.string().url()).max(3).default([]),

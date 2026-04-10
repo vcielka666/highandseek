@@ -10,9 +10,9 @@ import { useLanguage } from '@/stores/languageStore'
 
 const NAV_ITEMS = [
   { href: '/hub',               key: 'home'        as const, icon: '⌂',  seekers: false, image: null },
-  { href: '/hub/hunt',          key: 'seekers'     as const, icon: '🗺️', seekers: true,  image: null },
-  { href: '/hub/strains',       key: 'ganjatarz'   as const, icon: '🧬', seekers: false, image: '/icons/strainAvatarIcon.png' },
   { href: '/hub/grow',          key: 'growSim'     as const, icon: '🌿', seekers: false, image: null },
+  { href: '/hub/strains',       key: 'ganjatarz'   as const, icon: '🧬', seekers: false, image: '/icons/strainAvatarIcon.png' },
+  { href: '/hub/hunt',          key: 'seekers'     as const, icon: '🗺️', seekers: true,  image: null },
   { href: '/hub/academy',       key: 'academy'     as const, icon: '📚', seekers: false, image: null },
   { href: '/hub/forum',         key: 'forumBridge' as const, icon: '🔍', seekers: false, image: null },
   { href: '/hub/leaderboard',   key: 'leaderboard' as const, icon: '🏆', seekers: false, image: null },
@@ -111,7 +111,7 @@ export default function HubSidebar({ session, credits, avatar, xp, criticalWarni
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>XP</span>
               <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
-                {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+                {xp.toLocaleString('en-US')}{next ? ` / ${next.xpRequired.toLocaleString('en-US')}` : ''}
               </span>
             </div>
             <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -267,7 +267,7 @@ export default function HubSidebar({ session, credits, avatar, xp, criticalWarni
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>XP</span>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
-              {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+              {xp.toLocaleString('en-US')}{next ? ` / ${next.xpRequired.toLocaleString('en-US')}` : ''}
             </span>
           </div>
           <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -450,7 +450,7 @@ export default function HubSidebar({ session, credits, avatar, xp, criticalWarni
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>XP</span>
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830' }}>
-                  {xp.toLocaleString()}{next ? ` / ${next.xpRequired.toLocaleString()}` : ''}
+                  {xp.toLocaleString('en-US')}{next ? ` / ${next.xpRequired.toLocaleString('en-US')}` : ''}
                 </span>
               </div>
               <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>
@@ -485,7 +485,7 @@ export default function HubSidebar({ session, credits, avatar, xp, criticalWarni
                           {isCurrent && <span style={{ marginLeft: '6px', fontSize: '8px', color: '#00d4c8' }}>← you</span>}
                         </div>
                         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', flexShrink: 0, marginLeft: '8px' }}>
-                          {lvl.xpRequired > 0 ? `${lvl.xpRequired.toLocaleString()} ${nav.levelPopupXpLabel}` : '—'}
+                          {lvl.xpRequired > 0 ? `${lvl.xpRequired.toLocaleString('en-US')} ${nav.levelPopupXpLabel}` : '—'}
                         </div>
                       </div>
                       <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: isReached ? 'rgba(232,240,239,0.5)' : 'rgba(74,96,102,0.7)', lineHeight: 1.4 }}>

@@ -27,6 +27,8 @@ const FIELD_TO_GROUP: Record<string, string> = {
 
 const SETUP_CHANGE_COST_CREDITS = 1
 const SETUP_CHANGE_XP           = 50
+// These groups are always free — no credit charge ever
+const FREE_GROUPS = new Set(['phMeter', 'hygrometer'])
 
 const SetupPatchSchema = z.object({
   lightType:         z.enum(['led', 'hps', 'cmh', 'cfl']).optional(),
@@ -62,8 +64,9 @@ export async function PATCH(req: NextRequest) {
   const existingChangedGroups = (grow as unknown as { setupChangedGroups?: string[] }).setupChangedGroups
   const alreadyChanged = Array.isArray(existingChangedGroups) && existingChangedGroups.includes(group)
 
-  // First change costs 1 credit
-  if (!alreadyChanged) {
+  // First change costs 1 credit (pH meter and hygrometer are always free)
+  const isFreeGroup = FREE_GROUPS.has(group)
+  if (!alreadyChanged && !isFreeGroup) {
     const user = await User.findById(session.user.id)
     if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
     if ((user.credits ?? 0) < SETUP_CHANGE_COST_CREDITS) {
@@ -109,6 +112,6 @@ export async function PATCH(req: NextRequest) {
     grow:        grow.toObject(),
     firstChange: !alreadyChanged,
     xpAwarded,
-    creditsSpent: !alreadyChanged ? SETUP_CHANGE_COST_CREDITS : 0,
+    creditsSpent: (!alreadyChanged && !isFreeGroup) ? SETUP_CHANGE_COST_CREDITS : 0,
   })
 }

@@ -65,19 +65,21 @@ export async function POST(
 
   // Check cooldown
   const cooldownMs = CARE_COOLDOWNS_MS[action]
-  const lastUsed = avatarState.cooldowns[action as keyof typeof avatarState.cooldowns] as Date | null
+  const cooldowns = avatarState.cooldowns!
+  const lastUsed = cooldowns[action as keyof typeof cooldowns] as Date | null
   if (lastUsed && Date.now() - lastUsed.getTime() < cooldownMs) {
     const availableAt = new Date(lastUsed.getTime() + cooldownMs)
     return NextResponse.json({ onCooldown: true, availableAt: availableAt.toISOString() })
   }
 
   // Calculate current needs (decay since last save)
+  const needs = avatarState.needs!
   const currentNeeds = calculateCurrentNeeds({
-    hydration:   avatarState.needs.hydration,
-    nutrients:   avatarState.needs.nutrients,
-    energy:      avatarState.needs.energy,
-    happiness:   avatarState.needs.happiness,
-    lastUpdated: avatarState.needs.lastUpdated.toISOString(),
+    hydration:   needs.hydration,
+    nutrients:   needs.nutrients,
+    energy:      needs.energy,
+    happiness:   needs.happiness,
+    lastUpdated: needs.lastUpdated.toISOString(),
   })
 
   const isHated    = action === strain.personality.hatedAction
@@ -94,11 +96,11 @@ export async function POST(
   const avatarLevelUp = newLevelData.level > oldLevel
 
   // Save state
-  avatarState.needs.hydration   = updatedNeeds.hydration
-  avatarState.needs.nutrients   = updatedNeeds.nutrients
-  avatarState.needs.energy      = updatedNeeds.energy
-  avatarState.needs.happiness   = updatedNeeds.happiness
-  avatarState.needs.lastUpdated = new Date(updatedNeeds.lastUpdated)
+  avatarState.needs!.hydration   = updatedNeeds.hydration
+  avatarState.needs!.nutrients   = updatedNeeds.nutrients
+  avatarState.needs!.energy      = updatedNeeds.energy
+  avatarState.needs!.happiness   = updatedNeeds.happiness
+  avatarState.needs!.lastUpdated = new Date(updatedNeeds.lastUpdated)
   avatarState.status            = newStatus
   avatarState.xp                = newAvatarXP
   avatarState.level             = newLevelData.level

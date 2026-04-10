@@ -87,14 +87,14 @@ export default function AnalyticsClient() {
       ) : data && (
         <>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <MetricCard label="Total Users (all)" value={data.stats.totalUsers.toLocaleString()} />
+            <MetricCard label="Total Users (all)" value={data.stats.totalUsers.toLocaleString('en-US')} />
             <MetricCard label="Total Revenue"     value={`${fmt(data.stats.totalRevenue)} CZK`} />
-            <MetricCard label="Total Orders"      value={data.stats.totalOrders.toLocaleString()} accent="teal" />
+            <MetricCard label="Total Orders"      value={data.stats.totalOrders.toLocaleString('en-US')} accent="teal" />
             <MetricCard label="Avg Order Value"   value={`${fmt(data.stats.avgOrderValue)} CZK`} accent="magenta" />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <MetricCard label={`Revenue (${days}d)`}   value={`${fmt(data.stats.periodRevenue)} CZK`} />
-            <MetricCard label={`New Users (${days}d)`} value={data.stats.periodUsers.toLocaleString()} accent="teal" />
+            <MetricCard label={`New Users (${days}d)`} value={data.stats.periodUsers.toLocaleString('en-US')} accent="teal" />
           </div>
         </>
       )}

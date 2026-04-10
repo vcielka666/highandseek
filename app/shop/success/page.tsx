@@ -16,9 +16,12 @@ function SuccessContent() {
 
   const paymentIntent = searchParams.get('payment_intent')
   const status = searchParams.get('redirect_status')
+  const orderId = searchParams.get('order_id')
+
+  const isSuccess = status === 'succeeded' || !!orderId
 
   useEffect(() => {
-    if (status === 'succeeded') {
+    if (isSuccess) {
       clearCart()
       if (session) {
         const timer = setTimeout(() => setShowXP(true), 800)
@@ -26,9 +29,7 @@ function SuccessContent() {
       }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status])
-
-  const isSuccess = status === 'succeeded'
+  }, [isSuccess])
 
   return (
     <>
@@ -85,7 +86,7 @@ function SuccessContent() {
       </div>
 
       {/* Order number */}
-      {isSuccess && paymentIntent && (
+      {isSuccess && (paymentIntent || orderId) && (
         <div style={{
           padding: '10px 20px',
           background: 'rgba(0,212,200,0.05)',
@@ -96,7 +97,7 @@ function SuccessContent() {
             Order ref:&nbsp;
           </span>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8' }}>
-            {paymentIntent.slice(-12).toUpperCase()}
+            {(orderId ?? paymentIntent!).slice(-12).toUpperCase()}
           </span>
         </div>
       )}

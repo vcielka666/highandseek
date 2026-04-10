@@ -24,8 +24,6 @@ const GrowEquipmentSchema = new mongoose.Schema({
   images:          [{ type: String }],
   prices: {
     czk:           { type: Number, required: true, min: 0 },
-    usd:           { type: Number, default: null },
-    eur:           { type: Number, default: null },
   },
   category:        { type: String, enum: VALID_CATEGORIES, required: true },
   lightType:       { type: String, enum: [...VALID_LIGHT_TYPES, null], default: null },

@@ -225,11 +225,19 @@ export function calculateAttributes(
     if (stage === 'late_flower') return 9
     return 4
   })()
-  // Fan extraction uses effective CFM (fan speed included)
-  const humidityExtraction = !setup.hasExhaustFan ? 0
-    : effectiveCFM < 200 ? Math.round(environment.humidity * 0.05)
-    : effectiveCFM < 400 ? Math.round(environment.humidity * 0.10)
-    : Math.round(environment.humidity * 0.15)
+  // Fan extraction — flat points pulled from humidity per CFM tier.
+  // A powerful fan actively replaces humid tent air with drier intake air.
+  // Rule: 1000+ CFM at 100% should be able to push humidity below 50%
+  // even with full flower transpiration (+12) from a 65–70% ambient.
+  const humidityExtraction = (() => {
+    if (!setup.hasExhaustFan || effectiveCFM === 0) return 0
+    if (effectiveCFM <  100) return 5
+    if (effectiveCFM <  200) return 10
+    if (effectiveCFM <  400) return 16
+    if (effectiveCFM <  600) return 22
+    if (effectiveCFM < 1000) return 28
+    return 35  // 1000+ CFM — strong enough to pull humidity well below ambient
+  })()
   const humidityValue = Math.max(0, Math.min(100,
     environment.humidity + transpiration - humidityExtraction,
   ))
@@ -360,11 +368,17 @@ export function generateGuide(
         `→ Raise light higher\n` +
         `→ Dim to 70-80%`
 
-    case 'ventilation':
-      return `${prefix}: Ventilation ${Math.round(value)} ACH — ${value < STAGE_OPTIMAL[stage].ventilation.min ? 'too low' : 'excessive'}.\n` +
-        (!setup.hasExhaustFan
-          ? `No exhaust fan detected!\n→ Add an inline duct fan immediately.`
-          : `Solutions:\n→ Check fan speed settings\n→ Inspect duct for blockages`)
+    case 'ventilation': {
+      const opt = STAGE_OPTIMAL[stage].ventilation
+      if (value < opt.min) {
+        return `${prefix}: Ventilation ${Math.round(value)} ACH — too low (optimal ${opt.min}–${opt.max} ACH).\n` +
+          (!setup.hasExhaustFan
+            ? `No exhaust fan detected!\n→ Add an inline duct fan immediately.`
+            : `Solutions:\n→ Increase fan speed\n→ Inspect duct for blockages`)
+      }
+      return `${prefix}: Ventilation ${Math.round(value)} ACH — too strong (optimal max ${opt.max} ACH).\n` +
+        `Solutions:\n→ Reduce fan speed\n→ Partially close the exhaust duct`
+    }
 
     case 'nutrients':
       if (value < STAGE_OPTIMAL[stage].nutrients.min) {
@@ -447,13 +461,14 @@ export function generateSmartGuide(
   const v = attributes.ventilation
   const w = attributes.watering
 
-  const highTemp = t.status !== 'optimal' && t.value > t.optimal.max
-  const highHum  = h.status !== 'optimal' && h.value > h.optimal.max
-  const lowHum   = h.status !== 'optimal' && h.value < h.optimal.min
-  const highNut  = n.status !== 'optimal' && n.value > n.optimal.max
-  const lowNut   = n.status !== 'optimal' && n.value < n.optimal.min
-  const lowVent  = v.status !== 'optimal' && v.value < v.optimal.min
-  const lowWater = w.status !== 'optimal' && w.value < w.optimal.min
+  const highTemp  = t.status !== 'optimal' && t.value > t.optimal.max
+  const highHum   = h.status !== 'optimal' && h.value > h.optimal.max
+  const lowHum    = h.status !== 'optimal' && h.value < h.optimal.min
+  const highNut   = n.status !== 'optimal' && n.value > n.optimal.max
+  const lowNut    = n.status !== 'optimal' && n.value < n.optimal.min
+  const lowVent   = v.status !== 'optimal' && v.value < v.optimal.min
+  const highVent  = v.status !== 'optimal' && v.value > v.optimal.max
+  const lowWater  = w.status !== 'optimal' && w.value < w.optimal.min
   const overWater = w.status !== 'optimal' && w.value > w.optimal.max
 
   // ── Conflict: high temp + high humidity → exhaust fan solves both ──────────
@@ -545,6 +560,20 @@ export function generateSmartGuide(
           ? { text: 'Add exhaust fan — critical for any tent', action: 'upgrade_fan_small', cost: 25 }
           : { text: 'Increase fan speed', action: 'fan_speed', cost: 0 },
         { text: 'Add circulation fan — improves airflow', action: 'circulation_fan', cost: 20 },
+      ],
+    })
+  }
+
+  // ── High ventilation ───────────────────────────────────────────────────────
+  if (highVent) {
+    warnings.push({
+      id: 'high_vent',
+      attributes: ['ventilation'],
+      severity: sev(v.status),
+      message: `Ventilation ${Math.round(v.value)} ACH is too strong (optimal ${v.optimal.min}–${v.optimal.max} ACH). Excessive airflow dries out the medium too fast, stresses the plant, and can lower humidity dangerously.`,
+      solutions: [
+        { text: 'Reduce fan speed — drag fan control down', action: 'fan_speed', cost: 0 },
+        { text: 'Partially close exhaust duct — throttles airflow', cost: 0 },
       ],
     })
   }

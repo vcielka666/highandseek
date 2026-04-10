@@ -31,6 +31,13 @@ const UserSchema = new mongoose.Schema({
   followers:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   growsCompleted:  { type: Number, default: 0 },
+  cloneBank: { type: [{
+    strainSlug:    { type: String, required: true },
+    strainName:    { type: String, required: true },
+    strainType:    { type: String, enum: ['indica', 'sativa', 'hybrid'], required: true },
+    floweringTime: { type: Number, required: true },
+    takenAt:       { type: Date, default: () => new Date() },
+  }], default: [] },
   totalXpEarned:   { type: Number, default: 0 },
   showcaseBadges:  [{ type: String }],
   academy: {

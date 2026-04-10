@@ -39,8 +39,10 @@ export interface DayResult {
 
 // ── Stage transition ───────────────────────────────────────────────────────────
 
-export function getStage(day: number, floweringTime: number, flipDay?: number | null): GrowStage {
-  if (day <= 7) return 'seedling'
+export function getStage(day: number, floweringTime: number, flipDay?: number | null, isClone?: boolean): GrowStage {
+  // Clones are already rooted — seedling phase is only 4 days instead of 7
+  const seedlingEnd = isClone ? 4 : 7
+  if (day <= seedlingEnd) return 'seedling'
   const vegEnd = flipDay ?? 35
   if (day <= vegEnd) return 'veg'
   const flowerDay = day - vegEnd
@@ -62,6 +64,7 @@ export function advanceDay(params: {
   currentDay:       number
   floweringTime:    number
   flipDay?:         number | null
+  isClone?:         boolean
   setup:            Setup
   environment:      Environment
   health:           number
@@ -71,10 +74,10 @@ export function advanceDay(params: {
   strainType:       'indica' | 'sativa' | 'hybrid'
   existingWarnings: Warning[]
 }): DayResult {
-  const { currentDay, floweringTime, flipDay, setup, environment, health, maxHealth, currentWatering, currentNutrients, strainType, existingWarnings } = params
+  const { currentDay, floweringTime, flipDay, isClone, setup, environment, health, maxHealth, currentWatering, currentNutrients, strainType, existingWarnings } = params
 
   const newDay = currentDay + 1
-  const stage = getStage(newDay, floweringTime, flipDay)
+  const stage = getStage(newDay, floweringTime, flipDay, isClone)
 
   // Auto-adjust light hours for flowering
   const autoEnv: Environment = {
@@ -129,18 +132,26 @@ export function advanceDay(params: {
   const criticalCount = activeWarnings.filter(w => w.severity === 'critical').length
   const warningCount  = activeWarnings.filter(w => w.severity === 'warning').length
 
-  let healthDelta = 0
-  // Permanent scarring: each critical per day lowers the health ceiling by 2
-  // (stress damage — plant can never fully recover after serious issues)
-  const newMaxHealth = Math.max(10, maxHealth - criticalCount * 2)
+  // Day 1 grace period: warnings are shown so the user knows what to fix,
+  // but no HP damage and no permanent ceiling reduction are applied yet.
+  // Consequences only start from day 2 onward.
+  const isFirstDay = newDay === 1
 
-  if (criticalCount === 0 && warningCount === 0) {
-    // All optimal — plant recovers +2 HP/day, but never above the scarred ceiling
-    healthDelta = +2
-  } else {
-    // Per day: critical -5hp, warning -2hp
-    healthDelta -= criticalCount * 5
-    healthDelta -= warningCount * 2
+  let healthDelta = 0
+  let newMaxHealth = maxHealth
+
+  if (!isFirstDay) {
+    // Permanent scarring: each critical per day lowers the health ceiling by 2
+    newMaxHealth = Math.max(10, maxHealth - criticalCount * 2)
+
+    if (criticalCount === 0 && warningCount === 0) {
+      // All optimal — plant recovers +2 HP/day, never above the scarred ceiling
+      healthDelta = +2
+    } else {
+      // Per day: critical -5hp, warning -2hp
+      healthDelta -= criticalCount * 5
+      healthDelta -= warningCount * 2
+    }
   }
 
   const newHealth = Math.max(0, Math.min(newMaxHealth, health + healthDelta))
@@ -207,6 +218,11 @@ export function getActionEffect(
       return { xp: 0, effectDesc: 'Light height adjusted' }
     case 'fan_speed':
       return { xp: 0, effectDesc: 'Fan speed adjusted' }
+    case 'lollipop':
+      if (stage === 'seedling' || stage === 'veg') {
+        return { xp: 0, effectDesc: 'Lollipopping only available from flower stage onward' }
+      }
+      return { ventDelta: 8, xp: 20, effectDesc: 'Lollipopped — bottom branches removed, ventilation improved' }
     case 'flip_12_12':
       return { xp: 10, effectDesc: 'Flipped to 12/12 — flowering triggered' }
     default:
@@ -229,5 +245,7 @@ export const GROW_XP_EVENTS = {
   JOURNAL_ENTRY:   15,
   JOURNAL_PHOTO:   20,
   JOURNAL_DETAILED:10,
+  LOLLIPOP:       20,
+  CLONE_TAKEN:    30,
   GROW_COMPLETED: 200,
 } as const

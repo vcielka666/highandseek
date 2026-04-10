@@ -142,8 +142,8 @@ export default function UserDetailClient({
                 <Progress value={xpPct} className="h-1.5" style={{ background: 'rgba(240,168,48,0.1)' }} />
               </div>
               {[
-                { label: 'Total XP',    value: user.totalXpEarned?.toLocaleString() ?? '0' },
-                { label: 'Credits',     value: user.credits?.toLocaleString() ?? '0' },
+                { label: 'Total XP',    value: user.totalXpEarned?.toLocaleString('en-US') ?? '0' },
+                { label: 'Credits',     value: user.credits?.toLocaleString('en-US') ?? '0' },
                 { label: 'Grows',       value: user.growsCompleted ?? 0 },
                 { label: 'Badges',      value: user.badges?.length ?? 0 },
                 { label: 'Joined',      value: formatDistanceToNow(new Date(user.createdAt), { addSuffix: true }) },
@@ -266,7 +266,7 @@ export default function UserDetailClient({
             <Card style={CARD_STYLE}>
               <CardContent className="pt-4">
                 <p className="text-3xl font-semibold mb-4" style={{ color: '#f0a830', fontFamily: 'var(--font-orbitron)' }}>
-                  {user.credits?.toLocaleString() ?? '0'}
+                  {user.credits?.toLocaleString('en-US') ?? '0'}
                   <span className="text-sm font-normal ml-2" style={{ color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>credits</span>
                 </p>
                 {creditEvents.length === 0 ? (

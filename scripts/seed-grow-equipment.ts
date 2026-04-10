@@ -70,8 +70,6 @@ async function main() {
     images:          [{ type: String }],
     prices: {
       czk:           { type: Number, required: true, min: 0 },
-      usd:           { type: Number, default: null },
-      eur:           { type: Number, default: null },
     },
     category:        { type: String, enum: VALID_CATEGORIES, required: true },
     lightType:       { type: String, default: null },
@@ -100,7 +98,7 @@ async function main() {
     }
     usedSlugs.add(slug)
 
-    const prices = p.prices as { czk?: number; usd?: number; eur?: number }
+    const prices = p.prices as { czk?: number }
     if (!prices?.czk) {
       console.warn(`  ⚠️  Missing CZK price for "${p.name}", defaulting to 0`)
     }
@@ -115,8 +113,6 @@ async function main() {
       images:          (p.images as string[]) ?? [],
       prices: {
         czk:           prices?.czk ?? 0,
-        usd:           prices?.usd ?? null,
-        eur:           prices?.eur ?? null,
       },
       category:        p.category,
       lightType:       (p.lightType as string) ?? null,

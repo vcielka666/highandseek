@@ -75,6 +75,8 @@ interface VirtualGrow {
   lastAdvanced: string
   createdAt: string
   manualFlipDay?: number | null
+  isClone?: boolean
+  hasLollipoped?: boolean
   purchasedUpgrades?: Array<{ type: string; name: string; creditsCost: number }>
   setupChangedGroups?: string[]
 }
@@ -82,9 +84,9 @@ interface VirtualGrow {
 // ── Status color ───────────────────────────────────────────────────────────────
 
 function statusColor(s: string) {
-  if (s === 'optimal')  return '#00d4c8'
+  if (s === 'optimal')  return '#56c254'  // natural plant green
   if (s === 'warning')  return '#f0a830'
-  return '#ff4040'   // critical → red, not brand magenta
+  return '#ff4040'   // critical → red
 }
 
 // ── Lamp top position based on height (20cm=close=lower, 100cm=far=higher) ────
@@ -516,10 +518,15 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const data = await res.json()
       if (!res.ok) {
         if (res.status === 429) { toast.error(g.nextAdvanceIn(Math.ceil(data.secondsLeft / 3600))); return }
+        if (res.status === 409 && data.readyToHarvest) {
+          toast.success('🌾 Your plant is ready to harvest!')
+          return
+        }
         toast.error(data.error ?? 'Failed'); return
       }
       setGrow(data.grow)
-      if (data.grow.stage !== grow?.stage) toast.success(g.stageChanged(data.grow.stage.replace('_', ' ')))
+      if (data.daysAdvanced > 1) toast.success(`⏩ Caught up ${data.daysAdvanced} days`)
+      if (data.stageChanged) toast.success(g.stageChanged(data.grow.stage.replace('_', ' ')))
     })
   }
 
@@ -600,8 +607,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   // Setup change cost hint — shown on groups not yet changed
   const setupChangedGroups = grow.setupChangedGroups ?? []
+  const FREE_SETUP_GROUPS = new Set(['phMeter', 'hygrometer'])
   const setupCostHint = (group: string) => !setupChangedGroups.includes(group)
-    ? <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: 'rgba(240,168,48,0.45)' }}>1cr·+50xp</span>
+    ? FREE_SETUP_GROUPS.has(group)
+      ? <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: 'rgba(0,212,200,0.5)' }}>FREE·+50xp</span>
+      : <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: 'rgba(240,168,48,0.45)' }}>1cr·+50xp</span>
     : null
 
   // Only show DB warnings whose attribute is still non-optimal — stale warnings auto-hide when recovered
@@ -708,6 +718,69 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           )}
         </div>
       </div>
+
+      {/* ── Harvest-ready banner ── */}
+      {grow.stage === 'harvest' && (() => {
+        const flipDay = grow.manualFlipDay ?? 35
+        const totalFlowerDays = grow.currentDay - flipDay
+        const vegDays = flipDay - (grow.isClone ? 4 : 7)
+        const techniques = [
+          grow.actions.some(a => a.type === 'lst')       && 'LST',
+          grow.actions.some(a => a.type === 'top')       && 'Topping',
+          grow.actions.some(a => a.type === 'defoliate') && 'Defoliation',
+          grow.hasLollipoped                              && 'Lollipopping',
+        ].filter(Boolean) as string[]
+        const quality = Math.round(grow.health + (techniques.length * 3))
+        const qualityLabel = quality >= 90 ? 'Exceptional' : quality >= 70 ? 'Premium' : quality >= 50 ? 'Good' : 'Standard'
+        const qualityColor = quality >= 90 ? '#00d4c8' : quality >= 70 ? '#f0a830' : '#e8f0ef'
+        const tipsByStrain: Record<string, string> = {
+          indica:  'Indica plants typically produce dense, resinous buds. Flush for 1–2 weeks before harvest for the cleanest smoke.',
+          sativa:  'Sativa buds can look sparse but pack a punch. Check trichomes under a loupe — milky-amber mix signals peak harvest.',
+          hybrid:  'Hybrid phenos can express either parent heavily. Watch for pistil color (70–80% orange/red) alongside trichome maturity.',
+        }
+        return (
+          <div style={{
+            background: 'rgba(240,168,48,0.08)',
+            border: '0.5px solid rgba(240,168,48,0.55)',
+            borderRadius: '8px', padding: '20px', marginBottom: '20px',
+            animation: 'glowPulse 2.5s ease-in-out infinite',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#f0a830', marginBottom: '14px' }}>
+              🌾 READY TO HARVEST
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px,1fr))', gap: '10px', marginBottom: '16px' }}>
+              {[
+                { label: 'Total days',    value: String(grow.currentDay) },
+                { label: 'Veg days',      value: String(Math.max(0, vegDays)) },
+                { label: 'Flower days',   value: String(Math.max(0, totalFlowerDays)) },
+                { label: 'Est. yield',    value: `~${grow.yieldProjection}g` },
+                { label: 'Health',        value: `${grow.health}%` },
+                { label: 'Quality est.',  value: qualityLabel },
+              ].map(({ label, value }) => (
+                <div key={label} style={{ background: 'rgba(240,168,48,0.06)', border: '0.5px solid rgba(240,168,48,0.18)', borderRadius: '6px', padding: '10px', textAlign: 'center' }}>
+                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', fontWeight: 700, color: qualityColor, marginBottom: '2px' }}>{value}</div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>{label}</div>
+                </div>
+              ))}
+            </div>
+            {techniques.length > 0 && (
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginBottom: '10px' }}>
+                Techniques applied: {techniques.join(' · ')}
+              </div>
+            )}
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)', lineHeight: 1.6, marginBottom: '14px', borderLeft: '2px solid rgba(240,168,48,0.3)', paddingLeft: '12px' }}>
+              {tipsByStrain[grow.strainType] ?? tipsByStrain.hybrid}
+            </div>
+            <button onClick={doHarvest} disabled={pending} style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '1.5px', textTransform: 'uppercase',
+              padding: '10px 24px', background: '#f0a830', border: 'none', borderRadius: '4px',
+              color: '#050508', cursor: pending ? 'not-allowed' : 'pointer',
+            }}>
+              🌾 {g.harvestBtn}
+            </button>
+          </div>
+        )
+      })()}
 
       {/* Warnings banner */}
       {activeWarnings.length > 0 && (
@@ -893,9 +966,15 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               strainType={grow.strainType}
               health={grow.health}
               day={grow.currentDay}
-              lstApplied={grow.actions.some(a => a.type === 'lst')}
-              defoApplied={grow.actions.some(a => a.type === 'defoliate')}
-              size={160}
+              techniques={{
+                lstApplied:       grow.actions.some(a => a.type === 'lst'),
+                toppingApplied:   grow.actions.some(a => a.type === 'top'),
+                defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
+                lollipopApplied:  grow.hasLollipoped ?? false,
+              }}
+              potCount={1}
+              containerWidth={160}
+              animated={true}
             />
           </div>
 
@@ -936,12 +1015,36 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
 
-          {/* Stage badge */}
-          <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(5,5,8,0.8)', borderRadius: '4px', padding: '5px 10px' }}>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
-              Day {grow.currentDay} · <span style={{ color: '#cc00aa' }}>{grow.stage.replace('_', ' ')}</span>
-            </div>
-          </div>
+          {/* Stage badge + harvest countdown */}
+          {(() => {
+            const flipDay = grow.manualFlipDay ?? 35
+            const seedlingEnd = grow.isClone ? 4 : 7
+            const vegDays = Math.max(0, flipDay - seedlingEnd)
+            const flowerDay = Math.max(0, grow.currentDay - flipDay)
+            const harvestAtDay = flipDay + grow.floweringTime
+            const daysLeft = Math.max(0, harvestAtDay - grow.currentDay)
+            const inFlower = ['flower', 'late_flower', 'harvest'].includes(grow.stage)
+            return (
+              <div style={{ position: 'absolute', bottom: '12px', left: '12px', background: 'rgba(5,5,8,0.85)', borderRadius: '4px', padding: '6px 10px' }}>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+                  {g.dayLabel} {grow.currentDay} · <span style={{ color: '#cc00aa' }}>{grow.stage.replace('_', ' ')}</span>
+                </div>
+                {inFlower && (
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginTop: '2px' }}>
+                    <span style={{ color: 'rgba(204,0,170,0.6)' }}>{g.flowerDayLabel} {flowerDay}/{grow.floweringTime}</span>
+                    {daysLeft > 0 && (
+                      <span style={{ color: 'rgba(240,168,48,0.7)', marginLeft: '6px' }}>· {g.harvestInLabel} ~{daysLeft}{g.daysAbbr}</span>
+                    )}
+                  </div>
+                )}
+                {!inFlower && grow.stage !== 'seedling' && (
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(74,96,102,0.6)', marginTop: '2px' }}>
+                    {g.vegDaysLabel} {vegDays}{g.daysAbbr}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
 
           {/* Yield badge */}
           <div style={{ position: 'absolute', bottom: '12px', right: '12px', background: 'rgba(5,5,8,0.8)', borderRadius: '4px', padding: '5px 10px' }}>
@@ -1125,8 +1228,35 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                     ))}
                   </div>
                 )}
+                {/* Clone flip window prompt */}
+                {grow.isClone && grow.stage === 'veg' && !grow.manualFlipDay && (() => {
+                  const d = grow.currentDay
+                  const windowOpen  = d >= 4
+                  const windowClose = d <= 13
+                  const inWindow    = windowOpen && windowClose
+                  const windowPast  = d > 13
+                  if (!windowOpen) return null
+                  return (
+                    <div style={{
+                      marginBottom: '12px', padding: '10px 12px',
+                      background: inWindow ? 'rgba(0,212,200,0.08)' : 'rgba(240,168,48,0.06)',
+                      border: `0.5px solid ${inWindow ? 'rgba(0,212,200,0.35)' : 'rgba(240,168,48,0.25)'}`,
+                      borderRadius: '5px',
+                    }}>
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: inWindow ? '#00d4c8' : '#f0a830', marginBottom: '4px' }}>
+                        {inWindow ? g.cloneWindowTitle : g.cloneWindowLateTitle}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: 'rgba(232,240,239,0.65)', lineHeight: 1.5 }}>
+                        {inWindow
+                          ? g.cloneWindowDesc(d, 13 - d + 1)
+                          : g.cloneWindowLateDesc}
+                      </div>
+                    </div>
+                  )
+                })()}
+
                 {/* Flip suggestion when no smart guide issues */}
-                {smartGuide.length === 0 && grow.stage === 'veg' && grow.currentDay >= 25 && !grow.manualFlipDay && (
+                {smartGuide.length === 0 && grow.stage === 'veg' && grow.currentDay >= 25 && !grow.manualFlipDay && !grow.isClone && (
                   <div style={{ marginTop: '12px', padding: '8px 12px', background: 'rgba(204,0,170,0.06)', border: '0.5px solid rgba(204,0,170,0.2)', borderRadius: '5px' }}>
                     <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)' }}>{g.suggestFlipReady}</div>
                   </div>
@@ -1183,34 +1313,46 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '10px' }}>
                     {g.actionsLabel}
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
-                    {([
-                      { type: 'water',     label: g.actionWater,     xp: 5  },
-                      { type: 'feed',      label: g.actionFeed,      xp: 10 },
-                      { type: 'ph_check',  label: g.actionPh,        xp: 5  },
-                      { type: 'lst',       label: g.actionLst,       xp: 25 },
-                      { type: 'defoliate', label: g.actionDefoliate, xp: 15 },
-                      { type: 'flush',     label: g.actionFlush,     xp: 5  },
-                    ] as const).map(({ type, label, xp }) => (
-                      <button
-                        key={type}
-                        onClick={() => doAction(type)}
-                        disabled={pending}
-                        title={(g.actionTooltips as Record<string, string>)[type]}
-                        style={{
-                          fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
-                          padding: '9px 4px', borderRadius: '4px',
-                          border: '0.5px solid rgba(74,96,102,0.3)',
-                          background: 'rgba(10,36,40,0.5)',
-                          color: '#e8f0ef', cursor: pending ? 'not-allowed' : 'pointer',
-                          opacity: pending ? 0.5 : 1, textAlign: 'center',
-                        }}
-                      >
-                        {label}
-                        <span style={{ display: 'block', fontSize: '8px', color: '#4a6066', marginTop: '2px' }}>+{xp}xp</span>
-                      </button>
-                    ))}
-                  </div>
+                  {(() => {
+                    const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
+                    const lollipopDone = grow.hasLollipoped ?? false
+                    const actions = [
+                      { type: 'water',     label: g.actionWater,     xp: 5,  disabled: false },
+                      { type: 'feed',      label: g.actionFeed,      xp: 10, disabled: false },
+                      { type: 'ph_check',  label: g.actionPh,        xp: 5,  disabled: false },
+                      isVeg
+                        ? { type: 'lst',      label: g.actionLst,      xp: 25, disabled: false }
+                        : { type: 'lollipop', label: g.actionLollipop, xp: 20, disabled: lollipopDone },
+                      { type: 'defoliate', label: g.actionDefoliate, xp: 15, disabled: false },
+                      { type: 'flush',     label: g.actionFlush,     xp: 5,  disabled: false },
+                    ] as const
+                    return (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+                        {actions.map(({ type, label, xp, disabled }) => (
+                          <button
+                            key={type}
+                            onClick={() => doAction(type)}
+                            disabled={pending || disabled}
+                            title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
+                            style={{
+                              fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
+                              padding: '9px 4px', borderRadius: '4px',
+                              border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
+                              background: 'rgba(10,36,40,0.5)',
+                              color: disabled ? '#3a4a50' : '#e8f0ef',
+                              cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
+                              opacity: pending ? 0.5 : 1, textAlign: 'center',
+                            }}
+                          >
+                            {label}
+                            <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
+                              {disabled ? g.doneLbl : `+${xp}xp`}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )
+                  })()}
                 </div>
 
                 <div style={{
@@ -1584,6 +1726,47 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                       ))}
                     </div>
                   </div>
+
+                  {/* Grow round timeline */}
+                  {(() => {
+                    const flipDay = grow.manualFlipDay ?? 35
+                    const seedlingEnd = grow.isClone ? 4 : 7
+                    const vegDays = Math.max(0, flipDay - seedlingEnd)
+                    const flowerDay = Math.max(0, grow.currentDay - flipDay)
+                    const harvestAtDay = flipDay + grow.floweringTime
+                    const daysLeft = Math.max(0, harvestAtDay - grow.currentDay)
+                    const inFlower = ['flower', 'late_flower', 'harvest'].includes(grow.stage)
+                    return (
+                      <div style={{ background: 'rgba(204,0,170,0.05)', border: '0.5px solid rgba(204,0,170,0.15)', borderRadius: '5px', padding: '10px 12px', marginBottom: '12px' }}>
+                        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '8px' }}>
+                          {g.growRoundLabel}
+                          {grow.isClone && <span style={{ marginLeft: '8px', color: '#00d4c8', fontSize: '7px' }}>CLONE</span>}
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                          {[
+                            { label: grow.isClone ? g.cloneRootingLabel : g.seedlingLabel, value: `${seedlingEnd}d`, color: '#4a6066' },
+                            { label: g.vegDaysLabel, value: `${vegDays}d`, color: grow.stage === 'veg' ? '#cc00aa' : '#4a6066' },
+                            { label: g.flowerDayLabel, value: inFlower ? `${flowerDay}/${grow.floweringTime}d` : `—/${grow.floweringTime}d`, color: inFlower ? '#cc00aa' : '#4a6066' },
+                          ].map(({ label, value, color }) => (
+                            <div key={label} style={{ textAlign: 'center' }}>
+                              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color, fontWeight: 600 }}>{value}</div>
+                              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', marginTop: '2px' }}>{label}</div>
+                            </div>
+                          ))}
+                        </div>
+                        {inFlower && daysLeft > 0 && (
+                          <div style={{ marginTop: '8px', padding: '5px 8px', background: 'rgba(240,168,48,0.07)', border: '0.5px solid rgba(240,168,48,0.2)', borderRadius: '3px', fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: 'rgba(240,168,48,0.8)', textAlign: 'center' }}>
+                            {g.harvestInLabel} ~{daysLeft} {g.daysAbbr} (day {harvestAtDay})
+                          </div>
+                        )}
+                        {grow.stage === 'harvest' && (
+                          <div style={{ marginTop: '8px', padding: '5px 8px', background: 'rgba(0,212,200,0.07)', border: '0.5px solid rgba(0,212,200,0.3)', borderRadius: '3px', fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#00d4c8', textAlign: 'center' }}>
+                            {g.readyToHarvestLabel}
+                          </div>
+                        )}
+                      </div>
+                    )
+                  })()}
 
                   {/* Summary cards */}
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', marginBottom: '16px' }}>

@@ -127,10 +127,10 @@ export default function UsersClient() {
                       <span className="text-sm font-semibold" style={{ color: '#f0a830', fontFamily: 'var(--font-orbitron)' }}>{u.level}</span>
                     </TableCell>
                     <TableCell className="text-sm" style={{ color: '#e8f0ef', fontFamily: 'var(--font-dm-mono)' }}>
-                      {(u.xp ?? 0).toLocaleString()}
+                      {(u.xp ?? 0).toLocaleString('en-US')}
                     </TableCell>
                     <TableCell className="text-sm" style={{ color: '#e8f0ef', fontFamily: 'var(--font-dm-mono)' }}>
-                      {(u.credits ?? 0).toLocaleString()}
+                      {(u.credits ?? 0).toLocaleString('en-US')}
                     </TableCell>
                     <TableCell className="text-sm" style={{ color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>
                       {u.orderCount ?? 0}

@@ -7,7 +7,7 @@ import { useLanguage } from '@/stores/languageStore'
 
 interface Package {
   credits: number
-  usd: number
+  czk: number
   label: string
 }
 
@@ -26,15 +26,15 @@ function BuyCreditsClientImpl({ packages, balance, walletAddress, userId }: Prop
 
   const [tab, setTab]           = useState<Tab>('card')
   const [loading, setLoading]   = useState<number | null>(null)
-  const [solPrice, setSolPrice] = useState(0)
+  const [solPrice, setSolPrice] = useState(0) // CZK per SOL
   const [verifying, setVerifying] = useState<number | null>(null)
 
   const wallet = useWallet()
 
   useEffect(() => {
     fetch('/api/hub/credits/sol-price')
-      .then(r => r.json() as Promise<{ sol_usd: number }>)
-      .then(d => setSolPrice(d.sol_usd ?? 0))
+      .then(r => r.json() as Promise<{ sol_czk: number }>)
+      .then(d => setSolPrice(d.sol_czk ?? 0))
       .catch(() => setSolPrice(0))
   }, [])
 
@@ -65,7 +65,7 @@ function BuyCreditsClientImpl({ packages, balance, walletAddress, userId }: Prop
       return
     }
 
-    const expectedSol = credits / solPrice
+    const expectedSol = (credits * 25) / solPrice // 1 credit = 25 CZK, solPrice = CZK/SOL
     toast.info(`Send ${expectedSol.toFixed(4)} SOL to ${process.env.NEXT_PUBLIC_SOLANA_TREASURY_ADDRESS ?? 'treasury'}, then click Verify below.`)
     setVerifying(credits)
   }
@@ -137,7 +137,7 @@ function BuyCreditsClientImpl({ packages, balance, walletAddress, userId }: Prop
               {pkg.label}
             </div>
             <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#e8f0ef' }}>
-              ${pkg.usd}
+              {pkg.czk.toLocaleString('cs-CZ')} Kč
             </div>
 
             {tab === 'card' && (
@@ -159,7 +159,7 @@ function BuyCreditsClientImpl({ packages, balance, walletAddress, userId }: Prop
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {solPrice > 0 ? (
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
-                    ≈ {(pkg.usd / solPrice).toFixed(4)} SOL
+                    ≈ {(pkg.czk / solPrice).toFixed(4)} SOL
                   </div>
                 ) : (
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>

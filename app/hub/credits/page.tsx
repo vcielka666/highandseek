@@ -13,11 +13,12 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2026-02-25.clover',
 })
 
+// 1 credit = 25 CZK
 const PACKAGES = [
-  { credits: 5,  usd: 5,  label: '5 Credits' },
-  { credits: 15, usd: 15, label: '15 Credits' },
-  { credits: 30, usd: 30, label: '30 Credits' },
-  { credits: 50, usd: 50, label: '50 Credits' },
+  { credits: 5,  czk: 125,  label: '5 Credits' },
+  { credits: 15, czk: 375,  label: '15 Credits' },
+  { credits: 30, czk: 750,  label: '30 Credits' },
+  { credits: 50, czk: 1250, label: '50 Credits' },
 ]
 
 export default async function CreditsPage(props: {

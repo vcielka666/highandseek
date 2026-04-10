@@ -120,6 +120,8 @@ const VirtualGrowSchema = new mongoose.Schema({
   creditsSpent:    { type: Number, default: 0 },
   isAccelerated:   { type: Boolean, default: false },
   isPerkEligible:  { type: Boolean, default: true },
+  isClone:         { type: Boolean, default: false },
+  hasLollipoped:   { type: Boolean, default: false },
 
   harvestData: {
     gramsYield:    { type: Number, default: 0 },

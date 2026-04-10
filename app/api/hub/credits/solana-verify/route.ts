@@ -45,11 +45,11 @@ export async function POST(req: NextRequest) {
   let solPrice = 0
   try {
     const priceRes = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=usd',
+      'https://api.coingecko.com/api/v3/simple/price?ids=solana&vs_currencies=czk',
       { next: { revalidate: 60 } },
     )
-    const priceData = await priceRes.json() as { solana?: { usd?: number } }
-    solPrice = priceData?.solana?.usd ?? 0
+    const priceData = await priceRes.json() as { solana?: { czk?: number } }
+    solPrice = priceData?.solana?.czk ?? 0
   } catch {
     return NextResponse.json({ error: 'Cannot verify SOL price' }, { status: 503 })
   }
@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
     }
 
     const treasuryAddress = process.env.SOLANA_TREASURY_ADDRESS ?? ''
-    const expectedSol = credits / solPrice
+    const expectedSol = (credits * 25) / solPrice // 1 credit = 25 CZK, solPrice is CZK/SOL
     const expectedLamports = Math.floor(expectedSol * 1_000_000_000 * 0.98) // 2% slippage
 
     // Check that the treasury received at least expectedLamports

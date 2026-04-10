@@ -9,6 +9,7 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? '', {
   apiVersion: '2026-02-25.clover',
 })
 
+// Package sizes in credits; price = credits * 25 CZK
 const VALID_PACKAGES = [5, 15, 30, 50] as const
 
 const BodySchema = z.object({
@@ -38,8 +39,8 @@ export async function POST(req: NextRequest) {
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
-          currency: 'usd',
-          unit_amount: credits * 100,
+          currency: 'czk',
+          unit_amount: credits * 25 * 100, // 1 credit = 25 CZK, unit_amount in haléře
           product_data: { name: `${credits} High & Seek Credits` },
         },
         quantity: 1,

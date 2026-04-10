@@ -15,11 +15,13 @@ export interface IListing {
     telegram?: string
     signal?: string
     threema?: string
+    email?: string
   }
   images: string[]
   status: ListingStatus
   creditsCost: number
   expiresAt: Date
+  featuredUntil: Date | null
   createdAt: Date
   updatedAt: Date
 }
@@ -40,6 +42,7 @@ const ListingSchema = new Schema<IListing>(
       telegram: { type: String, trim: true },
       signal:   { type: String, trim: true },
       threema:  { type: String, trim: true },
+      email:    { type: String, trim: true },
     },
     images: {
       type: [String],
@@ -51,8 +54,9 @@ const ListingSchema = new Schema<IListing>(
       enum: ['active', 'sold', 'removed', 'expired'],
       default: 'active',
     },
-    creditsCost: { type: Number, required: true },
-    expiresAt:   { type: Date, required: true },
+    creditsCost:  { type: Number, required: true },
+    expiresAt:    { type: Date, required: true },
+    featuredUntil: { type: Date, default: null },
   },
   { timestamps: true },
 )

@@ -3,6 +3,7 @@
 import { useState, useTransition, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { toast } from 'sonner'
+import { useLanguage } from '@/stores/languageStore'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -61,25 +62,18 @@ const DEFAULT_SETUP: Setup = {
 const MEDIUM_RULES: Record<Setup['medium'], {
   allowedNutrients: Setup['nutrients'][]
   allowedWatering:  Setup['watering'][]
-  disabledNutrients?: string
-  disabledWatering?:  string
 }> = {
   living_soil: {
     allowedNutrients: ['organic', 'none'],
     allowedWatering:  ['manual', 'blumat'],
-    disabledNutrients: 'Mineral salts disrupt the soil food web',
   },
   coco: {
     allowedNutrients: ['mineral'],
     allowedWatering:  ['manual', 'drip'],
-    disabledNutrients: 'Coco is inert — organic nutrients require microbial breakdown',
-    disabledWatering: 'Blumat works with soil only',
   },
   hydro: {
     allowedNutrients: ['mineral'],
     allowedWatering:  ['drip'],
-    disabledNutrients: 'Hydro requires mineral nutrients',
-    disabledWatering: 'Hydro uses recirculating drip systems',
   },
 }
 
@@ -107,31 +101,16 @@ const SPEED_PRESETS = [
   { label: '24 h',   seconds: 86400, tier: 'full'     as const },
 ]
 
-const TIER_INFO = {
-  full:     { color: '#00d4c8', label: 'Full rewards',    desc: 'XP + Credits + NFT cert. 1 real day = 1 grow day.' },
-  standard: { color: '#f0a830', label: 'Standard',        desc: 'XP + Credits. No NFT cert.' },
-  practice: { color: '#cc00aa', label: 'Practice',        desc: 'XP only. Fast learning mode.' },
+const TIER_COLORS = {
+  full:     '#00d4c8',
+  standard: '#f0a830',
+  practice: '#cc00aa',
 }
 
 function getTier(secs: number): 'full' | 'standard' | 'practice' {
   if (secs >= 86400) return 'full'
   if (secs >= 3600)  return 'standard'
   return 'practice'
-}
-
-function fmtSpeed(secs: number): string {
-  if (secs >= 86400) return 'Realtime'
-  if (secs >= 3600)  return `⚡ ${Math.round(secs / 3600)}h/day`
-  if (secs >= 60)    return `⚡ ${Math.round(secs / 60)}m/day`
-  return `⚡ ${secs}s/day`
-}
-
-function cycleEstimate(flowerDays: number, secs: number): string {
-  const total = 7 + 28 + flowerDays
-  const realSecs = total * secs
-  if (realSecs >= 86400 * 2) return `~${total} grow days ≈ ${Math.round(realSecs / 86400)} real days`
-  if (realSecs >= 3600)      return `~${total} grow days ≈ ${Math.round(realSecs / 3600)} real hours`
-  return `~${total} grow days ≈ ${Math.round(realSecs / 60)} real minutes`
 }
 
 // ── Shared styles ──────────────────────────────────────────────────────────────
@@ -169,9 +148,12 @@ const S = {
 // ── Main component ─────────────────────────────────────────────────────────────
 
 function SetupWizardInner() {
+  const { t }      = useLanguage()
+  const g          = t.growSetup
   const router     = useRouter()
   const params     = useSearchParams()
   const preselect         = params.get('strain') ?? ''
+  const cloneSlug         = params.get('clone') ?? ''
   const initDDS           = Math.min(86400, Math.max(60, Number(params.get('dds') ?? 86400)))
 
   const [step, setStep]           = useState(0)
@@ -230,17 +212,48 @@ function SetupWizardInner() {
     })
   }
 
-  const STEPS = ['Speed', 'Strain', 'Tent', 'Light', 'Medium', 'Watering', 'Accessories', 'Review']
+  const STEPS = g.steps
 
-  const isCustom         = selectedSlug === '__custom__'
+  const isCloneGrow      = !!cloneSlug
+  const isCustom         = !isCloneGrow && selectedSlug === '__custom__'
   const selectedStrain   = strains.find(s => s.slug === selectedSlug)
-  const strainReady      = isCustom ? customStrain.name.trim().length > 0 : !!selectedSlug
+  const strainReady      = isCloneGrow || (isCustom ? customStrain.name.trim().length > 0 : !!selectedSlug)
+
+  function fmtSpeed(secs: number): string {
+    if (secs >= 86400) return g.fmtRealtime
+    if (secs >= 3600)  return g.fmtHours(Math.round(secs / 3600))
+    if (secs >= 60)    return g.fmtMinutes(Math.round(secs / 60))
+    return g.fmtSeconds(secs)
+  }
+
+  function cycleEstimate(flowerDays: number, secs: number): string {
+    const total    = 7 + 28 + flowerDays
+    const realSecs = total * secs
+    if (realSecs >= 86400 * 2) return g.cycleEst(total, Math.round(realSecs / 86400))
+    if (realSecs >= 3600)      return g.cycleEstHours(total, Math.round(realSecs / 3600))
+    return g.cycleEstMinutes(total, Math.round(realSecs / 60))
+  }
+
+  function disabledNutMsg(): string | undefined {
+    if (setup.medium === 'living_soil') return g.disabledSoilNut
+    if (setup.medium === 'coco')        return g.disabledCocoNut
+    if (setup.medium === 'hydro')       return g.disabledHydroNut
+    return undefined
+  }
+
+  function disabledWatMsg(): string | undefined {
+    if (setup.medium === 'coco')  return g.disabledCocoWat
+    if (setup.medium === 'hydro') return g.disabledHydroWat
+    return undefined
+  }
 
   async function submit() {
     start(async () => {
-      const body = isCustom
-        ? { customStrain, setup, dayDurationSeconds }
-        : { strainSlug: selectedSlug, setup, dayDurationSeconds }
+      const body = isCloneGrow
+        ? { cloneStrainSlug: cloneSlug, setup, dayDurationSeconds }
+        : isCustom
+          ? { customStrain, setup, dayDurationSeconds }
+          : { strainSlug: selectedSlug, setup, dayDurationSeconds }
 
       const res  = await fetch('/api/hub/grow/start', {
         method:  'POST',
@@ -249,10 +262,10 @@ function SetupWizardInner() {
       })
       const data = await res.json()
       if (!res.ok) {
-        toast.error(data.error ?? 'Failed to start grow')
+        toast.error(data.error ?? g.startFailed)
         return
       }
-      toast.success('🌱 Grow started!')
+      toast.success(g.startSuccess)
       router.push(`/hub/grow/${data.grow._id}`)
     })
   }
@@ -262,16 +275,36 @@ function SetupWizardInner() {
 
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
-        <div style={{ ...S.label, marginBottom: '6px' }}>Setup wizard · Step {step + 1} of {STEPS.length}</div>
+        <div style={{ ...S.label, marginBottom: '6px' }}>{g.stepLabel(step + 1, STEPS.length)}</div>
         <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', color: '#e8f0ef', margin: 0, letterSpacing: '1px' }}>
           {STEPS[step]}
         </h1>
         {dayDurationSeconds < 86400 && (
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: TIER_INFO[getTier(dayDurationSeconds)].color, marginTop: '4px', display: 'block' }}>
-            {fmtSpeed(dayDurationSeconds)} · {TIER_INFO[getTier(dayDurationSeconds)].label}
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: TIER_COLORS[getTier(dayDurationSeconds)], marginTop: '4px', display: 'block' }}>
+            {fmtSpeed(dayDurationSeconds)} · {g[`tier${getTier(dayDurationSeconds).charAt(0).toUpperCase() + getTier(dayDurationSeconds).slice(1)}` as 'tierFull' | 'tierStandard' | 'tierPractice'].label}
           </span>
         )}
       </div>
+
+      {/* Clone banner */}
+      {isCloneGrow && (
+        <div style={{
+          background: 'rgba(0,212,200,0.06)',
+          border: '0.5px solid rgba(0,212,200,0.3)',
+          borderRadius: '6px', padding: '12px 16px', marginBottom: '20px',
+          display: 'flex', alignItems: 'center', gap: '10px',
+        }}>
+          <span style={{ fontSize: '18px' }}>🌿</span>
+          <div>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '11px', color: '#00d4c8', marginBottom: '2px' }}>
+              Clone grow — veg skipped
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+              4-day rooting · flip window opens day 4
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Step tabs */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', flexWrap: 'wrap' }}>
@@ -288,13 +321,13 @@ function SetupWizardInner() {
       {/* ── Step 0: Speed ── */}
       {step === 0 && (
         <div style={S.card}>
-          <div style={S.label}>How fast should one grow day pass?</div>
+          <div style={S.label}>{g.speedLabel}</div>
 
           {/* Preset grid */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
             {SPEED_PRESETS.map(p => {
               const active = dayDurationSeconds === p.seconds
-              const tier   = TIER_INFO[p.tier]
+              const color  = TIER_COLORS[p.tier]
               return (
                 <button
                   key={p.seconds}
@@ -304,9 +337,9 @@ function SetupWizardInner() {
                     fontSize: '11px',
                     padding: '8px 14px',
                     borderRadius: '4px',
-                    border: active ? `0.5px solid ${tier.color}80` : '0.5px solid rgba(74,96,102,0.4)',
-                    background: active ? `${tier.color}18` : 'transparent',
-                    color: active ? tier.color : '#e8f0ef',
+                    border: active ? `0.5px solid ${color}80` : '0.5px solid rgba(74,96,102,0.4)',
+                    background: active ? `${color}18` : 'transparent',
+                    color: active ? color : '#e8f0ef',
                     cursor: 'pointer',
                     transition: 'all 0.15s',
                   }}
@@ -319,17 +352,18 @@ function SetupWizardInner() {
 
           {/* Tier info box */}
           {(() => {
-            const tier = getTier(dayDurationSeconds)
-            const info = TIER_INFO[tier]
+            const tier  = getTier(dayDurationSeconds)
+            const color = TIER_COLORS[tier]
+            const info  = g[`tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierFull' | 'tierStandard' | 'tierPractice']
             return (
               <div style={{
-                background: `${info.color}10`,
-                border: `0.5px solid ${info.color}40`,
+                background: `${color}10`,
+                border: `0.5px solid ${color}40`,
                 borderRadius: '6px',
                 padding: '14px 16px',
                 marginBottom: '20px',
               }}>
-                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', color: info.color, marginBottom: '4px' }}>
+                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', color, marginBottom: '4px' }}>
                   {info.label}
                 </div>
                 <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
@@ -352,13 +386,34 @@ function SetupWizardInner() {
       )}
 
       {/* ── Step 1: Strain ── */}
-      {step === 1 && (
+      {step === 1 && isCloneGrow && (
         <div style={S.card}>
-          <div style={S.label}>Choose a Strain</div>
+          <div style={S.label}>Clone strain</div>
+          <div style={{
+            background: 'rgba(0,212,200,0.07)',
+            border: '0.5px solid rgba(0,212,200,0.25)',
+            borderRadius: '6px', padding: '16px',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8', letterSpacing: '1px', marginBottom: '6px' }}>
+              🌿 CLONE · FREE
+            </div>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '18px', color: '#e8f0ef', marginBottom: '4px' }}>
+              {cloneSlug}
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+              Strain locked — taken from your clone bank. Veg phase replaced by 4-day rooting.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {step === 1 && !isCloneGrow && (
+        <div style={S.card}>
+          <div style={S.label}>{g.chooseStrain}</div>
 
           {strainsLoading ? (
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', padding: '20px 0' }}>
-              Loading strains...
+              {g.loadingStrains}
             </div>
           ) : (
             <>
@@ -423,14 +478,14 @@ function SetupWizardInner() {
                 >
                   <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px' }}>
                     <span style={{ fontSize: '22px' }}>✏️</span>
-                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#f0a830' }}>5 💎 credits</span>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#f0a830' }}>{g.ownStrainCost}</span>
                   </div>
                   <div style={{ padding: '8px 10px' }}>
                     <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: selectedSlug === '__custom__' ? '#f0a830' : '#e8f0ef', fontWeight: 500 }}>
-                      Own strain
+                      {g.ownStrain}
                     </div>
                     <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>
-                      Add your own
+                      {g.ownStrainSub}
                     </div>
                   </div>
                 </button>
@@ -446,7 +501,7 @@ function SetupWizardInner() {
                   marginTop: '4px',
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                    <div style={{ ...S.label, color: '#f0a830', marginBottom: 0 }}>Your Strain Info · costs 5 💎 credits</div>
+                    <div style={{ ...S.label, color: '#f0a830', marginBottom: 0 }}>{g.customFormTitle}</div>
                     {userCredits !== null && (
                       <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: userCredits >= 5 ? '#f0a830' : '#cc00aa' }}>
                         {userCredits >= 5 ? `💎 ${userCredits} credits` : `⚠️ ${userCredits} / 5 credits`}
@@ -458,7 +513,7 @@ function SetupWizardInner() {
                     {/* Name */}
                     <div>
                       <label style={{ ...S.label, color: nameError ? '#cc00aa' : undefined }}>
-                        Strain name{nameError && ' — required'}
+                        {nameError ? g.strainNameError : g.strainNameLabel}
                       </label>
                       <input
                         value={customStrain.name}
@@ -466,7 +521,7 @@ function SetupWizardInner() {
                           setCustomStrain(p => ({ ...p, name: e.target.value.slice(0, 60) }))
                           if (e.target.value.trim()) setNameError(false)
                         }}
-                        placeholder="e.g. My Special Pheno, Bubba OG #4..."
+                        placeholder={g.strainNamePh}
                         autoFocus={nameError}
                         style={{
                           width: '100%', boxSizing: 'border-box',
@@ -483,11 +538,11 @@ function SetupWizardInner() {
 
                     {/* Type */}
                     <div>
-                      <label style={S.label}>Type</label>
+                      <label style={S.label}>{g.typeLabel}</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
-                        {(['indica', 'sativa', 'hybrid'] as const).map(t => (
-                          <button key={t} onClick={() => setCustomStrain(p => ({ ...p, type: t }))} style={S.btn(customStrain.type === t)}>
-                            {TYPE_EMOJI[t]} {t}
+                        {(['indica', 'sativa', 'hybrid'] as const).map(type => (
+                          <button key={type} onClick={() => setCustomStrain(p => ({ ...p, type }))} style={S.btn(customStrain.type === type)}>
+                            {TYPE_EMOJI[type]} {type}
                           </button>
                         ))}
                       </div>
@@ -495,7 +550,7 @@ function SetupWizardInner() {
 
                     {/* Flowering time */}
                     <div>
-                      <label style={S.label}>Approximate flowering time (days)</label>
+                      <label style={S.label}>{g.floweringLabel}</label>
                       <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                         {[49, 56, 63, 70, 77, 84].map(d => (
                           <button key={d} onClick={() => setCustomStrain(p => ({ ...p, floweringTime: d }))} style={S.btn(customStrain.floweringTime === d)}>
@@ -504,7 +559,7 @@ function SetupWizardInner() {
                         ))}
                       </div>
                       <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', marginTop: '6px' }}>
-                        Or enter exact: &nbsp;
+                        {g.floweringExact}&nbsp;
                         <input
                           type="number"
                           value={customStrain.floweringTime}
@@ -517,13 +572,13 @@ function SetupWizardInner() {
                             fontFamily: 'var(--font-dm-mono)', fontSize: '11px', outline: 'none',
                           }}
                         />
-                        &nbsp;days
+                        &nbsp;{g.floweringDays}
                       </div>
                     </div>
 
                     {/* Difficulty */}
                     <div>
-                      <label style={S.label}>Difficulty</label>
+                      <label style={S.label}>{g.difficultyLabel}</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {(['easy', 'medium', 'hard'] as const).map(d => (
                           <button key={d} onClick={() => setCustomStrain(p => ({ ...p, difficulty: d }))} style={{
@@ -532,7 +587,7 @@ function SetupWizardInner() {
                             border: customStrain.difficulty === d ? `0.5px solid ${DIFFICULTY_COLOR[d]}80` : '0.5px solid rgba(74,96,102,0.4)',
                             background: customStrain.difficulty === d ? `${DIFFICULTY_COLOR[d]}18` : 'transparent',
                           }}>
-                            {d}
+                            {g[`diff${d.charAt(0).toUpperCase() + d.slice(1)}` as 'diffEasy' | 'diffMedium' | 'diffHard']}
                           </button>
                         ))}
                       </div>
@@ -545,8 +600,8 @@ function SetupWizardInner() {
               {strainReady && (
                 <div style={{ marginTop: '16px', padding: '10px 14px', background: 'rgba(204,0,170,0.08)', borderRadius: '4px', border: '0.5px solid rgba(204,0,170,0.2)' }}>
                   <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#cc00aa' }}>
-                    ✓ {isCustom ? `Custom: ${customStrain.name}` : selectedStrain?.name}
-                    {isCustom && ' — 5 💎 credits will be deducted'}
+                    {isCustom ? g.customSelected(customStrain.name) : g.strainSelected(selectedStrain?.name ?? '')}
+                    {isCustom && ` ${g.customCostNote}`}
                   </span>
                 </div>
               )}
@@ -558,7 +613,7 @@ function SetupWizardInner() {
       {/* ── Step 2: Tent ── */}
       {step === 2 && (
         <div style={S.card}>
-          <div style={S.label}>Tent Size</div>
+          <div style={S.label}>{g.tentSizeLabel}</div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
             {(['60x60', '80x80', '100x100', '120x120', '150x150'] as Setup['tentSize'][]).map(s => (
               <button key={s} onClick={() => set('tentSize', s)} style={S.btn(setup.tentSize === s)}>
@@ -567,11 +622,7 @@ function SetupWizardInner() {
             ))}
           </div>
           <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
-            {setup.tentSize === '60x60'   && '0.36m² — micro grow, max 1-2 plants. Heat builds fast.'}
-            {setup.tentSize === '80x80'   && '0.64m² — small grow, 2-3 plants. Good for beginners.'}
-            {setup.tentSize === '100x100' && '1m² — standard grow, 4-6 plants. Most popular size.'}
-            {setup.tentSize === '120x120' && '1.44m² — medium grow, up to 8 plants.'}
-            {setup.tentSize === '150x150' && '2.25m² — large grow, serious setup required.'}
+            {g.tentDescs[setup.tentSize]}
           </div>
         </div>
       )}
@@ -579,7 +630,7 @@ function SetupWizardInner() {
       {/* ── Step 3: Light ── */}
       {step === 3 && (
         <div style={S.card}>
-          <div style={S.label}>Light Type</div>
+          <div style={S.label}>{g.lightTypeLabel}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['led', 'hps', 'cmh', 'cfl'] as Setup['lightType'][]).map(l => (
               <button key={l} onClick={() => set('lightType', l)} style={S.btn(setup.lightType === l)}>
@@ -588,7 +639,7 @@ function SetupWizardInner() {
             ))}
           </div>
 
-          <div style={S.label}>Wattage</div>
+          <div style={S.label}>{g.wattageLabel}</div>
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
             {[100, 150, 200, 240, 300, 400, 600, 800, 1000].map(w => (
               <button key={w} onClick={() => set('lightWatts', w)} style={S.btn(setup.lightWatts === w)}>
@@ -597,11 +648,11 @@ function SetupWizardInner() {
             ))}
           </div>
 
-          <div style={S.label}>Brand (optional)</div>
+          <div style={S.label}>{g.brandLabel}</div>
           <input
             value={setup.lightBrand}
             onChange={e => set('lightBrand', e.target.value)}
-            placeholder="e.g. Mars Hydro, AC Infinity..."
+            placeholder={g.brandPh}
             style={{
               width: '100%', boxSizing: 'border-box',
               background: 'rgba(10,36,40,0.8)',
@@ -617,28 +668,28 @@ function SetupWizardInner() {
       {/* ── Step 4: Medium ── */}
       {step === 4 && (
         <div style={S.card}>
-          <div style={S.label}>Growing Medium</div>
+          <div style={S.label}>{g.mediumLabel}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['living_soil', 'coco', 'hydro'] as Setup['medium'][]).map(m => (
               <button key={m} onClick={() => set('medium', m)} style={S.btn(setup.medium === m)}>
-                {m === 'living_soil' ? 'Living Soil' : m === 'coco' ? 'Coco Coir' : 'Hydroponics'}
+                {g.mediumNames[m]}
               </button>
             ))}
           </div>
 
-          <div style={S.label}>Container Size</div>
+          <div style={S.label}>{g.containerLabel}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['small', 'medium', 'large'] as Setup['potSize'][]).map(p => (
               <button key={p} onClick={() => set('potSize', p)} style={S.btn(setup.potSize === p)}>
-                {p === 'small' ? 'Small (3-5L)' : p === 'medium' ? 'Medium (10-15L)' : 'Large (20-30L)'}
+                {g.potNames[p]}
               </button>
             ))}
           </div>
 
           <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', lineHeight: 1.6 }}>
-            {setup.medium === 'living_soil' && <span style={{ color: '#4a6066' }}>Rich microbial life supports self-sustaining nutrition. Organic nutrients only. Blumat or manual watering.</span>}
-            {setup.medium === 'coco'        && <span style={{ color: '#f0a830' }}>⚠️ Coco is inert — mineral nutrients required at every watering. Organic nutrients will not work.</span>}
-            {setup.medium === 'hydro'       && <span style={{ color: '#f0a830' }}>⚠️ Hydro requires recirculating mineral feed. EC and pH monitoring critical.</span>}
+            <span style={{ color: setup.medium === 'living_soil' ? '#4a6066' : '#f0a830' }}>
+              {g.mediumDescs[setup.medium]}
+            </span>
           </div>
         </div>
       )}
@@ -646,35 +697,35 @@ function SetupWizardInner() {
       {/* ── Step 5: Watering + Nutrients ── */}
       {step === 5 && (
         <div style={S.card}>
-          <div style={S.label}>Watering Method</div>
+          <div style={S.label}>{g.wateringLabel}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['manual', 'blumat', 'drip'] as Setup['watering'][]).map(w => {
               const disabled = !rules.allowedWatering.includes(w)
               return (
                 <button key={w} onClick={() => !disabled && set('watering', w)} style={S.btn(setup.watering === w, disabled)}
-                  title={disabled ? rules.disabledWatering : undefined}>
-                  {w === 'manual' ? 'Manual' : w === 'blumat' ? 'Blumat Auto' : 'Drip Timer'}
+                  title={disabled ? disabledWatMsg() : undefined}>
+                  {g.waterNames[w]}
                 </button>
               )
             })}
           </div>
 
-          <div style={S.label}>Nutrients</div>
+          <div style={S.label}>{g.nutrientsLabel}</div>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['organic', 'mineral', 'none'] as Setup['nutrients'][]).map(n => {
               const disabled = !rules.allowedNutrients.includes(n)
               return (
                 <button key={n} onClick={() => !disabled && set('nutrients', n)} style={S.btn(setup.nutrients === n, disabled)}
-                  title={disabled ? rules.disabledNutrients : undefined}>
-                  {n === 'organic' ? 'Organic' : n === 'mineral' ? 'Mineral' : 'None'}
+                  title={disabled ? disabledNutMsg() : undefined}>
+                  {g.nutrientNames[n]}
                 </button>
               )
             })}
           </div>
 
-          {rules.disabledNutrients && (
+          {disabledNutMsg() && (
             <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.6 }}>
-              ℹ️ {rules.disabledNutrients}
+              ℹ️ {disabledNutMsg()}
             </div>
           )}
         </div>
@@ -683,15 +734,15 @@ function SetupWizardInner() {
       {/* ── Step 6: Accessories ── */}
       {step === 6 && (
         <div style={S.card}>
-          <div style={S.label}>Ventilation</div>
+          <div style={S.label}>{g.ventilationLabel}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" checked={setup.hasExhaustFan} onChange={e => set('hasExhaustFan', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>Exhaust fan</span>
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.exhaustFan}</span>
             </label>
             {setup.hasExhaustFan && (
               <div style={{ marginLeft: '28px' }}>
-                <div style={S.label}>CFM Rating</div>
+                <div style={S.label}>{g.cfmLabel}</div>
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
                   {[100, 150, 200, 300, 400, 600].map(cfm => (
                     <button key={cfm} onClick={() => set('exhaustCFM', cfm)} style={S.btn(setup.exhaustCFM === cfm)}>
@@ -703,20 +754,20 @@ function SetupWizardInner() {
             )}
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" checked={setup.hasCirculationFan} onChange={e => set('hasCirculationFan', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>Circulation fan</span>
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.circulationFan}</span>
             </label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
               <input type="checkbox" checked={setup.hasCarbonFilter} onChange={e => set('hasCarbonFilter', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>Carbon filter</span>
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.carbonFilter}</span>
             </label>
           </div>
 
-          <div style={S.label}>Monitoring</div>
+          <div style={S.label}>{g.monitoringLabel}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {[
-              { key: 'hasPHMeter',    label: 'pH meter' },
-              { key: 'hasECMeter',    label: 'EC/TDS meter' },
-              { key: 'hasHygrometer', label: 'Thermohygrometer' },
+              { key: 'hasPHMeter',    label: g.phMeter },
+              { key: 'hasECMeter',    label: g.ecMeter },
+              { key: 'hasHygrometer', label: g.hygrometer },
             ].map(({ key, label }) => (
               <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
                 <input
@@ -734,14 +785,14 @@ function SetupWizardInner() {
       {/* ── Step 7: Review ── */}
       {step === 7 && (
         <div style={S.card}>
-          <div style={S.label}>Review Setup</div>
+          <div style={S.label}>{g.reviewLabel}</div>
 
           {/* Strain summary */}
           <div style={{ background: 'rgba(204,0,170,0.07)', border: '0.5px solid rgba(204,0,170,0.2)', borderRadius: '6px', padding: '12px 14px', marginBottom: '18px' }}>
-            <div style={{ ...S.label, marginBottom: '4px' }}>Strain</div>
+            <div style={{ ...S.label, marginBottom: '4px' }}>{g.strainLabel}</div>
             <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '14px', color: '#e8f0ef', fontWeight: 500 }}>
               {isCustom ? customStrain.name : selectedStrain?.name ?? '—'}
-              {isCustom && <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830', marginLeft: '10px' }}>custom · 5 💎</span>}
+              {isCustom && <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830', marginLeft: '10px' }}>{g.customBadge}</span>}
             </div>
             {!isCustom && selectedStrain && (
               <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '3px' }}>
@@ -758,14 +809,14 @@ function SetupWizardInner() {
           {/* Setup grid */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 24px', marginBottom: '24px' }}>
             {[
-              ['Tent',      setup.tentSize],
-              ['Light',     `${setup.lightWatts}W ${setup.lightType.toUpperCase()}`],
-              ['Medium',    setup.medium.replace('_', ' ')],
-              ['Container', setup.potSize],
-              ['Watering',  setup.watering],
-              ['Nutrients', setup.nutrients],
-              ['Exhaust',   setup.hasExhaustFan ? `${setup.exhaustCFM} CFM` : 'None'],
-              ['Circ. fan', setup.hasCirculationFan ? 'Yes' : 'No'],
+              [g.reviewTent,      setup.tentSize],
+              [g.reviewLight,     `${setup.lightWatts}W ${setup.lightType.toUpperCase()}`],
+              [g.reviewMedium,    g.mediumNames[setup.medium]],
+              [g.reviewContainer, g.potNames[setup.potSize]],
+              [g.reviewWatering,  g.waterNames[setup.watering]],
+              [g.reviewNutrients, g.nutrientNames[setup.nutrients]],
+              [g.reviewExhaust,   setup.hasExhaustFan ? `${setup.exhaustCFM} CFM` : g.valNone],
+              [g.reviewCircFan,   setup.hasCirculationFan ? g.valYes : g.valNo],
             ].map(([k, v]) => (
               <div key={k}>
                 <div style={{ ...S.label, marginBottom: '2px' }}>{k}</div>
@@ -775,12 +826,13 @@ function SetupWizardInner() {
           </div>
 
           {(() => {
-            const tier = getTier(dayDurationSeconds)
-            const info = TIER_INFO[tier]
+            const tier       = getTier(dayDurationSeconds)
+            const color      = TIER_COLORS[tier]
+            const info       = g[`tier${tier.charAt(0).toUpperCase() + tier.slice(1)}` as 'tierFull' | 'tierStandard' | 'tierPractice']
             const flowerDays = isCustom ? customStrain.floweringTime : (selectedStrain?.floweringTime ?? 63)
             return (
-              <div style={{ background: `${info.color}10`, border: `0.5px solid ${info.color}40`, borderRadius: '4px', padding: '12px', marginBottom: '20px' }}>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: info.color, marginBottom: '4px' }}>
+              <div style={{ background: `${color}10`, border: `0.5px solid ${color}40`, borderRadius: '4px', padding: '12px', marginBottom: '20px' }}>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color, marginBottom: '4px' }}>
                   {fmtSpeed(dayDurationSeconds)} · {info.label}
                 </div>
                 <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
@@ -804,7 +856,7 @@ function SetupWizardInner() {
               cursor: pending ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
             }}
           >
-            {pending ? 'Starting...' : '🌱 Plant Seed'}
+            {pending ? g.planting : g.plantSeed}
           </button>
         </div>
       )}
@@ -816,21 +868,21 @@ function SetupWizardInner() {
           disabled={step === 0}
           style={S.btn(false, step === 0)}
         >
-          ← Back
+          {g.back}
         </button>
         {step < STEPS.length - 1 && (
           <button
             onClick={() => {
               if (step === 1 && !strainReady) {
                 if (isCustom) setNameError(true)
-                toast.error('Select a strain to continue')
+                toast.error(g.selectStrainFirst)
                 return
               }
               setStep(s => s + 1)
             }}
             style={S.btn(true)}
           >
-            Next →
+            {g.next}
           </button>
         )}
       </div>
@@ -840,7 +892,7 @@ function SetupWizardInner() {
 
 export default function SetupPage() {
   return (
-    <Suspense fallback={<div style={{ padding: '40px', color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>Loading...</div>}>
+    <Suspense fallback={<div style={{ padding: '40px', color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>…</div>}>
       <SetupWizardInner />
     </Suspense>
   )

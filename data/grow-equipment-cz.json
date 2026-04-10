@@ -13,377 +13,689 @@
     {
       "name": "Lumatek ZEUS 600W PRO 2.9 LED",
       "brand": "Lumatek",
-      "prices": { "czk": 16499, "usd": 717, "eur": 660 },
+      "prices": {
+        "czk": 16499
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/25755-5_zeus600wpro29-02.jpg",
       "category": "light_led",
       "sourceUrl": "https://www.hotchilli.cz/lumatek-3/novy-lumatek-zeus-600w-pro-2-9--mol-j/",
-      "specs": { "watts": 600, "efficiency": "2.9 µmol/J" }
+      "specs": {
+        "watts": 600,
+        "efficiency": "2.9 µmol/J"
+      }
     },
     {
       "name": "ViparSpectra Pro Series P600 100W",
       "brand": "ViparSpectra",
-      "prices": { "czk": 1999, "usd": 87, "eur": 80 },
+      "prices": {
+        "czk": 1999
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/36976-2_viparspectra-pro-series-p600-100w-2024-upgraded.png",
       "category": "light_led",
       "sourceUrl": "https://www.hotchilli.cz/viparspectra/viparspectra-pro-series-p600-2023-upgrade-2-0/",
-      "specs": { "watts": 100, "coverageArea": "2×2 ft" }
+      "specs": {
+        "watts": 100,
+        "coverageArea": "2×2 ft"
+      }
     },
     {
       "name": "ViparSpectra Pro Series P2000 250W",
       "brand": "ViparSpectra",
-      "prices": { "czk": 3999, "usd": 174, "eur": 160 },
+      "prices": {
+        "czk": 3999
+      },
       "imageUrl": "",
       "category": "light_led",
       "sourceUrl": "https://www.hotchilli.cz/viparspectra/viparspectra-pro-series-p2000-2023-upgrade/",
-      "specs": { "watts": 250, "coverageArea": "3×4 ft" }
+      "specs": {
+        "watts": 250,
+        "coverageArea": "3×4 ft"
+      }
     },
     {
       "name": "Lumatek ATTIS 300W PRO 2.7 µmol/J",
       "brand": "Lumatek",
-      "prices": { "czk": 5999, "usd": 261, "eur": 240 },
+      "prices": {
+        "czk": 5999
+      },
       "imageUrl": "",
       "category": "light_led",
       "sourceUrl": "https://www.hotchilli.cz/lumatek-3/lumatek-attis-300w-pro-2-7--mol-j/",
-      "specs": { "watts": 300, "efficiency": "2.7 µmol/J" }
+      "specs": {
+        "watts": 300,
+        "efficiency": "2.7 µmol/J"
+      }
     },
     {
       "name": "SunPro HITTER 200W LED 2.7 µmol/J",
       "brand": "SunPro",
-      "prices": { "czk": 2999, "usd": 130, "eur": 120 },
+      "prices": {
+        "czk": 2999
+      },
       "imageUrl": "",
       "category": "light_led",
       "sourceUrl": "https://www.growshop.cz/sunpro-hitter-200w-led-2-7-umol-j-p35402/",
-      "specs": { "watts": 200, "efficiency": "2.7 µmol/J" }
+      "specs": {
+        "watts": 200,
+        "efficiency": "2.7 µmol/J"
+      }
     },
     {
       "name": "SunPro HITTER 300W LED 2.7 µmol/J",
       "brand": "SunPro",
-      "prices": { "czk": 3299, "usd": 143, "eur": 132 },
+      "prices": {
+        "czk": 3299
+      },
       "imageUrl": "",
       "category": "light_led",
       "sourceUrl": "https://www.growshop.cz/sunpro-hitter-300w-led-2-7-umol-j-p35404/",
-      "specs": { "watts": 300, "efficiency": "2.7 µmol/J" }
+      "specs": {
+        "watts": 300,
+        "efficiency": "2.7 µmol/J"
+      }
     },
     {
       "name": "SunPro HITTER 720W LED 2.9 µmol/J",
       "brand": "SunPro",
-      "prices": { "czk": 5999, "usd": 261, "eur": 240 },
+      "prices": {
+        "czk": 5999
+      },
       "imageUrl": "",
       "category": "light_led",
       "sourceUrl": "https://www.growshop.cz/sunpro-hitter-720w-led-2-9-umol-j-p35413/",
-      "specs": { "watts": 720, "efficiency": "2.9 µmol/J" }
+      "specs": {
+        "watts": 720,
+        "efficiency": "2.9 µmol/J"
+      }
     },
     {
       "name": "LUMii Black 600W HPS Lamp",
       "brand": "LUMii",
-      "prices": { "czk": 499, "usd": 22, "eur": 20 },
+      "prices": {
+        "czk": 499
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13023_s-l300.jpg",
       "category": "light_hps",
       "sourceUrl": "https://www.hotchilli.cz/kvet/vybojka-lumii-black-600w-hps/",
-      "specs": { "watts": 600, "lampType": "HPS" }
+      "specs": {
+        "watts": 600,
+        "lampType": "HPS"
+      }
     },
     {
       "name": "Lumatek 1000W 400V DE Dual Spectrum HPS Lamp",
       "brand": "Lumatek",
-      "prices": { "czk": 999, "usd": 43, "eur": 40 },
+      "prices": {
+        "czk": 999
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/6199_lumatek-1000w-400v-de-hps-lamp.jpg",
       "category": "light_hps",
       "sourceUrl": "https://www.hotchilli.cz/double-ended-2/vybojka-lumatek-1000w-400v-de-dual-spectrum-hps/",
-      "specs": { "watts": 1000, "lampType": "DE HPS", "voltage": "400V" }
+      "specs": {
+        "watts": 1000,
+        "lampType": "DE HPS",
+        "voltage": "400V"
+      }
     },
     {
       "name": "Adjust-A-Wings CMH 315W Kit",
       "brand": "Adjust-A-Wings",
-      "prices": { "czk": 2799, "usd": 122, "eur": 112 },
+      "prices": {
+        "czk": 2799
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14975_vyr-7013-14975-cmh315-kit-box-1.jpg",
       "category": "light_cmh",
       "sourceUrl": "https://www.hotchilli.cz/315w/digitalni-kit-adjust-a-wings-cmh-315w/",
-      "specs": { "watts": 315, "lampType": "CMH/LEC", "colorTemperature": "3100K" }
+      "specs": {
+        "watts": 315,
+        "lampType": "CMH/LEC",
+        "colorTemperature": "3100K"
+      }
     },
     {
       "name": "Adjust-A-Wings CMH 630W 3100K Lamp",
       "brand": "Adjust-A-Wings",
-      "prices": { "czk": 1499, "usd": 65, "eur": 60 },
+      "prices": {
+        "czk": 1499
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14708_cmh630-lamp-box-1.jpg",
       "category": "light_cmh",
       "sourceUrl": "https://www.hotchilli.cz/630w-2/vybojka-adjust-a-wings-cmh-630w-3100k/",
-      "specs": { "watts": 630, "lampType": "CMH", "colorTemperature": "3100K" }
+      "specs": {
+        "watts": 630,
+        "lampType": "CMH",
+        "colorTemperature": "3100K"
+      }
     },
     {
       "name": "Lumatek CMH 315W 3100K Lamp",
       "brand": "Lumatek",
-      "prices": { "czk": 999, "usd": 43, "eur": 40 },
+      "prices": {
+        "czk": 999
+      },
       "imageUrl": "",
       "category": "light_cmh",
       "sourceUrl": "https://www.hotchilli.cz/315w-2/vybojka-lumatek-cmh-315w/",
-      "specs": { "watts": 315, "lampType": "CMH", "colorTemperature": "3100K" }
+      "specs": {
+        "watts": 315,
+        "lampType": "CMH",
+        "colorTemperature": "3100K"
+      }
     },
     {
       "name": "Vents TT 125 Inline Fan 280m³/h",
       "brand": "Vents",
-      "prices": { "czk": 799, "usd": 35, "eur": 32 },
+      "prices": {
+        "czk": 799
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2157-1_tt125.png",
       "category": "exhaust_fan",
       "sourceUrl": "https://www.hotchilli.cz/vzduchotechnika/ventilator-tt-125-220-280-m3-h/",
-      "specs": { "diameter": "125mm", "cfm": 164, "m3h": 280, "speedSettings": "2-speed" }
+      "specs": {
+        "diameter": "125mm",
+        "cfm": 164,
+        "m3h": 280,
+        "speedSettings": "2-speed"
+      }
     },
     {
       "name": "Prima Klima CTRL 125 Fan 400m³/h",
       "brand": "Prima Klima",
-      "prices": { "czk": 3299, "usd": 143, "eur": 132 },
+      "prices": {
+        "czk": 3299
+      },
       "imageUrl": "",
       "category": "exhaust_fan",
       "sourceUrl": "https://www.hotchilli.cz/regulace-otacek-termostat/ventilator-prima-klima-ctrl-125-400m3-h-125mm-regulator-termostat/",
-      "specs": { "diameter": "125mm", "cfm": 235, "m3h": 400, "controller": "integrated thermostat" }
+      "specs": {
+        "diameter": "125mm",
+        "cfm": 235,
+        "m3h": 400,
+        "controller": "integrated thermostat"
+      }
     },
     {
       "name": "Prima Klima CTRL 160 Fan 800m³/h",
       "brand": "Prima Klima",
-      "prices": { "czk": 3699, "usd": 161, "eur": 148 },
+      "prices": {
+        "czk": 3699
+      },
       "imageUrl": "",
       "category": "exhaust_fan",
       "sourceUrl": "https://www.hotchilli.cz/podlahove-ventilatory/ventilator-prima-klima-tc-160-800m3-h-160mm-regulator-termostat/",
-      "specs": { "diameter": "160mm", "cfm": 471, "m3h": 800, "controller": "integrated thermostat" }
+      "specs": {
+        "diameter": "160mm",
+        "cfm": 471,
+        "m3h": 800,
+        "controller": "integrated thermostat"
+      }
     },
     {
       "name": "GENT Clip Fan 5W",
       "brand": "GENT",
-      "prices": { "czk": 499, "usd": 22, "eur": 20 },
+      "prices": {
+        "czk": 499
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20892-1_gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm.jpg",
       "category": "circulation_fan",
       "sourceUrl": "https://www.growmarket.cz/gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm/",
-      "specs": { "watts": 5, "diameter": "15cm", "type": "clip fan" }
+      "specs": {
+        "watts": 5,
+        "diameter": "15cm",
+        "type": "clip fan"
+      }
     },
     {
       "name": "Garden HighPro ProFan 12W Clip Fan",
       "brand": "Garden HighPro",
-      "prices": { "czk": 549, "usd": 24, "eur": 22 },
+      "prices": {
+        "czk": 549
+      },
       "imageUrl": "https://cdn.growshop.cz/images/0/8d22caf6f9af0e96/2/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm.jpg",
       "category": "circulation_fan",
       "sourceUrl": "https://www.growshop.cz/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm-p15024/",
-      "specs": { "watts": 12, "diameter": "20cm", "type": "clip fan" }
+      "specs": {
+        "watts": 12,
+        "diameter": "20cm",
+        "type": "clip fan"
+      }
     },
     {
       "name": "Prima Klima ECO K2600 100mm Carbon Filter",
       "brand": "Prima Klima",
-      "prices": { "czk": 997, "usd": 43, "eur": 40 },
+      "prices": {
+        "czk": 997
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/1026_prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr.jpg",
       "category": "carbon_filter",
       "sourceUrl": "https://www.growmarket.cz/prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr/",
-      "specs": { "diameter": "100mm", "m3h": 360, "carbonType": "CTC 75" }
+      "specs": {
+        "diameter": "100mm",
+        "m3h": 360,
+        "carbonType": "CTC 75"
+      }
     },
     {
       "name": "Prima Klima ECO K2601 125mm Carbon Filter",
       "brand": "Prima Klima",
-      "prices": { "czk": 1199, "usd": 52, "eur": 48 },
+      "prices": {
+        "czk": 1199
+      },
       "imageUrl": "",
       "category": "carbon_filter",
       "sourceUrl": "https://www.hotchilli.cz/eco/prima-klima-filtr-eco-k2601-480m3-h-125mm/",
-      "specs": { "diameter": "125mm", "m3h": 480, "carbonType": "CTC 75" }
+      "specs": {
+        "diameter": "125mm",
+        "m3h": 480,
+        "carbonType": "CTC 75"
+      }
     },
     {
       "name": "Urban Premium Carbon Filter 150mm",
       "brand": "Urban",
-      "prices": { "czk": 1699, "usd": 74, "eur": 68 },
+      "prices": {
+        "czk": 1699
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/51339_2_urban_premium_2.jpg",
       "category": "carbon_filter",
       "sourceUrl": "https://www.growmarket.cz/urban-premium-uhlikovy-filtr-460-690-m3-h--150-mm/",
-      "specs": { "diameter": "150mm", "m3h": "460–690" }
+      "specs": {
+        "diameter": "150mm",
+        "m3h": "460–690"
+      }
     },
     {
       "name": "Can-Lite Carbon Filter 160mm",
       "brand": "Can Filters",
-      "prices": { "czk": 1784, "usd": 78, "eur": 71 },
+      "prices": {
+        "czk": 1784
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr.jpg",
       "category": "carbon_filter",
       "sourceUrl": "https://www.growmarket.cz/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr/",
-      "specs": { "diameter": "160mm", "m3h": "425–467" }
+      "specs": {
+        "diameter": "160mm",
+        "m3h": "425–467"
+      }
     },
     {
       "name": "CANNA Terra Professional 50L",
       "brand": "CANNA",
-      "prices": { "czk": 249, "usd": 11, "eur": 10 },
+      "prices": {
+        "czk": 249
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3521_canna-terra-professional-50l.jpg",
       "category": "medium_soil",
       "sourceUrl": "https://www.hotchilli.cz/canna-3/canna-terra-professional-50l/",
-      "specs": { "volume": "50L", "ph": "6.5", "organic": true }
+      "specs": {
+        "volume": "50L",
+        "ph": "6.5",
+        "organic": true
+      }
     },
     {
       "name": "CANNA Coco Natural 50L",
       "brand": "CANNA",
-      "prices": { "czk": 289, "usd": 13, "eur": 12 },
+      "prices": {
+        "czk": 289
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3526_Canna-coco-50l.jpg",
       "category": "medium_coco",
       "sourceUrl": "https://www.hotchilli.cz/canna-4/canna-cocos-natural-50l/",
-      "specs": { "volume": "50L", "ph": "6.0", "buffered": false }
+      "specs": {
+        "volume": "50L",
+        "ph": "6.0",
+        "buffered": false
+      }
     },
     {
       "name": "Atami Cocos Substrate 50L",
       "brand": "Atami",
-      "prices": { "czk": 349, "usd": 15, "eur": 14 },
+      "prices": {
+        "czk": 349
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3519_cocos-substrate.jpg",
       "category": "medium_coco",
       "sourceUrl": "https://www.hotchilli.cz/atami-4/atami-coco-50l/",
-      "specs": { "volume": "50L", "ph": "5.8", "buffered": true }
+      "specs": {
+        "volume": "50L",
+        "ph": "5.8",
+        "buffered": true
+      }
     },
     {
       "name": "U Gro XL Rhiza 70L Coco with Mycorrhiza",
       "brand": "U Gro",
-      "prices": { "czk": 475, "usd": 21, "eur": 19 },
+      "prices": {
+        "czk": 475
+      },
       "imageUrl": "",
       "category": "medium_coco",
       "sourceUrl": "https://www.growmarket.cz/u-gro-xl-rhiza-70-l--dehydrovany-kokosovy-substrat-s-mykorhizou/",
-      "specs": { "volume": "70L", "mycorrhiza": true, "dehydrated": true }
+      "specs": {
+        "volume": "70L",
+        "mycorrhiza": true,
+        "dehydrated": true
+      }
     },
     {
       "name": "Dirt Bag Grey Fabric Pot 26.5L",
       "brand": "Dirt Bag",
-      "prices": { "czk": 59, "usd": 3, "eur": 2.4 },
+      "prices": {
+        "czk": 59
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23340_dirt-bag-grey-textilni-kvetinac-34x30-cm-26-5-l.jpg",
       "category": "fabric_pot",
       "sourceUrl": "https://www.growmarket.cz/dirt-bag-grey-textilni-kvetinac-33x30-cm-26-5-l/",
-      "specs": { "volumeLiters": 26.5, "dimensions": "34×30cm", "material": "Fabric", "colour": "Grey" }
+      "specs": {
+        "volumeLiters": 26.5,
+        "dimensions": "34×30cm",
+        "material": "Fabric",
+        "colour": "Grey"
+      }
     },
     {
       "name": "Pure Pot Fabric Pot 19L with Handles",
       "brand": "Pure Factory",
-      "prices": { "czk": 62, "usd": 3, "eur": 2.5 },
+      "prices": {
+        "czk": 62
+      },
       "imageUrl": "",
       "category": "fabric_pot",
       "sourceUrl": "https://www.growmarket.cz/pure-pot-textilni-kvetinac-s-uchyty-30x25-cm-19-l/",
-      "specs": { "volumeLiters": 19, "dimensions": "30×25cm", "handles": true }
+      "specs": {
+        "volumeLiters": 19,
+        "dimensions": "30×25cm",
+        "handles": true
+      }
     },
     {
       "name": "AC Infinity Heavy Duty Fabric Pot 19L 5-Pack",
       "brand": "AC Infinity",
-      "prices": { "czk": 675, "usd": 29, "eur": 27 },
+      "prices": {
+        "czk": 675
+      },
       "imageUrl": "",
       "category": "fabric_pot",
       "sourceUrl": "https://www.hotchilli.cz/ac-infinity-fabric-pots-and-water-pots/ac-infinity-heavy-duty-reusable-fabric-pots--19-liter--5-pack/",
-      "specs": { "volumeLiters": 19, "quantity": "5-pack", "material": "Heavy duty fabric" }
+      "specs": {
+        "volumeLiters": 19,
+        "quantity": "5-pack",
+        "material": "Heavy duty fabric"
+      }
     },
     {
       "name": "Milwaukee pH600 pH Meter",
       "brand": "Milwaukee",
-      "prices": { "czk": 659, "usd": 29, "eur": 26 },
+      "prices": {
+        "czk": 659
+      },
       "imageUrl": "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png",
       "category": "ph_meter",
       "sourceUrl": "https://www.growshop.cz/milwaukee-ph-tester-ph600-p1242/",
-      "specs": { "measurementRange": "0–14 pH", "accuracy": "±0.1 pH", "calibrationPoints": "1-point" }
+      "specs": {
+        "measurementRange": "0–14 pH",
+        "accuracy": "±0.1 pH",
+        "calibrationPoints": "1-point"
+      }
     },
     {
       "name": "Aqua Master Tools P50 PRO 2.0 pH/Temp",
       "brand": "Aqua Master Tools",
-      "prices": { "czk": 1574, "usd": 68, "eur": 63 },
+      "prices": {
+        "czk": 1574
+      },
       "imageUrl": "",
       "category": "ph_meter",
       "sourceUrl": "https://www.growmarket.cz/aqua-master-tools-ph-metr-p50-pro-2-0--ph--teplota/",
-      "specs": { "measurements": "pH + Temperature", "accuracy": "±0.01 pH" }
+      "specs": {
+        "measurements": "pH + Temperature",
+        "accuracy": "±0.01 pH"
+      }
     },
     {
       "name": "Aqua Master Tools E60 PRO 2.0 EC Meter",
       "brand": "Aqua Master Tools",
-      "prices": { "czk": 1469, "usd": 64, "eur": 59 },
+      "prices": {
+        "czk": 1469
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23412_aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota.jpg",
       "category": "ec_meter",
       "sourceUrl": "https://www.growmarket.cz/aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota/",
-      "specs": { "measurements": "EC + PPM + TDS + Temperature" }
+      "specs": {
+        "measurements": "EC + PPM + TDS + Temperature"
+      }
     },
     {
       "name": "Milwaukee CD611 EC Meter",
       "brand": "Milwaukee",
-      "prices": { "czk": 787, "usd": 34, "eur": 31 },
+      "prices": {
+        "czk": 787
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/3444_milwaukee-cd611--ec-metr.jpg",
       "category": "ec_meter",
       "sourceUrl": "https://www.growmarket.cz/milwaukee-cd611--ec-metr/",
-      "specs": { "measurements": "EC" }
+      "specs": {
+        "measurements": "EC"
+      }
     },
     {
       "name": "Garden HighPro Thermo-Hygro MEDIUM with Probe",
       "brand": "Garden HighPro",
-      "prices": { "czk": 239, "usd": 10, "eur": 10 },
+      "prices": {
+        "czk": 239
+      },
       "imageUrl": "https://cdn.growshop.cz/images/0/274f3a0db3e10ebf/2/digitalni-thermo-hygro-metr-medium-se-sondou.png",
       "category": "thermohygrometer",
       "sourceUrl": "https://www.growshop.cz/digitalni-thermo-hygro-metr-medium-se-sondou-p15037/",
-      "specs": { "measurements": "Temperature + Humidity", "probe": true }
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "probe": true
+      }
     },
     {
       "name": "Garden HighPro Thermo-Hygro PRO with Probe",
       "brand": "Garden HighPro",
-      "prices": { "czk": 389, "usd": 17, "eur": 16 },
+      "prices": {
+        "czk": 389
+      },
       "imageUrl": "https://cdn.growshop.cz/images/0/a3336f8cf09446bb/2/digitalni-thermo-hygro-metr-pro-se-sondou.png",
       "category": "thermohygrometer",
       "sourceUrl": "https://www.growshop.cz/digitalni-thermo-hygro-metr-pro-se-sondou-p25841/",
-      "specs": { "measurements": "Temperature + Humidity", "probe": true, "memoryMinMax": true }
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "probe": true,
+        "memoryMinMax": true
+      }
     },
     {
       "name": "VIVOSUN AeroLab THB1S Bluetooth Thermohygrometer",
       "brand": "VIVOSUN",
-      "prices": { "czk": 679, "usd": 30, "eur": 27 },
+      "prices": {
+        "czk": 679
+      },
       "imageUrl": "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg",
       "category": "thermohygrometer",
       "sourceUrl": "https://www.growshop.cz/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy-p37690/",
-      "specs": { "measurements": "Temperature + Humidity", "connectivity": "Bluetooth", "probe": true }
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "connectivity": "Bluetooth",
+        "probe": true
+      }
     },
     {
       "name": "Urban Thermo-Hygrometer LITE",
       "brand": "Urban",
-      "prices": { "czk": 109, "usd": 5, "eur": 4 },
+      "prices": {
+        "czk": 109
+      },
       "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg",
       "category": "thermohygrometer",
       "sourceUrl": "https://www.growmarket.cz/urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej/",
-      "specs": { "measurements": "Temperature + Humidity", "display": "Large LCD" }
+      "specs": {
+        "measurements": "Temperature + Humidity",
+        "display": "Large LCD"
+      }
     },
     {
       "name": "Plagron Alga Grow 1L",
       "brand": "Plagron",
-      "prices": { "czk": 349, "usd": 15, "eur": 14 },
+      "prices": {
+        "czk": 349
+      },
       "imageUrl": "",
       "category": "nutrients_organic",
       "sourceUrl": "https://www.growmarket.cz/plagron-alga-grow-1-l--zakladni-hnojivo-na-rust/",
-      "specs": { "npk": "4-2-4", "volume": "1L", "organic": true, "applicationRate": "1–4 mL/L" }
+      "specs": {
+        "npk": "4-2-4",
+        "volume": "1L",
+        "organic": true,
+        "applicationRate": "1–4 mL/L"
+      }
     },
     {
       "name": "CANNA Terra Flores 1L",
       "brand": "CANNA",
-      "prices": { "czk": 259, "usd": 11, "eur": 10 },
+      "prices": {
+        "czk": 259
+      },
       "imageUrl": "",
       "category": "nutrients_mineral",
       "sourceUrl": "https://www.growmarket.cz/canna-terra-flores-1-l--zakladni-hnojivo-na-kvet/",
-      "specs": { "npk": "2-5-6", "volume": "1L", "organic": false }
+      "specs": {
+        "npk": "2-5-6",
+        "volume": "1L",
+        "organic": false
+      }
     }
   ],
   "priceUpdatesForExisting": {
-    "Biobizz Light·Mix": { "czk": 289, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/15392_Light%C2%B7Mix_50L.jpg", "sourceUrl": "https://www.hotchilli.cz/biobizz-2/biobizz-light-mix-50l-3/" },
-    "Biobizz All·Mix": { "czk": 398, "imageUrl": "" },
-    "Plagron Growmix": { "czk": 339, "sourceUrl": "https://www.growmarket.cz/plagron-growmix-50-l--pestebni-substrat-s-perlitem/" },
-    "Plagron Lightmix": { "czk": 299, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/96689_li.jpg", "sourceUrl": "https://www.hotchilli.cz/plagron-2/plagron-lightmix-50l/" },
-    "Plagron Bio Lightmix": { "czk": 299 },
-    "Biobizz Coco·Mix": { "czk": 319, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2995_Coco%C2%B7Mix_50L.jpg", "sourceUrl": "https://www.hotchilli.cz/biobizz-3/biobizz-cocomix-50l/" },
-    "Plagron Cocos Premium": { "czk": 359, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/1245_plagron-cococ-premium-50-l.jpg", "sourceUrl": "https://www.hotchilli.cz/plagron-3/plagron-cocos-premium-50l/" },
-    "CANNA Coco Professional Plus": { "czk": 379, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3525_canna-cocos-professional-plus-50l.jpg", "sourceUrl": "https://www.hotchilli.cz/canna-4/canna-cocos-professional-plus-50l/" },
-    "Biobizz Bio·Grow": { "czk": 209, "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/87_biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust.jpg", "sourceUrl": "https://www.growmarket.cz/biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust/" },
-    "Biobizz Bio·Bloom": { "czk": 251, "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/99_biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet.jpg", "sourceUrl": "https://www.growmarket.cz/biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet/" },
-    "Biobizz Fish·Mix": { "czk": 209, "sourceUrl": "https://www.growmarket.cz/biobizz-fish-mix-1-l--zakladni-bio-hnojivo-na-rust/" },
-    "CANNA Terra Vega": { "czk": 259, "sourceUrl": "https://www.growmarket.cz/canna-terra-vega-1-l--zakladni-hnojivo-na-rust/" },
-    "CANNA Aqua Vega": { "czk": 259 },
-    "CANNA Aqua Flores": { "czk": 259 },
-    "Lumatek Digital 400W HPS": { "czk": 1499, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/127-3_lumatek-400w-240v.jpg", "sourceUrl": "https://www.hotchilli.cz/400-w/elektronicky-predradnik-lumatek-400w--230v-se-ctyrpolohovou-regulaci/" },
-    "Lumatek Digital 600W HPS": { "czk": 1999, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13032-6_lumatek-pro-1000w-400v-controllable-cover-960x750.jpg", "sourceUrl": "https://www.hotchilli.cz/600w-400v-2/digitalni-predradnik-lumatek-ultimate-pro-controlled-600w-400v/" },
-    "Lumatek Zeus 1000W DE HPS": { "czk": 1999, "sourceUrl": "https://www.hotchilli.cz/400v/digitalni-predradnik-lumatek-ultimate-pro-controlled-1000w-400v/" },
-    "Lumatek ATA 315W CMH/LEC": { "czk": 1299, "sourceUrl": "https://www.hotchilli.cz/315w/digitalni-predradnik-lumatek-controlled-cmh-315w-2/" },
-    "Lumatek ATA 630W CMH/LEC": { "czk": 2499, "sourceUrl": "https://www.hotchilli.cz/lumatek/digitalni-predradnik-lumatek-utopia-630w-600w-de-cmh-hps/" },
-    "Rhino Hobby Carbon Filter 100mm": { "czk": 999, "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/RHOB125300", "sourceUrl": "https://www.hotchilli.cz/hobby/rhino-filters-hobby-500m3-h-125mm/" },
-    "Rhino Pro Carbon Filter 150mm": { "czk": 1999, "sourceUrl": "https://www.hotchilli.cz/phresh-filter-2/uhlikovy-filtr-phresh-filter-pro-595m3-h-150mm/" },
-    "Rhino Pro Carbon Filter 200mm": { "czk": 2599, "sourceUrl": "https://www.hotchilli.cz/eco/prima-klima-eco-k2603-1150m3-h-160mm/" },
-    "Milwaukee MW101 pH Meter": { "czk": 659, "imageUrl": "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png", "sourceUrl": "https://www.growshop.cz/milwaukee-ph-tester-ph600-p1242/" },
-    "Root Pouch Boxer Fabric Pot 7L": { "czk": 80 },
-    "Root Pouch Black Fabric Pot 15L": { "czk": 120 },
-    "Root Pouch Grey Fabric Pot 25L": { "czk": 150 },
-    "Root Pouch Charcoal Fabric Pot 18L": { "czk": 130 },
-    "Root Pouch Thin Black 5L Seedling Pot": { "czk": 60 },
-    "Govee H5075 Thermo-Hygrometer": { "czk": 109, "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg" },
-    "AC Infinity CLOUDCOM B1": { "czk": 314, "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/4554_garden-high-pro-prohygro-premium--teplomer-a-vlhkomer-se-sondou.jpg" },
-    "Inkbird IBS-TH2 Plus Bluetooth Thermohygrometer": { "czk": 679, "imageUrl": "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg" }
+    "Biobizz Light·Mix": {
+      "czk": 289,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/15392_Light%C2%B7Mix_50L.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/biobizz-2/biobizz-light-mix-50l-3/"
+    },
+    "Biobizz All·Mix": {
+      "czk": 398,
+      "imageUrl": ""
+    },
+    "Plagron Growmix": {
+      "czk": 339,
+      "sourceUrl": "https://www.growmarket.cz/plagron-growmix-50-l--pestebni-substrat-s-perlitem/"
+    },
+    "Plagron Lightmix": {
+      "czk": 299,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/96689_li.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/plagron-2/plagron-lightmix-50l/"
+    },
+    "Plagron Bio Lightmix": {
+      "czk": 299
+    },
+    "Biobizz Coco·Mix": {
+      "czk": 319,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2995_Coco%C2%B7Mix_50L.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/biobizz-3/biobizz-cocomix-50l/"
+    },
+    "Plagron Cocos Premium": {
+      "czk": 359,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/1245_plagron-cococ-premium-50-l.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/plagron-3/plagron-cocos-premium-50l/"
+    },
+    "CANNA Coco Professional Plus": {
+      "czk": 379,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3525_canna-cocos-professional-plus-50l.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/canna-4/canna-cocos-professional-plus-50l/"
+    },
+    "Biobizz Bio·Grow": {
+      "czk": 209,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/87_biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust.jpg",
+      "sourceUrl": "https://www.growmarket.cz/biobizz-bio-grow-1-l--zakladni-bio-hnojivo-na-rust/"
+    },
+    "Biobizz Bio·Bloom": {
+      "czk": 251,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/99_biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet.jpg",
+      "sourceUrl": "https://www.growmarket.cz/biobizz-bio-bloom-1-l--bio-hnojivo-na-kvet/"
+    },
+    "Biobizz Fish·Mix": {
+      "czk": 209,
+      "sourceUrl": "https://www.growmarket.cz/biobizz-fish-mix-1-l--zakladni-bio-hnojivo-na-rust/"
+    },
+    "CANNA Terra Vega": {
+      "czk": 259,
+      "sourceUrl": "https://www.growmarket.cz/canna-terra-vega-1-l--zakladni-hnojivo-na-rust/"
+    },
+    "CANNA Aqua Vega": {
+      "czk": 259
+    },
+    "CANNA Aqua Flores": {
+      "czk": 259
+    },
+    "Lumatek Digital 400W HPS": {
+      "czk": 1499,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/127-3_lumatek-400w-240v.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/400-w/elektronicky-predradnik-lumatek-400w--230v-se-ctyrpolohovou-regulaci/"
+    },
+    "Lumatek Digital 600W HPS": {
+      "czk": 1999,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13032-6_lumatek-pro-1000w-400v-controllable-cover-960x750.jpg",
+      "sourceUrl": "https://www.hotchilli.cz/600w-400v-2/digitalni-predradnik-lumatek-ultimate-pro-controlled-600w-400v/"
+    },
+    "Lumatek Zeus 1000W DE HPS": {
+      "czk": 1999,
+      "sourceUrl": "https://www.hotchilli.cz/400v/digitalni-predradnik-lumatek-ultimate-pro-controlled-1000w-400v/"
+    },
+    "Lumatek ATA 315W CMH/LEC": {
+      "czk": 1299,
+      "sourceUrl": "https://www.hotchilli.cz/315w/digitalni-predradnik-lumatek-controlled-cmh-315w-2/"
+    },
+    "Lumatek ATA 630W CMH/LEC": {
+      "czk": 2499,
+      "sourceUrl": "https://www.hotchilli.cz/lumatek/digitalni-predradnik-lumatek-utopia-630w-600w-de-cmh-hps/"
+    },
+    "Rhino Hobby Carbon Filter 100mm": {
+      "czk": 999,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/RHOB125300",
+      "sourceUrl": "https://www.hotchilli.cz/hobby/rhino-filters-hobby-500m3-h-125mm/"
+    },
+    "Rhino Pro Carbon Filter 150mm": {
+      "czk": 1999,
+      "sourceUrl": "https://www.hotchilli.cz/phresh-filter-2/uhlikovy-filtr-phresh-filter-pro-595m3-h-150mm/"
+    },
+    "Rhino Pro Carbon Filter 200mm": {
+      "czk": 2599,
+      "sourceUrl": "https://www.hotchilli.cz/eco/prima-klima-eco-k2603-1150m3-h-160mm/"
+    },
+    "Milwaukee MW101 pH Meter": {
+      "czk": 659,
+      "imageUrl": "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png",
+      "sourceUrl": "https://www.growshop.cz/milwaukee-ph-tester-ph600-p1242/"
+    },
+    "Root Pouch Boxer Fabric Pot 7L": {
+      "czk": 80
+    },
+    "Root Pouch Black Fabric Pot 15L": {
+      "czk": 120
+    },
+    "Root Pouch Grey Fabric Pot 25L": {
+      "czk": 150
+    },
+    "Root Pouch Charcoal Fabric Pot 18L": {
+      "czk": 130
+    },
+    "Root Pouch Thin Black 5L Seedling Pot": {
+      "czk": 60
+    },
+    "Govee H5075 Thermo-Hygrometer": {
+      "czk": 109,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg"
+    },
+    "AC Infinity CLOUDCOM B1": {
+      "czk": 314,
+      "imageUrl": "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/4554_garden-high-pro-prohygro-premium--teplomer-a-vlhkomer-se-sondou.jpg"
+    },
+    "Inkbird IBS-TH2 Plus Bluetooth Thermohygrometer": {
+      "czk": 679,
+      "imageUrl": "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg"
+    }
   }
 }

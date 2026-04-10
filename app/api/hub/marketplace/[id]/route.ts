@@ -9,6 +9,7 @@ const PatchSchema = z.discriminatedUnion('action', [
   z.object({ action: z.literal('mark_sold') }),
   z.object({ action: z.literal('mark_active') }),
   z.object({ action: z.literal('extend') }),
+  z.object({ action: z.literal('boost') }),
 ])
 
 // ── PATCH — update status or extend ─────────────────────────────────
@@ -58,6 +59,31 @@ export async function PATCH(
     if (listing.status === 'expired') listing.status = 'active'
     await listing.save()
     return NextResponse.json({ ok: true, expiresAt: listing.expiresAt })
+  }
+
+  if (action === 'boost') {
+    // Check if already active boost
+    if (listing.featuredUntil && listing.featuredUntil > new Date()) {
+      return NextResponse.json({ error: 'Listing is already featured' }, { status: 409 })
+    }
+    // Check global slot limit — max 3 featured at once
+    const activeBoosts = await Listing.countDocuments({
+      status: 'active',
+      featuredUntil: { $gt: new Date() },
+    })
+    if (activeBoosts >= 3) {
+      return NextResponse.json({ error: 'All 3 featured slots are currently taken', slotsFulle: true }, { status: 409 })
+    }
+    try {
+      await spendCredits(session.user.id, CREDIT_COSTS.MARKETPLACE_BOOST, `Boost listing: ${listing.title}`)
+    } catch {
+      return NextResponse.json({ error: 'Insufficient credits' }, { status: 402 })
+    }
+    const until = new Date()
+    until.setDate(until.getDate() + 3)
+    listing.featuredUntil = until
+    await listing.save()
+    return NextResponse.json({ ok: true, featuredUntil: until })
   }
 }
 

@@ -117,7 +117,7 @@ export default function MyListingActions({ initialListings }: Props) {
                 color: STATUS_COLORS[l.status], border: `0.5px solid ${STATUS_COLORS[l.status]}44`,
                 padding: '3px 8px', borderRadius: '3px', flexShrink: 0,
               }}>
-                {(m as Record<string, string>)[`status${l.status.charAt(0).toUpperCase() + l.status.slice(1)}`]}
+                {(m as unknown as Record<string, string>)[`status${l.status.charAt(0).toUpperCase() + l.status.slice(1)}`]}
               </span>
             </div>
 

@@ -140,7 +140,7 @@ export default async function LeaderboardPage(props: {
               {/* Score */}
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', fontWeight: 700, color: '#f0a830' }}>
-                  {u.score.toLocaleString()}
+                  {u.score.toLocaleString('en-US')}
                 </div>
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>XP</div>
               </div>
@@ -153,7 +153,7 @@ export default async function LeaderboardPage(props: {
       {!meInTop20 && me && (
         <div style={{ marginTop: '16px', padding: '12px 16px', borderRadius: '6px', background: 'rgba(204,0,170,0.08)', border: '0.5px solid rgba(204,0,170,0.25)' }}>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#cc00aa' }}>
-            {lb.yourRank} #{myRank} · {me.score.toLocaleString()} XP
+            {lb.yourRank} #{myRank} · {me.score.toLocaleString('en-US')} XP
           </span>
         </div>
       )}

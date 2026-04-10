@@ -135,10 +135,10 @@ export default async function AdminStrainsPage() {
                   {s.personality.archetype}
                 </td>
                 <td style={{ padding: '12px 14px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#e8f0ef' }}>
-                  {s.stats.totalChats.toLocaleString()}
+                  {s.stats.totalChats.toLocaleString('en-US')}
                 </td>
                 <td style={{ padding: '12px 14px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#e8f0ef' }}>
-                  {s.stats.totalMessages.toLocaleString()}
+                  {s.stats.totalMessages.toLocaleString('en-US')}
                 </td>
                 <td style={{ padding: '12px 14px' }}>
                   <span style={{

@@ -118,7 +118,7 @@ function OrderSheet({ order, onClose, onSave }: { order: Order | null; onClose: 
                 Order #{order._id.slice(-8)}
               </SheetTitle>
               <p className="text-xs" style={{ color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>
-                {new Date(order.createdAt).toLocaleString()}
+                {new Date(order.createdAt).toLocaleString('en-US')}
               </p>
             </SheetHeader>
 

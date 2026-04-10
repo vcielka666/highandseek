@@ -9,7 +9,8 @@ import { useLanguage } from '@/stores/languageStore'
 const CATEGORIES = ['equipment', 'clones', 'seeds', 'nutrients', 'art', 'other'] as const
 type Category = typeof CATEGORIES[number]
 
-const EXTRA_IMAGE_COST = 3
+// 1st image free, each extra image = 1 credit (max 2 extra = max 2 credits)
+const EXTRA_IMAGE_COST = 1
 
 interface Props {
   userCredits: number
@@ -30,6 +31,7 @@ export default function NewListingForm({ userCredits, COST }: Props) {
   const [telegram, setTelegram]     = useState('')
   const [signal, setSignal]         = useState('')
   const [threema, setThreema]       = useState('')
+  const [email, setEmail]           = useState('')
   const [imageUrls, setImageUrls]   = useState<string[]>([])
   const [uploading, setUploading]   = useState<boolean[]>([false, false, false])
   const [submitting, setSubmitting] = useState(false)
@@ -94,7 +96,7 @@ export default function NewListingForm({ userCredits, COST }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!telegram && !signal && !threema) {
+    if (!telegram && !signal && !threema && !email) {
       toast.error(m.contactSection)
       return
     }
@@ -118,6 +120,7 @@ export default function NewListingForm({ userCredits, COST }: Props) {
             telegram: telegram.trim() || undefined,
             signal:   signal.trim() || undefined,
             threema:  threema.trim() || undefined,
+            email:    email.trim() || undefined,
           },
           images: imageUrls.filter(u => u !== ''),
         }),
@@ -158,7 +161,7 @@ export default function NewListingForm({ userCredits, COST }: Props) {
             const key = `cat${c.charAt(0).toUpperCase() + c.slice(1)}` as keyof typeof m
             return (
               <option key={c} value={c} style={{ background: '#0d0d10' }}>
-                {(m as Record<string, string>)[key as string]}
+                {(m as unknown as Record<string, string>)[key as string]}
               </option>
             )
           })}
@@ -211,6 +214,10 @@ export default function NewListingForm({ userCredits, COST }: Props) {
           <input value={telegram} onChange={e => setTelegram(e.target.value)} placeholder={m.telegramPlaceholder} maxLength={80} style={inputStyle} />
         </div>
         <div>
+          <label style={labelStyle}>{m.emailLabel}</label>
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={m.emailPlaceholder} maxLength={120} style={inputStyle} />
+        </div>
+        <div>
           <label style={labelStyle}>{m.signalLabel}</label>
           <input value={signal} onChange={e => setSignal(e.target.value)} placeholder={m.signalPlaceholder} maxLength={40} style={inputStyle} />
         </div>
@@ -226,9 +233,9 @@ export default function NewListingForm({ userCredits, COST }: Props) {
 
         {/* Cost breakdown */}
         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginBottom: '12px', lineHeight: 1.8 }}>
-          {COST > 0 && <div>Base listing: {COST} credits (included)</div>}
-          <div style={{ color: extraImages >= 1 ? '#f0a830' : '#4a6066' }}>+1 extra image: +{EXTRA_IMAGE_COST} credits</div>
-          <div style={{ color: extraImages >= 2 ? '#f0a830' : '#4a6066' }}>+2 extra images: +{EXTRA_IMAGE_COST * 2} credits</div>
+          <div>1st image: free</div>
+          <div style={{ color: extraImages >= 1 ? '#f0a830' : '#4a6066' }}>2nd image: +1 credit</div>
+          <div style={{ color: extraImages >= 2 ? '#f0a830' : '#4a6066' }}>3rd image: +1 credit</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -278,7 +285,7 @@ export default function NewListingForm({ userCredits, COST }: Props) {
                       opacity: slot > 0 && !imageUrls[slot - 1] ? 0.4 : 1,
                     }}
                   >
-                    {uploading[slot] ? 'Uploading...' : slot === 0 ? '+ Add image (free)' : `+ Add image ${slot + 1} (+${EXTRA_IMAGE_COST} credits)`}
+                    {uploading[slot] ? 'Uploading...' : slot === 0 ? '+ Add image (free)' : `+ Add image ${slot + 1} (+1 credit)`}
                   </button>
                 </>
               )}

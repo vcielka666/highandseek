@@ -63,12 +63,13 @@ export async function POST(
   }
 
   // Calculate current needs
+  const avatarNeeds = avatarState.needs!
   const currentNeeds = calculateCurrentNeeds({
-    hydration:   avatarState.needs.hydration,
-    nutrients:   avatarState.needs.nutrients,
-    energy:      avatarState.needs.energy,
-    happiness:   avatarState.needs.happiness,
-    lastUpdated: avatarState.needs.lastUpdated.toISOString(),
+    hydration:   avatarNeeds.hydration,
+    nutrients:   avatarNeeds.nutrients,
+    energy:      avatarNeeds.energy,
+    happiness:   avatarNeeds.happiness,
+    lastUpdated: avatarNeeds.lastUpdated.toISOString(),
   })
   const status = calculateStatus(currentNeeds)
   const xpMultiplier = calculateXpMultiplier(status)
@@ -163,11 +164,11 @@ export async function POST(
   const newLevelData = getAvatarLevelForXP(newAvatarXP)
   const avatarLevelUp = newLevelData.level > oldLevel
 
-  avatarState.needs.hydration   = currentNeeds.hydration
-  avatarState.needs.nutrients   = currentNeeds.nutrients
-  avatarState.needs.energy      = currentNeeds.energy
-  avatarState.needs.happiness   = currentNeeds.happiness
-  avatarState.needs.lastUpdated = new Date()
+  avatarState.needs!.hydration   = currentNeeds.hydration
+  avatarState.needs!.nutrients   = currentNeeds.nutrients
+  avatarState.needs!.energy      = currentNeeds.energy
+  avatarState.needs!.happiness   = currentNeeds.happiness
+  avatarState.needs!.lastUpdated = new Date()
   avatarState.status            = newStatus
   avatarState.xp                = newAvatarXP
   avatarState.level             = newLevelData.level

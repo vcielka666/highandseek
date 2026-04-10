@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
 import Link from 'next/link'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { AvatarStatus } from '@/lib/avatar/decay'
+import { useLanguage } from '@/stores/languageStore'
 
 interface StrainUserState {
   level: number
@@ -35,13 +35,7 @@ const STATUS_COLORS: Record<AvatarStatus, string> = {
   wilting:  '#cc3300',
 }
 
-const STATUS_LABELS: Record<AvatarStatus, string> = {
-  thriving: '✨ Thriving',
-  happy:    '😊 Happy',
-  neutral:  '😐 Neutral',
-  sad:      '😢 Sad',
-  wilting:  '🥀 Wilting',
-}
+// STATUS_LABELS built dynamically from translations — see inside component
 
 const TYPE_GRADIENT: Record<string, string> = {
   indica:  'linear-gradient(135deg, #3d1a6e 0%, #1a0a30 100%)',
@@ -76,53 +70,59 @@ function AvatarPlaceholder({ type, size = 80 }: { type: string; size?: number })
   )
 }
 
-type FilterType = 'all' | 'indica' | 'sativa' | 'hybrid'
 
 export default function StrainDirectoryClient({ strains }: { strains: StrainCard[] }) {
-  const [filter, setFilter] = useState<FilterType>('all')
+  const { t } = useLanguage()
+  const s = t.strainDir
 
-  const filtered = filter === 'all' ? strains : strains.filter(s => s.type === filter)
+  const STATUS_LABELS: Record<AvatarStatus, string> = {
+    thriving: s.statusThriving,
+    happy:    s.statusHappy,
+    neutral:  s.statusNeutral,
+    sad:      s.statusSad,
+    wilting:  s.statusWilting,
+  }
 
   return (
-    <div style={{ maxWidth: '960px' }} className="px-4 pt-4 pb-20 md:px-7 md:pt-7">
-      <Breadcrumb
-        items={[{ label: 'Hub', href: '/hub' }, { label: 'Strain Universe' }]}
-        color="#cc00aa"
-      />
+    /* Outer wrapper — image as CSS background, 1:1 square */
+    <div style={{
+      position: 'relative',
+      backgroundImage: 'url(/avatarsLounge.png)',
+      backgroundSize: '100% auto',
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'top center',
+      maxWidth: '960px',
+    }} className="px-4 pt-4 pb-20 md:px-7 md:pt-7">
 
-      {/* Header */}
-      <div style={{ marginBottom: '24px' }}>
-        <h1 style={{ fontFamily: 'var(--font-orbitron)', fontSize: 'clamp(20px,3vw,28px)', fontWeight: 700, color: '#e8f0ef', letterSpacing: '3px', marginBottom: '6px' }}>
-          STRAIN UNIVERSE
-        </h1>
-        <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#4a6066' }}>
-          Every strain. A living personality.
-        </p>
-      </div>
+      {/* Gradient overlay sized exactly to the square image (aspect-ratio 1:1 = same width as height) */}
+      <div style={{
+        position: 'absolute',
+        top: 0, left: 0, right: 0,
+        aspectRatio: '1 / 1',
+        background: 'linear-gradient(to bottom, rgba(5,5,8,0.72) 0%, rgba(5,5,8,0.4) 25%, rgba(5,5,8,0.1) 55%, transparent 100%)',
+        pointerEvents: 'none',
+        zIndex: 0,
+      }} />
 
-      {/* Filter pills */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '28px', flexWrap: 'wrap' }}>
-        {(['all', 'indica', 'sativa', 'hybrid'] as FilterType[]).map(f => (
-          <button
-            key={f}
-            onClick={() => setFilter(f)}
-            style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px',
-              textTransform: 'uppercase', padding: '7px 16px', borderRadius: '20px', cursor: 'pointer',
-              border: `0.5px solid ${filter === f ? '#cc00aa' : 'rgba(74,96,102,0.3)'}`,
-              background: filter === f ? '#cc00aa' : 'transparent',
-              color: filter === f ? '#050508' : '#4a6066',
-              transition: 'all 0.15s',
-            }}
-          >
-            {f === 'all' ? 'All' : f === 'indica' ? '💜 Indica' : f === 'sativa' ? '🌿 Sativa' : '🧬 Hybrid'}
-          </button>
-        ))}
-      </div>
+      {/* All content on top of background */}
+      <div style={{ position: 'relative', zIndex: 1 }}>
+        <Breadcrumb
+          items={[{ label: 'Hub', href: '/hub' }, { label: s.breadcrumb }]}
+          color="#cc00aa"
+        />
+
+        <div style={{ marginBottom: '28px', paddingTop: '8px' }}>
+          <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(22px, 4vw, 36px)', color: '#e8f0ef', letterSpacing: '3px', margin: '0 0 10px', lineHeight: 1.1 }}>
+            {s.title}
+          </h1>
+          <p style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: 'rgba(232,240,239,0.65)', lineHeight: 1.75, margin: 0, maxWidth: '500px' }}>
+            {s.subtitle}
+          </p>
+        </div>
 
       {/* Grid */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: '16px' }}>
-        {filtered.map(strain => {
+        {strains.map(strain => {
           const avatarUrl = strain.userState
             ? (strain.visuals.avatarLevels.find(l => l.level === strain.userState!.level)?.imageUrl ?? '')
             : (strain.visuals.avatarLevels[0]?.imageUrl ?? '')
@@ -213,7 +213,7 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
                   </div>
                 ) : (
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '4px' }}>
-                    {strain.stats.totalChats.toLocaleString()} chats total
+                    {s.chatsTotal(strain.stats.totalChats)}
                   </div>
                 )}
 
@@ -231,13 +231,14 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
                     }}
                     className="hover:opacity-90"
                   >
-                    {strain.userState ? 'Continue →' : 'Chat →'}
+                    {strain.userState ? s.continueCta : s.chatCta}
                   </Link>
                 )}
               </div>
             </div>
           )
         })}
+      </div>
       </div>
     </div>
   )

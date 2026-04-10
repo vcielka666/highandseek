@@ -6,7 +6,8 @@ import { advanceDay } from '@/lib/grow/simulation'
 import type { Setup, Environment } from '@/lib/grow/attributes'
 import type { Warning } from '@/lib/grow/simulation'
 
-// Rate limit: one advance per dayDurationSeconds (stored on grow)
+// Max days to catch up in one request — prevents runaway loops on very stale grows
+const MAX_CATCHUP_DAYS = 60
 
 export async function POST() {
   const session = await auth()
@@ -17,55 +18,96 @@ export async function POST() {
   const grow = await VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
   if (!grow) return NextResponse.json({ error: 'No active grow' }, { status: 404 })
 
-  // Rate-limit: one advance per dayDurationSeconds
+  // Block advancement once plant is ready to harvest
+  if (grow.stage === 'harvest') {
+    return NextResponse.json({ error: 'Plant is ready to harvest', readyToHarvest: true }, { status: 409 })
+  }
+
   const dayDurationSeconds = (grow as typeof grow & { dayDurationSeconds?: number }).dayDurationSeconds ?? 86400
-  const intervalMs = dayDurationSeconds * 1000
+  const intervalMs  = dayDurationSeconds * 1000
   const msSinceLast = Date.now() - grow.lastAdvanced.getTime()
-  if (msSinceLast < intervalMs) {
+
+  // How many full days have elapsed since last advance
+  const missedDays = Math.min(MAX_CATCHUP_DAYS, Math.floor(msSinceLast / intervalMs))
+
+  if (missedDays < 1) {
     const secondsLeft = Math.ceil((intervalMs - msSinceLast) / 1000)
     return NextResponse.json({ error: 'Too soon', secondsLeft }, { status: 429 })
   }
 
-  const prevStage = grow.stage
+  const growAny = grow as typeof grow & { manualFlipDay?: number | null; maxHealth?: number; isClone?: boolean }
 
-  const growAny = grow as typeof grow & { manualFlipDay?: number | null; maxHealth?: number }
+  // Carry-over state across multiple simulated days
+  let currentDay      = grow.currentDay
+  let stage           = grow.stage
+  let health          = grow.health
+  let maxHealth       = growAny.maxHealth ?? 100
+  let yieldProjection = grow.yieldProjection
+  let currentWatering  = grow.attributes?.watering?.value  ?? 70
+  let currentNutrients = grow.attributes?.nutrients?.value ?? 50
+  let existingWarnings = (grow.warnings as Warning[]).filter(w => !w.resolvedAt)
+  let lastAttributes   = grow.attributes
+  let died             = false
+  let prevStage        = stage
+  const stageAtStart   = stage
 
-  const result = advanceDay({
-    currentDay:       grow.currentDay,
-    floweringTime:    grow.floweringTime,
-    flipDay:          growAny.manualFlipDay ?? null,
-    setup:            grow.setup as Setup,
-    environment:      grow.environment as Environment,
-    health:           grow.health,
-    maxHealth:        growAny.maxHealth ?? 100,
-    currentWatering:  grow.attributes?.watering?.value ?? 70,
-    currentNutrients: grow.attributes?.nutrients?.value ?? 50,
-    strainType:       grow.strainType as 'indica' | 'sativa' | 'hybrid',
-    existingWarnings: (grow.warnings as Warning[]).filter(w => !w.resolvedAt),
-  })
+  for (let i = 0; i < missedDays; i++) {
+    // Stop simulating once dead or at harvest
+    if (died || (stage as string) === 'harvest') break
 
-  grow.currentDay      = result.currentDay
-  grow.stage           = result.stage
-  grow.set('attributes', result.attributes)
-  grow.markModified('attributes')
-  grow.health          = result.health
-  ;(grow as typeof grow & { maxHealth?: number }).maxHealth = result.maxHealth
-  grow.yieldProjection = result.yieldProjection
-  grow.warnings        = result.warnings as typeof grow.warnings
-  grow.lastAdvanced    = new Date()
+    prevStage = stage
 
-  // Auto-update light hours when auto-flipping to flower
-  if (prevStage === 'veg' && result.stage === 'flower' && grow.environment) {
-    grow.environment.lightHours = 12
+    const result = advanceDay({
+      currentDay,
+      floweringTime:    grow.floweringTime,
+      flipDay:          growAny.manualFlipDay ?? null,
+      isClone:          growAny.isClone ?? false,
+      setup:            grow.setup as Setup,
+      environment:      grow.environment as Environment,
+      health,
+      maxHealth,
+      currentWatering,
+      currentNutrients,
+      strainType:       grow.strainType as 'indica' | 'sativa' | 'hybrid',
+      existingWarnings,
+    })
+
+    currentDay       = result.currentDay
+    stage            = result.stage as typeof stage
+    health           = result.health
+    maxHealth        = result.maxHealth
+    yieldProjection  = result.yieldProjection
+    currentWatering  = result.attributes.watering.value
+    currentNutrients = result.attributes.nutrients.value
+    existingWarnings = result.warnings.filter(w => !w.resolvedAt)
+    lastAttributes   = result.attributes
+    died             = result.died
+
+    // Auto-flip light hours
+    if (prevStage === 'veg' && stage === 'flower' && grow.environment) {
+      grow.environment.lightHours = 12
+    }
   }
 
-  if (result.died) {
+  grow.currentDay      = currentDay
+  grow.stage           = stage
+  grow.set('attributes', lastAttributes)
+  grow.markModified('attributes')
+  grow.health          = health
+  ;(grow as typeof grow & { maxHealth?: number }).maxHealth = maxHealth
+  grow.yieldProjection = yieldProjection
+  grow.warnings        = existingWarnings as typeof grow.warnings
+  grow.lastAdvanced    = new Date()
+
+  if (died) {
     grow.status = 'failed'
-  } else if (result.stage === 'harvest') {
-    // Keep active — user needs to manually trigger harvest
   }
 
   await grow.save()
 
-  return NextResponse.json({ grow: grow.toObject(), stageChanged: result.stage !== grow.stage })
+  return NextResponse.json({
+    grow:         grow.toObject(),
+    daysAdvanced: missedDays,
+    stageChanged: stage !== stageAtStart,
+  })
 }

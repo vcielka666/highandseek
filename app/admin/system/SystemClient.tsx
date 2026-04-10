@@ -133,7 +133,7 @@ export default function SystemClient() {
               <div key={c.name} className="p-3 rounded" style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.06)' }}>
                 <p className="text-xs" style={{ color: '#4a6066', fontFamily: 'var(--font-dm-mono)' }}>{c.name}</p>
                 <p className="text-lg font-semibold mt-0.5" style={{ color: '#e8f0ef', fontFamily: 'var(--font-orbitron)' }}>
-                  {c.count.toLocaleString()}
+                  {c.count.toLocaleString('en-US')}
                 </p>
               </div>
             ))}

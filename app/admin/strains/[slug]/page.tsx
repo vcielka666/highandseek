@@ -675,10 +675,10 @@ export default function AdminStrainEditPage() {
           <div style={STITLE}>Statistics (read-only)</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
             {[
-              { label: 'Total Chats',     value: form.stats.totalChats.toLocaleString() },
-              { label: 'Total Messages',  value: form.stats.totalMessages.toLocaleString() },
-              { label: 'Helpful Votes',   value: form.stats.helpfulVotes.toLocaleString() },
-              { label: 'Unhelpful Votes', value: form.stats.unhelpfulVotes.toLocaleString() },
+              { label: 'Total Chats',     value: form.stats.totalChats.toLocaleString('en-US') },
+              { label: 'Total Messages',  value: form.stats.totalMessages.toLocaleString('en-US') },
+              { label: 'Helpful Votes',   value: form.stats.helpfulVotes.toLocaleString('en-US') },
+              { label: 'Unhelpful Votes', value: form.stats.unhelpfulVotes.toLocaleString('en-US') },
             ].map(({ label, value }) => (
               <div key={label} style={{ background: 'rgba(0,0,0,0.2)', borderRadius: '6px', padding: '16px' }}>
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>{label}</div>

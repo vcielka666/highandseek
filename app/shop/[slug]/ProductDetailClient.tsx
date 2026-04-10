@@ -10,7 +10,6 @@ import ProductCard from '@/components/shop/ProductCard'
 import type { ProductDTO } from '@/types/shop'
 
 function czk(price: number) { return `${price.toLocaleString('cs-CZ')} Kč` }
-function usd(price: number) { return `$${Math.round(price / 23)}` }
 
 const STAT_ICONS: Record<string, string> = {
   floweringTime: '⏱',
@@ -523,7 +522,7 @@ export default function ProductDetailClient({
                           {opt.label}
                         </div>
                         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px', color: active ? 'rgba(232,240,239,0.6)' : '#4a6066' }}>
-                          {opt.price.toLocaleString()} Kč
+                          {opt.price.toLocaleString('en-US')} Kč
                         </div>
                       </div>
                     </div>
@@ -549,7 +548,7 @@ export default function ProductDetailClient({
                 }}
                 className="hover:bg-[#00f5e8] hover:shadow-[0_0_20px_rgba(0,212,200,0.4)]"
               >
-                {product.stock === 0 ? 'Out of Stock' : `Add ${weightOptions[selectedVariant].label} — ${weightOptions[selectedVariant].price.toLocaleString()} Kč`}
+                {product.stock === 0 ? 'Out of Stock' : `Add ${weightOptions[selectedVariant].label} — ${weightOptions[selectedVariant].price.toLocaleString('en-US')} Kč`}
               </button>
             </div>
           ) : (
@@ -559,9 +558,6 @@ export default function ProductDetailClient({
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginBottom: '24px', flexWrap: 'wrap' }}>
                   <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '32px', fontWeight: 700, color: '#00d4c8' }}>
                     {czk(product.price)}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#4a6066' }}>
-                    {usd(product.price)}
                   </span>
                   <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', letterSpacing: '0.5px', marginLeft: 'auto' }}>
                     {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}

@@ -9,7 +9,7 @@ import { calculateAttributes } from '@/lib/grow/attributes'
 import type { GrowStage } from '@/lib/grow/simulation'
 
 const ActionSchema = z.object({
-  type: z.enum(['water', 'feed', 'lst', 'defoliate', 'ph_check', 'top', 'flush', 'topdress', 'light_raise', 'light_lower', 'light_height', 'fan_speed', 'flip_12_12']),
+  type: z.enum(['water', 'feed', 'lst', 'defoliate', 'lollipop', 'ph_check', 'top', 'flush', 'topdress', 'light_raise', 'light_lower', 'light_height', 'fan_speed', 'flip_12_12']),
   value: z.number().min(0).max(100).optional(),
 })
 
@@ -113,6 +113,97 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
 
+  // Handle defoliation — humidity reduction depends on how many times done before
+  if (type === 'defoliate') {
+    const stage = grow.stage as GrowStage
+    if (stage === 'seedling') {
+      return NextResponse.json({ error: 'Defoliation not available for seedlings' }, { status: 400 })
+    }
+
+    const prevDefoCount = grow.actions.filter((a: { type: string }) => a.type === 'defoliate').length
+
+    // Humidity delta: 1st → -6, 2nd → -3, 3rd+ → 0 (except late_flower → -20)
+    let humidityDelta = 0
+    let humidityNote = ''
+    if (prevDefoCount === 0) {
+      humidityDelta = -6
+      humidityNote = 'humidity −6%'
+    } else if (prevDefoCount === 1) {
+      humidityDelta = -3
+      humidityNote = 'humidity −3%'
+    } else if (stage === 'late_flower' || stage === 'harvest') {
+      humidityDelta = -20
+      humidityNote = 'heavy late-flower defoliation — humidity −20%'
+    } else {
+      humidityNote = 'canopy already open — no humidity effect'
+    }
+
+    if (humidityDelta !== 0) {
+      const env = grow.environment as { humidity: number }
+      env.humidity = Math.max(0, Math.min(100, env.humidity + humidityDelta))
+      grow.markModified('environment')
+    }
+
+    // Yield bonus only on first two defoliations
+    const yieldBonus = prevDefoCount < 2 ? 0.05 : 0
+    if (yieldBonus > 0) {
+      grow.yieldProjection = Math.round(grow.yieldProjection * (1 + yieldBonus))
+    }
+
+    const newAttributes = calculateAttributes(
+      grow.setup as Parameters<typeof calculateAttributes>[0],
+      grow.environment as Parameters<typeof calculateAttributes>[1],
+      stage,
+      storedWatering,
+      storedNutrients,
+    )
+    grow.set('attributes', newAttributes)
+    grow.markModified('attributes')
+
+    const effectMsg = `Defoliated — ${humidityNote}${yieldBonus > 0 ? ', yield +5%' : ''}`
+    grow.actions.push({ type, timestamp: new Date(), xpEarned: 15, effect: effectMsg })
+    await awardXP(session.user.id, 'DEFOLIATION', 15)
+    grow.xpEarned += 15
+    await grow.save()
+    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
+  }
+
+  // Handle lollipop — one-time, removes bottom branches, improves humidity/ventilation
+  if (type === 'lollipop') {
+    const stage = grow.stage as GrowStage
+    if (stage === 'seedling' || stage === 'veg') {
+      return NextResponse.json({ error: 'Lollipopping only available from flower stage' }, { status: 400 })
+    }
+    const alreadyDone = (grow as typeof grow & { hasLollipoped?: boolean }).hasLollipoped
+    if (alreadyDone) {
+      return NextResponse.json({ error: 'Already lollipopped this grow' }, { status: 400 })
+    }
+    ;(grow as typeof grow & { hasLollipoped?: boolean }).hasLollipoped = true
+    grow.markModified('hasLollipoped')
+
+    // Removes dense lower canopy → humidity drops, ventilation improves
+    const env = grow.environment as { humidity: number }
+    env.humidity = Math.max(0, env.humidity - 8)
+    grow.markModified('environment')
+
+    const newAttributes = calculateAttributes(
+      grow.setup as Parameters<typeof calculateAttributes>[0],
+      grow.environment as Parameters<typeof calculateAttributes>[1],
+      stage,
+      storedWatering,
+      storedNutrients,
+    )
+    grow.set('attributes', newAttributes)
+    grow.markModified('attributes')
+
+    const effectMsg = 'Lollipopped — bottom branches removed, humidity −8%, ventilation improved'
+    grow.actions.push({ type, timestamp: new Date(), xpEarned: 20, effect: effectMsg })
+    await awardXP(session.user.id, 'DEFOLIATION', 20)
+    grow.xpEarned += 20
+    await grow.save()
+    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
+  }
+
   const effect = getActionEffect(type, grow.stage as GrowStage)
 
   // Apply deltas to persistent dynamic state
@@ -150,10 +241,13 @@ export async function POST(req: NextRequest) {
 
   // Award XP
   if (effect.xp > 0) {
-    await awardXP(session.user.id, type === 'water' ? 'WATER_PLANT' :
-      type === 'feed' ? 'FEED_PLANT' :
-      type === 'lst'  ? 'LST_APPLIED' :
-      type === 'defoliate' ? 'DEFOLIATION' : 'WATER_PLANT', effect.xp)
+    const xpKey = type === 'water' ? 'WATER_PLANT'
+      : type === 'feed'  ? 'FEED_PLANT'
+      : type === 'lst'   ? 'LST_APPLIED'
+      : type === 'top'   ? 'TOP_PLANT'
+      : type === 'flush' ? 'FLUSH_PLANT'
+      : 'WATER_PLANT'
+    await awardXP(session.user.id, xpKey, effect.xp)
     grow.xpEarned += effect.xp
   }
 

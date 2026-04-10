@@ -14,6 +14,7 @@ import {
   Settings,
   LogOut,
   ArrowLeft,
+  Ticket,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -21,6 +22,7 @@ const NAV = [
   { href: '/admin',            label: 'Overview',   icon: LayoutDashboard },
   { href: '/admin/orders',     label: 'Orders',     icon: ShoppingBag },
   { href: '/admin/products',   label: 'Products',   icon: Package },
+  { href: '/admin/coupons',    label: 'Coupons',    icon: Ticket },
   { href: '/admin/users',      label: 'Users',      icon: Users },
   { href: '/admin/hub',        label: 'Hub Stats',  icon: Leaf },
   { href: '/admin/strains',    label: 'Strains',    icon: Dna  },

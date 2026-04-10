@@ -59,7 +59,7 @@ export default function HubStatsClient() {
     <div className="space-y-5">
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard label="Total XP Awarded" value={data.metrics.totalXpAllTime.toLocaleString()} />
+        <MetricCard label="Total XP Awarded" value={data.metrics.totalXpAllTime.toLocaleString('en-US')} />
         <MetricCard label="Forum This Month"  value={data.metrics.forumThisMonth} accent="teal" />
         <MetricCard label="Forum All Time"    value={data.metrics.forumAllTime} accent="magenta" />
         <MetricCard label="Est. AI Cost (mo)" value={`$${data.metrics.estimatedCost}`} />
@@ -88,7 +88,7 @@ export default function HubStatsClient() {
                   <CartesianGrid stroke="rgba(255,255,255,0.04)" strokeDasharray="3 3" />
                   <XAxis dataKey="date" tick={{ fill: '#4a6066', fontSize: 9 }} tickLine={false} axisLine={false} />
                   <YAxis tick={{ fill: '#4a6066', fontSize: 9 }} tickLine={false} axisLine={false} />
-                  <Tooltip {...TOOLTIP} formatter={(v) => [Number(v).toLocaleString(), 'XP']} />
+                  <Tooltip {...TOOLTIP} formatter={(v) => [Number(v).toLocaleString('en-US'), 'XP']} />
                   <Area type="monotone" dataKey="xp" stroke="#f0a830" strokeWidth={1.5} fill="url(#xpGrad)" />
                 </AreaChart>
               </ResponsiveContainer>

@@ -20,7 +20,7 @@ async function main() {
   for (const p of products) {
     const restored = Math.round(p.price * 100 * 100) / 100
     await Product.updateOne({ _id: p._id }, { $set: { price: restored } })
-    console.log(`  ${p.name}: ${p.price} → ${restored} EUR  (≈ ${Math.round(restored * 25)} Kč)`)
+    console.log(`  ${p.name}: ${p.price} → ${restored} Kč`)
   }
 
   console.log('Done')

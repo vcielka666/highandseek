@@ -11,8 +11,6 @@ import path from 'path'
 
 interface Prices {
   czk: number
-  usd: number | null
-  eur: number | null
 }
 
 interface Product {
@@ -34,7 +32,7 @@ interface Product {
 interface CzProduct {
   name: string
   brand: string
-  prices: { czk: number; usd: number; eur: number }
+  prices: { czk: number }
   imageUrl: string
   category: string
   sourceUrl: string
@@ -73,11 +71,7 @@ function slugify(text: string): string {
 }
 
 function recalcPrices(czk: number): Prices {
-  return {
-    czk: Math.round(czk),
-    usd: Math.round((czk / 23) * 100) / 100,
-    eur: Math.round((czk / 25) * 100) / 100,
-  }
+  return { czk: Math.round(czk) }
 }
 
 /** Best-effort compatible media based on category */

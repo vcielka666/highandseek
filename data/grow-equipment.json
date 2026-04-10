@@ -40,9 +40,7 @@
         "https://www.mars-hydro.com/media/wysiwyg/ts600.png"
       ],
       "prices": {
-        "czk": 1610,
-        "usd": 69.99,
-        "eur": 64.81
+        "czk": 1610
       },
       "category": "light_led",
       "lightType": "led",
@@ -72,9 +70,7 @@
         "https://www.mars-hydro.com/media/wysiwyg/ts1000.png"
       ],
       "prices": {
-        "czk": 2760,
-        "usd": 119.99,
-        "eur": 111.1
+        "czk": 2760
       },
       "category": "light_led",
       "lightType": "led",
@@ -104,9 +100,7 @@
         "https://www.mars-hydro.com/media/wysiwyg/tsl2000.png"
       ],
       "prices": {
-        "czk": 4600,
-        "usd": 199.99,
-        "eur": 185.18
+        "czk": 4600
       },
       "category": "light_led",
       "lightType": "led",
@@ -137,9 +131,7 @@
         "https://www.mars-hydro.com/media/wysiwyg/fc-e3000.png"
       ],
       "prices": {
-        "czk": 6900,
-        "usd": 299.99,
-        "eur": 277.77
+        "czk": 6900
       },
       "category": "light_led",
       "lightType": "led",
@@ -169,9 +161,7 @@
         "https://www.mars-hydro.com/media/wysiwyg/sp150.png"
       ],
       "prices": {
-        "czk": 2070,
-        "usd": 89.99,
-        "eur": 83.33
+        "czk": 2070
       },
       "category": "light_led",
       "lightType": "led",
@@ -200,9 +190,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 17250,
-        "usd": 749.99,
-        "eur": 694.44
+        "czk": 17250
       },
       "category": "light_led",
       "lightType": "led",
@@ -229,9 +217,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2300,
-        "usd": 99.99,
-        "eur": 92.59
+        "czk": 2300
       },
       "category": "light_led",
       "lightType": "led",
@@ -258,9 +244,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3450,
-        "usd": 149.99,
-        "eur": 138.88
+        "czk": 3450
       },
       "category": "light_led",
       "lightType": "led",
@@ -288,9 +272,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 5290,
-        "usd": 229.99,
-        "eur": 212.96
+        "czk": 5290
       },
       "category": "light_led",
       "lightType": "led",
@@ -318,9 +300,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 8050,
-        "usd": 349.99,
-        "eur": 324.07
+        "czk": 8050
       },
       "category": "light_led",
       "lightType": "led",
@@ -348,9 +328,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 11500,
-        "usd": 499.99,
-        "eur": 462.96
+        "czk": 11500
       },
       "category": "light_led",
       "lightType": "led",
@@ -380,9 +358,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/127-3_lumatek-400w-240v.jpg"
       ],
       "prices": {
-        "czk": 1499,
-        "usd": 65.17,
-        "eur": 59.96
+        "czk": 1499
       },
       "category": "light_hps",
       "lightType": "hps",
@@ -412,9 +388,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13032-6_lumatek-pro-1000w-400v-controllable-cover-960x750.jpg"
       ],
       "prices": {
-        "czk": 1999,
-        "usd": 86.91,
-        "eur": 79.96
+        "czk": 1999
       },
       "category": "light_hps",
       "lightType": "hps",
@@ -442,9 +416,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1999,
-        "usd": 86.91,
-        "eur": 79.96
+        "czk": 1999
       },
       "category": "light_hps",
       "lightType": "hps",
@@ -473,9 +445,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1299,
-        "usd": 56.48,
-        "eur": 51.96
+        "czk": 1299
       },
       "category": "light_cmh",
       "lightType": "cmh",
@@ -504,9 +474,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2499,
-        "usd": 108.65,
-        "eur": 99.96
+        "czk": 2499
       },
       "category": "light_cmh",
       "lightType": "cmh",
@@ -534,9 +502,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 800,
-        "usd": 35,
-        "eur": 32.41
+        "czk": 800
       },
       "category": "light_cfl",
       "lightType": "cfl",
@@ -563,9 +529,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1250,
-        "usd": 54,
-        "eur": 50
+        "czk": 1250
       },
       "category": "light_cfl",
       "lightType": "cfl",
@@ -593,9 +557,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1035,
-        "usd": 45,
-        "eur": 41.67
+        "czk": 1035
       },
       "category": "light_t5",
       "lightType": "t5",
@@ -623,9 +585,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2050,
-        "usd": 89,
-        "eur": 82.41
+        "czk": 2050
       },
       "category": "light_t5",
       "lightType": "t5",
@@ -655,9 +615,7 @@
         "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/530/11618/GrowTentMountingBars_AC-HCA24_Image_1__52666.1739579673.jpg?c=2"
       ],
       "prices": {
-        "czk": 1840,
-        "usd": 79.99,
-        "eur": 74.07
+        "czk": 1840
       },
       "category": "exhaust_fan",
       "compatibleMedia": [
@@ -686,9 +644,7 @@
         "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/529/11611/GrowTentMountingBars_AC-HCA22_Image_1__67399.1739579602.jpg?c=2"
       ],
       "prices": {
-        "czk": 2277,
-        "usd": 99,
-        "eur": 91.67
+        "czk": 2277
       },
       "category": "exhaust_fan",
       "compatibleMedia": [
@@ -715,9 +671,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2760,
-        "usd": 119.99,
-        "eur": 111.1
+        "czk": 2760
       },
       "category": "exhaust_fan",
       "compatibleMedia": [
@@ -744,9 +698,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3220,
-        "usd": 139.99,
-        "eur": 129.62
+        "czk": 3220
       },
       "category": "exhaust_fan",
       "compatibleMedia": [
@@ -774,9 +726,7 @@
         "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/531/11626/GrowTentMountingBars_AC-HCA33_Image_1__66091.1739579723.jpg?c=2"
       ],
       "prices": {
-        "czk": 1150,
-        "usd": 49.99,
-        "eur": 46.29
+        "czk": 1150
       },
       "category": "circulation_fan",
       "compatibleMedia": [
@@ -804,9 +754,7 @@
         "https://cdn11.bigcommerce.com/s-238e9/images/stencil/160w/products/532/11630/GrowTentMountingBars_AC-HCA44_Image_1__22744.1739579750.jpg?c=2"
       ],
       "prices": {
-        "czk": 1380,
-        "usd": 59.99,
-        "eur": 55.55
+        "czk": 1380
       },
       "category": "circulation_fan",
       "compatibleMedia": [
@@ -832,9 +780,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1840,
-        "usd": 79.99,
-        "eur": 74.07
+        "czk": 1840
       },
       "category": "circulation_fan",
       "compatibleMedia": [
@@ -862,9 +808,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/RHOB125300"
       ],
       "prices": {
-        "czk": 999,
-        "usd": 43.43,
-        "eur": 39.96
+        "czk": 999
       },
       "category": "carbon_filter",
       "compatibleMedia": [
@@ -890,9 +834,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1999,
-        "usd": 86.91,
-        "eur": 79.96
+        "czk": 1999
       },
       "category": "carbon_filter",
       "compatibleMedia": [
@@ -918,9 +860,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2599,
-        "usd": 113,
-        "eur": 103.96
+        "czk": 2599
       },
       "category": "carbon_filter",
       "compatibleMedia": [
@@ -948,9 +888,7 @@
         "https://biobizz.com/wp-content/uploads/2016/10/All%C2%B7Mix-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 398,
-        "usd": 17.3,
-        "eur": 15.92
+        "czk": 398
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -977,9 +915,7 @@
         "https://biobizz.com/wp-content/uploads/2016/10/Light%C2%B7Mix-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 289,
-        "usd": 12.57,
-        "eur": 11.56
+        "czk": 289
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -1002,9 +938,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 339,
-        "usd": 14.74,
-        "eur": 13.56
+        "czk": 339
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -1029,9 +963,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/96689_li.jpg"
       ],
       "prices": {
-        "czk": 299,
-        "usd": 13,
-        "eur": 11.96
+        "czk": 299
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -1055,9 +987,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 299,
-        "usd": 13,
-        "eur": 11.96
+        "czk": 299
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -1083,9 +1013,7 @@
         "https://biobizz.com/wp-content/uploads/2019/07/Coco%C2%B7Mix-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 319,
-        "usd": 13.87,
-        "eur": 12.76
+        "czk": 319
       },
       "category": "medium_coco",
       "compatibleMedia": [
@@ -1111,9 +1039,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/1245_plagron-cococ-premium-50-l.jpg"
       ],
       "prices": {
-        "czk": 359,
-        "usd": 15.61,
-        "eur": 14.36
+        "czk": 359
       },
       "category": "medium_coco",
       "compatibleMedia": [
@@ -1136,9 +1062,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 175,
-        "usd": 7.61,
-        "eur": 7
+        "czk": 175
       },
       "category": "medium_soil",
       "compatibleMedia": [
@@ -1166,9 +1090,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3525_canna-cocos-professional-plus-50l.jpg"
       ],
       "prices": {
-        "czk": 379,
-        "usd": 16.48,
-        "eur": 15.16
+        "czk": 379
       },
       "category": "medium_coco",
       "compatibleMedia": [
@@ -1191,9 +1113,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 500,
-        "usd": 21.74,
-        "eur": 20
+        "czk": 500
       },
       "category": "medium_hydro",
       "compatibleMedia": [
@@ -1217,9 +1137,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 150,
-        "usd": 6.52,
-        "eur": 6
+        "czk": 150
       },
       "category": "medium_hydro",
       "compatibleMedia": [
@@ -1245,9 +1163,7 @@
         "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/a9134f2e-c425-4ab0-8338-e499e0296b4f/200+Gallon+Magnolia+Tree+Root+Pouch"
       ],
       "prices": {
-        "czk": 80,
-        "usd": 3.48,
-        "eur": 3.2
+        "czk": 80
       },
       "category": "fabric_pot",
       "compatibleMedia": [
@@ -1274,9 +1190,7 @@
         "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/07e1e0c0-bad4-4adb-b183-5436129fa46e/Conifers+Black+Root+Pouches"
       ],
       "prices": {
-        "czk": 120,
-        "usd": 5.22,
-        "eur": 4.8
+        "czk": 120
       },
       "category": "fabric_pot",
       "compatibleMedia": [
@@ -1303,9 +1217,7 @@
         "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/6d63b6c5-7835-4d9c-936b-58966f57cd16/Evergreens+Grey+Root+Pouch"
       ],
       "prices": {
-        "czk": 150,
-        "usd": 6.52,
-        "eur": 6
+        "czk": 150
       },
       "category": "fabric_pot",
       "compatibleMedia": [
@@ -1332,9 +1244,7 @@
         "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/cb47ab13-c215-4aa4-9192-88c830f1c1cb/Indoor+Cannabis+Root+Pouch"
       ],
       "prices": {
-        "czk": 130,
-        "usd": 5.65,
-        "eur": 5.2
+        "czk": 130
       },
       "category": "fabric_pot",
       "compatibleMedia": [
@@ -1361,9 +1271,7 @@
         "https://images.squarespace-cdn.com/content/v1/619bd78959bf9a25b74a811b/79508c4d-8204-4cec-a8f3-372cacb2982b/IndoorCannabisGrower.jpg"
       ],
       "prices": {
-        "czk": 60,
-        "usd": 2.61,
-        "eur": 2.4
+        "czk": 60
       },
       "category": "fabric_pot",
       "compatibleMedia": [
@@ -1388,9 +1296,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1500,
-        "usd": 65.22,
-        "eur": 60
+        "czk": 1500
       },
       "category": "airpot",
       "compatibleMedia": [
@@ -1415,9 +1321,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 350,
-        "usd": 15.22,
-        "eur": 14
+        "czk": 350
       },
       "category": "airpot",
       "compatibleMedia": [
@@ -1442,9 +1346,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1800,
-        "usd": 78.26,
-        "eur": 72
+        "czk": 1800
       },
       "category": "watering_blumat",
       "compatibleMedia": [
@@ -1468,9 +1370,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3200,
-        "usd": 139.13,
-        "eur": 128
+        "czk": 3200
       },
       "category": "watering_blumat",
       "compatibleMedia": [
@@ -1494,9 +1394,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 650,
-        "usd": 28.26,
-        "eur": 26
+        "czk": 650
       },
       "category": "watering_blumat",
       "compatibleMedia": [
@@ -1519,9 +1417,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 350,
-        "usd": 15.22,
-        "eur": 14
+        "czk": 350
       },
       "category": "watering_drip",
       "compatibleMedia": [
@@ -1549,9 +1445,7 @@
         "https://biobizz.com/wp-content/uploads/2019/07/Bio%C2%B7Grow-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 209,
-        "usd": 9.09,
-        "eur": 8.36
+        "czk": 209
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1578,9 +1472,7 @@
         "https://biobizz.com/wp-content/uploads/2019/07/Bio%C2%B7Bloom-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 251,
-        "usd": 10.91,
-        "eur": 10.04
+        "czk": 251
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1607,9 +1499,7 @@
         "https://biobizz.com/wp-content/uploads/2019/07/Fish%C2%B7Mix-Product-Page-600x403.jpg"
       ],
       "prices": {
-        "czk": 209,
-        "usd": 9.09,
-        "eur": 8.36
+        "czk": 209
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1635,9 +1525,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 851,
-        "usd": 37,
-        "eur": 34.26
+        "czk": 851
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1660,9 +1548,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 875,
-        "usd": 38.04,
-        "eur": 35
+        "czk": 875
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1685,9 +1571,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 575,
-        "usd": 25,
-        "eur": 23
+        "czk": 575
       },
       "category": "nutrients_organic",
       "compatibleMedia": [
@@ -1711,9 +1595,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 506,
-        "usd": 22,
-        "eur": 20.37
+        "czk": 506
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1737,9 +1619,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 437,
-        "usd": 19,
-        "eur": 17.59
+        "czk": 437
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1763,9 +1643,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 259,
-        "usd": 11.26,
-        "eur": 10.36
+        "czk": 259
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1789,9 +1667,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 259,
-        "usd": 11.26,
-        "eur": 10.36
+        "czk": 259
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1815,9 +1691,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 259,
-        "usd": 11.26,
-        "eur": 10.36
+        "czk": 259
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1842,9 +1716,7 @@
         "https://biobizz.com/wp-content/uploads/2020/03/Baja-Calmag-Product-Page-600x403.png"
       ],
       "prices": {
-        "czk": 400,
-        "usd": 17.39,
-        "eur": 16
+        "czk": 400
       },
       "category": "nutrients_mineral",
       "compatibleMedia": [
@@ -1871,9 +1743,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3450,
-        "usd": 150,
-        "eur": 138.89
+        "czk": 3450
       },
       "category": "ph_meter",
       "compatibleMedia": [
@@ -1900,9 +1770,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3795,
-        "usd": 165,
-        "eur": 152.78
+        "czk": 3795
       },
       "category": "ec_meter",
       "compatibleMedia": [
@@ -1930,9 +1798,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 8188,
-        "usd": 356,
-        "eur": 329.63
+        "czk": 8188
       },
       "category": "ph_meter",
       "compatibleMedia": [
@@ -1961,9 +1827,7 @@
         "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png"
       ],
       "prices": {
-        "czk": 659,
-        "usd": 28.65,
-        "eur": 26.36
+        "czk": 659
       },
       "category": "ph_meter",
       "compatibleMedia": [
@@ -1990,9 +1854,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2300,
-        "usd": 100,
-        "eur": 92.59
+        "czk": 2300
       },
       "category": "ec_meter",
       "compatibleMedia": [
@@ -2022,9 +1884,7 @@
         "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg"
       ],
       "prices": {
-        "czk": 679,
-        "usd": 29.52,
-        "eur": 27.16
+        "czk": 679
       },
       "category": "thermohygrometer",
       "compatibleMedia": [
@@ -2053,9 +1913,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/4554_garden-high-pro-prohygro-premium--teplomer-a-vlhkomer-se-sondou.jpg"
       ],
       "prices": {
-        "czk": 314,
-        "usd": 13.65,
-        "eur": 12.56
+        "czk": 314
       },
       "category": "thermohygrometer",
       "compatibleMedia": [
@@ -2084,9 +1942,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg"
       ],
       "prices": {
-        "czk": 109,
-        "usd": 4.74,
-        "eur": 4.36
+        "czk": 109
       },
       "category": "thermohygrometer",
       "compatibleMedia": [
@@ -2113,9 +1969,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 600,
-        "usd": 26.09,
-        "eur": 24
+        "czk": 600
       },
       "category": "timer",
       "compatibleMedia": [
@@ -2141,9 +1995,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 250,
-        "usd": 10.87,
-        "eur": 10
+        "czk": 250
       },
       "category": "timer",
       "compatibleMedia": [
@@ -2169,9 +2021,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 120,
-        "usd": 5.22,
-        "eur": 4.8
+        "czk": 120
       },
       "category": "lst_tools",
       "compatibleMedia": [
@@ -2197,9 +2047,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 90,
-        "usd": 3.91,
-        "eur": 3.6
+        "czk": 90
       },
       "category": "lst_tools",
       "compatibleMedia": [
@@ -2223,9 +2071,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/25755-5_zeus600wpro29-02.jpg"
       ],
       "prices": {
-        "czk": 16499,
-        "usd": 717.35,
-        "eur": 659.96
+        "czk": 16499
       },
       "category": "light_led",
       "lightType": "led",
@@ -2250,9 +2096,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/36976-2_viparspectra-pro-series-p600-100w-2024-upgraded.png"
       ],
       "prices": {
-        "czk": 1999,
-        "usd": 86.91,
-        "eur": 79.96
+        "czk": 1999
       },
       "category": "light_led",
       "lightType": "led",
@@ -2275,9 +2119,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3999,
-        "usd": 173.87,
-        "eur": 159.96
+        "czk": 3999
       },
       "category": "light_led",
       "lightType": "led",
@@ -2300,9 +2142,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 5999,
-        "usd": 260.83,
-        "eur": 239.96
+        "czk": 5999
       },
       "category": "light_led",
       "lightType": "led",
@@ -2325,9 +2165,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 2999,
-        "usd": 130.39,
-        "eur": 119.96
+        "czk": 2999
       },
       "category": "light_led",
       "lightType": "led",
@@ -2350,9 +2188,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3299,
-        "usd": 143.43,
-        "eur": 131.96
+        "czk": 3299
       },
       "category": "light_led",
       "lightType": "led",
@@ -2375,9 +2211,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 5999,
-        "usd": 260.83,
-        "eur": 239.96
+        "czk": 5999
       },
       "category": "light_led",
       "lightType": "led",
@@ -2402,9 +2236,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/13023_s-l300.jpg"
       ],
       "prices": {
-        "czk": 499,
-        "usd": 21.7,
-        "eur": 19.96
+        "czk": 499
       },
       "category": "light_hps",
       "lightType": "hps",
@@ -2430,9 +2262,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/6199_lumatek-1000w-400v-de-hps-lamp.jpg"
       ],
       "prices": {
-        "czk": 999,
-        "usd": 43.43,
-        "eur": 39.96
+        "czk": 999
       },
       "category": "light_hps",
       "lightType": "hps",
@@ -2458,9 +2288,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14975_vyr-7013-14975-cmh315-kit-box-1.jpg"
       ],
       "prices": {
-        "czk": 2799,
-        "usd": 121.7,
-        "eur": 111.96
+        "czk": 2799
       },
       "category": "light_cmh",
       "lightType": "cmh",
@@ -2486,9 +2314,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/14708_cmh630-lamp-box-1.jpg"
       ],
       "prices": {
-        "czk": 1499,
-        "usd": 65.17,
-        "eur": 59.96
+        "czk": 1499
       },
       "category": "light_cmh",
       "lightType": "cmh",
@@ -2512,9 +2338,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 999,
-        "usd": 43.43,
-        "eur": 39.96
+        "czk": 999
       },
       "category": "light_cmh",
       "lightType": "cmh",
@@ -2541,9 +2365,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/2157-1_tt125.png"
       ],
       "prices": {
-        "czk": 799,
-        "usd": 34.74,
-        "eur": 31.96
+        "czk": 799
       },
       "category": "exhaust_fan",
       "lightType": null,
@@ -2568,9 +2390,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3299,
-        "usd": 143.43,
-        "eur": 131.96
+        "czk": 3299
       },
       "category": "exhaust_fan",
       "lightType": null,
@@ -2595,9 +2415,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 3699,
-        "usd": 160.83,
-        "eur": 147.96
+        "czk": 3699
       },
       "category": "exhaust_fan",
       "lightType": null,
@@ -2623,9 +2441,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20892-1_gent-clip-fan-5w--klipsnovy-ventilator-prumer-15-cm.jpg"
       ],
       "prices": {
-        "czk": 499,
-        "usd": 21.7,
-        "eur": 19.96
+        "czk": 499
       },
       "category": "circulation_fan",
       "lightType": null,
@@ -2651,9 +2467,7 @@
         "https://cdn.growshop.cz/images/0/8d22caf6f9af0e96/2/garden-highpro-klipsnovy-ventilator-profan-12w-prumer-20cm.jpg"
       ],
       "prices": {
-        "czk": 549,
-        "usd": 23.87,
-        "eur": 21.96
+        "czk": 549
       },
       "category": "circulation_fan",
       "lightType": null,
@@ -2679,9 +2493,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/1026_prima-klima-eco-k2600-360-m3-h--100-mm--pachovy-filtr.jpg"
       ],
       "prices": {
-        "czk": 997,
-        "usd": 43.35,
-        "eur": 39.88
+        "czk": 997
       },
       "category": "carbon_filter",
       "lightType": null,
@@ -2705,9 +2517,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1199,
-        "usd": 52.13,
-        "eur": 47.96
+        "czk": 1199
       },
       "category": "carbon_filter",
       "lightType": null,
@@ -2732,9 +2542,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/51339_2_urban_premium_2.jpg"
       ],
       "prices": {
-        "czk": 1699,
-        "usd": 73.87,
-        "eur": 67.96
+        "czk": 1699
       },
       "category": "carbon_filter",
       "lightType": null,
@@ -2759,9 +2567,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/can-filters-can-lite-425-467-m3-h--160-mm--pachovy-filtr.jpg"
       ],
       "prices": {
-        "czk": 1784,
-        "usd": 77.57,
-        "eur": 71.36
+        "czk": 1784
       },
       "category": "carbon_filter",
       "lightType": null,
@@ -2787,9 +2593,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3521_canna-terra-professional-50l.jpg"
       ],
       "prices": {
-        "czk": 249,
-        "usd": 10.83,
-        "eur": 9.96
+        "czk": 249
       },
       "category": "medium_soil",
       "lightType": null,
@@ -2813,9 +2617,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3526_Canna-coco-50l.jpg"
       ],
       "prices": {
-        "czk": 289,
-        "usd": 12.57,
-        "eur": 11.56
+        "czk": 289
       },
       "category": "medium_coco",
       "lightType": null,
@@ -2839,9 +2641,7 @@
         "https://cdn.myshoptet.com/usr/www.hotchilli.cz/user/shop/detail/3519_cocos-substrate.jpg"
       ],
       "prices": {
-        "czk": 349,
-        "usd": 15.17,
-        "eur": 13.96
+        "czk": 349
       },
       "category": "medium_coco",
       "lightType": null,
@@ -2863,9 +2663,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 475,
-        "usd": 20.65,
-        "eur": 19
+        "czk": 475
       },
       "category": "medium_coco",
       "lightType": null,
@@ -2890,9 +2688,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23340_dirt-bag-grey-textilni-kvetinac-34x30-cm-26-5-l.jpg"
       ],
       "prices": {
-        "czk": 59,
-        "usd": 2.57,
-        "eur": 2.36
+        "czk": 59
       },
       "category": "fabric_pot",
       "lightType": null,
@@ -2915,9 +2711,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 62,
-        "usd": 2.7,
-        "eur": 2.48
+        "czk": 62
       },
       "category": "fabric_pot",
       "lightType": null,
@@ -2940,9 +2734,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 675,
-        "usd": 29.35,
-        "eur": 27
+        "czk": 675
       },
       "category": "fabric_pot",
       "lightType": null,
@@ -2967,9 +2759,7 @@
         "https://cdn.growshop.cz/images/0/e57a18feb440d619/2/milwaukee-ph-tester-ph600.png"
       ],
       "prices": {
-        "czk": 659,
-        "usd": 28.65,
-        "eur": 26.36
+        "czk": 659
       },
       "category": "ph_meter",
       "lightType": null,
@@ -2992,9 +2782,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 1574,
-        "usd": 68.43,
-        "eur": 62.96
+        "czk": 1574
       },
       "category": "ph_meter",
       "lightType": null,
@@ -3018,9 +2806,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/23412_aqua-master-tools-ec-metr-e60-pro-2-0--ec--ppm--tds--teplota.jpg"
       ],
       "prices": {
-        "czk": 1469,
-        "usd": 63.87,
-        "eur": 58.76
+        "czk": 1469
       },
       "category": "ec_meter",
       "lightType": null,
@@ -3044,9 +2830,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/3444_milwaukee-cd611--ec-metr.jpg"
       ],
       "prices": {
-        "czk": 787,
-        "usd": 34.22,
-        "eur": 31.48
+        "czk": 787
       },
       "category": "ec_meter",
       "lightType": null,
@@ -3071,9 +2855,7 @@
         "https://cdn.growshop.cz/images/0/274f3a0db3e10ebf/2/digitalni-thermo-hygro-metr-medium-se-sondou.png"
       ],
       "prices": {
-        "czk": 239,
-        "usd": 10.39,
-        "eur": 9.56
+        "czk": 239
       },
       "category": "thermohygrometer",
       "lightType": null,
@@ -3099,9 +2881,7 @@
         "https://cdn.growshop.cz/images/0/a3336f8cf09446bb/2/digitalni-thermo-hygro-metr-pro-se-sondou.png"
       ],
       "prices": {
-        "czk": 389,
-        "usd": 16.91,
-        "eur": 15.56
+        "czk": 389
       },
       "category": "thermohygrometer",
       "lightType": null,
@@ -3127,9 +2907,7 @@
         "https://cdn.growshop.cz/images/0/599bd411b2240609/2/vivosun-aerolab-thb1s-bluetooth-vlhkomer-a-teplomer-vc-sondy.jpg"
       ],
       "prices": {
-        "czk": 679,
-        "usd": 29.52,
-        "eur": 27.16
+        "czk": 679
       },
       "category": "thermohygrometer",
       "lightType": null,
@@ -3154,9 +2932,7 @@
         "https://cdn.myshoptet.com/usr/www.growmarket.cz/user/shop/detail/20889_urban-thermo-hygrometer-lite--teplomer-a-vlhkomer-velky-displej.jpg"
       ],
       "prices": {
-        "czk": 109,
-        "usd": 4.74,
-        "eur": 4.36
+        "czk": 109
       },
       "category": "thermohygrometer",
       "lightType": null,
@@ -3181,9 +2957,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 349,
-        "usd": 15.17,
-        "eur": 13.96
+        "czk": 349
       },
       "category": "nutrients_organic",
       "lightType": null,
@@ -3205,9 +2979,7 @@
       "imageUrl": "",
       "images": [],
       "prices": {
-        "czk": 259,
-        "usd": 11.26,
-        "eur": 10.36
+        "czk": 259
       },
       "category": "nutrients_mineral",
       "lightType": null,

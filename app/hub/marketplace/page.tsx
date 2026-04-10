@@ -7,6 +7,7 @@ import { getServerT } from '@/lib/i18n/server'
 import Link from 'next/link'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import MarketplaceAddButton from '@/components/hub/MarketplaceAddButton'
+import ListingOwnerActions from '@/components/hub/ListingOwnerActions'
 import type { ListingCategory } from '@/lib/db/models/Listing'
 
 const CATEGORY_ICONS: Record<ListingCategory | 'all', string> = {
@@ -45,9 +46,9 @@ export default async function MarketplacePage(props: {
   const filter: Record<string, unknown> = { status: 'active' }
   if (category) filter.category = category
 
-  const [listingsRaw, total] = await Promise.all([
+  const [listingsRaw, total, boostedSlotsUsed] = await Promise.all([
     Listing.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ featuredUntil: -1, createdAt: -1 })
       .skip((page - 1) * PAGE_SIZE)
       .limit(PAGE_SIZE)
       .lean<Array<{
@@ -59,11 +60,13 @@ export default async function MarketplacePage(props: {
         price: number
         location?: string
         images: string[]
-        contact: { telegram?: string; signal?: string; threema?: string }
+        contact: { telegram?: string; signal?: string; threema?: string; email?: string }
         expiresAt: Date
+        featuredUntil: Date | null
         createdAt: Date
       }>>(),
     Listing.countDocuments(filter),
+    Listing.countDocuments({ status: 'active', featuredUntil: { $gt: new Date() } }),
   ])
 
   // Populate user info
@@ -73,12 +76,15 @@ export default async function MarketplacePage(props: {
     .lean<{ _id: { toString(): string }; username: string; avatar: string }[]>()
   const userMap = new Map(users.map(u => [u._id.toString(), u]))
 
+  const now = Date.now()
   const listings = listingsRaw.map(l => ({
     ...l,
     _id: l._id.toString(),
     userId: l.userId.toString(),
     postedBy: userMap.get(l.userId.toString()),
-    daysLeft: Math.max(0, Math.ceil((l.expiresAt.getTime() - Date.now()) / 86_400_000)),
+    daysLeft: Math.max(0, Math.ceil((l.expiresAt.getTime() - now) / 86_400_000)),
+    isFeatured: !!(l.featuredUntil && l.featuredUntil.getTime() > now),
+    featuredUntil: l.featuredUntil ?? null,
   }))
 
   const pages = Math.ceil(total / PAGE_SIZE)
@@ -104,22 +110,39 @@ export default async function MarketplacePage(props: {
       </div>
 
       {/* Credits info */}
-      <div style={{ padding: '12px 16px', background: 'rgba(136,68,204,0.05)', border: '0.5px solid rgba(136,68,204,0.15)', borderRadius: '6px', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '200px' }}>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', letterSpacing: '1px' }}>
-            💎 {locale === 'cs' ? 'Kredity jsou in-hub měna H&S' : 'Credits are the H&S in-hub currency'} —
-          </span>
-          {' '}
-          <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
-            {locale === 'cs'
-              ? 'získej je kvízy a growy, nebo si je kup. Slouží k inzerci, opakování kvízů a prémiových funkcích.'
-              : 'earn them through quizzes and grows, or buy them. Used for listings, quiz retries, and premium features.'}
-          </span>
+      <div style={{ padding: '16px', background: 'rgba(136,68,204,0.05)', border: '0.5px solid rgba(136,68,204,0.15)', borderRadius: '6px', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap' }}>
+          <div style={{ flex: 1, minWidth: '220px' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', letterSpacing: '1px', marginBottom: '8px' }}>
+              💎 {m.creditsBoxTitle}
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)', lineHeight: 1.7 }}>
+              {m.creditsBoxDesc}
+            </div>
+          </div>
+          <a href="/hub/credits" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', textDecoration: 'none', border: '0.5px solid rgba(136,68,204,0.3)', borderRadius: '3px', padding: '6px 14px', whiteSpace: 'nowrap', flexShrink: 0, alignSelf: 'flex-start' }}
+            className="hover:bg-[rgba(136,68,204,0.1)]">
+            {m.buyCreditsBtn}
+          </a>
         </div>
-        <a href="/hub/credits" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', textDecoration: 'none', border: '0.5px solid rgba(136,68,204,0.3)', borderRadius: '3px', padding: '5px 12px', whiteSpace: 'nowrap', flexShrink: 0 }}
-          className="hover:bg-[rgba(136,68,204,0.1)]">
-          {locale === 'cs' ? 'Koupit kredity →' : 'Buy credits →'}
-        </a>
+        {/* Use cases */}
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginTop: '12px' }}>
+          {[
+            { icon: '🛒', label: m.creditUse1 },
+            { icon: '📋', label: m.creditUse2 },
+            { icon: '🎓', label: m.creditUse3 },
+            { icon: '🌱', label: m.creditUse4 },
+          ].map(item => (
+            <div key={item.label} style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
+              color: '#4a6066', background: 'rgba(136,68,204,0.06)',
+              border: '0.5px solid rgba(136,68,204,0.12)',
+              borderRadius: '3px', padding: '4px 10px',
+            }}>
+              {item.icon} {item.label}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Category filter tabs */}
@@ -146,6 +169,27 @@ export default async function MarketplacePage(props: {
         })}
       </div>
 
+      {/* Featured slots banner */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', marginBottom: '20px', padding: '10px 14px', background: 'rgba(240,168,48,0.05)', border: '0.5px solid rgba(240,168,48,0.15)', borderRadius: '6px', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <span style={{ fontSize: '14px' }}>⚡</span>
+          <div>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830', letterSpacing: '1px' }}>
+              {m.featuredTitle} —
+            </span>
+            {' '}
+            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
+              {m.featuredSlots(boostedSlotsUsed)}
+            </span>
+          </div>
+        </div>
+        <div style={{ display: 'flex', gap: '4px' }}>
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{ width: '10px', height: '10px', borderRadius: '2px', background: i < boostedSlotsUsed ? '#f0a830' : 'rgba(240,168,48,0.15)', border: '0.5px solid rgba(240,168,48,0.3)' }} />
+          ))}
+        </div>
+      </div>
+
       {/* Listing grid */}
       {listings.length === 0 ? (
         <div style={{ background: '#0d0d10', border: '0.5px solid rgba(204,0,170,0.15)', borderRadius: '8px', padding: '48px', textAlign: 'center' }}>
@@ -158,7 +202,7 @@ export default async function MarketplacePage(props: {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
           {listings.map(listing => (
-            <ListingCard key={listing._id} listing={listing} m={m as Record<string, string>} locale={locale} sessionUserId={session.user.id} />
+            <ListingCard key={listing._id} listing={listing} m={m as unknown as Record<string, string>} locale={locale} sessionUserId={session.user.id} boostedSlotsFull={boostedSlotsUsed >= 3} />
           ))}
         </div>
       )}
@@ -197,20 +241,23 @@ type ListingData = {
   price: number
   location?: string
   images: string[]
-  contact: { telegram?: string; signal?: string; threema?: string }
+  contact: { telegram?: string; signal?: string; threema?: string; email?: string }
   daysLeft: number
+  isFeatured: boolean
+  featuredUntil: Date | null
   postedBy?: { username: string; avatar: string }
 }
 
 type MTranslations = Record<string, string>
 
 function ListingCard({
-  listing, m, locale, sessionUserId,
+  listing, m, locale, sessionUserId, boostedSlotsFull,
 }: {
   listing: ListingData
   m: MTranslations
   locale: string
   sessionUserId: string
+  boostedSlotsFull: boolean
 }) {
   const isOwner = listing.userId === sessionUserId
   const catLabel: Record<string, string> = {
@@ -221,14 +268,15 @@ function ListingCard({
   return (
     <div style={{
       background: '#0d0d10',
-      border: '0.5px solid rgba(255,255,255,0.06)',
+      border: listing.isFeatured ? '0.5px solid rgba(240,168,48,0.45)' : '0.5px solid rgba(255,255,255,0.06)',
       borderRadius: '8px',
       overflow: 'hidden',
       display: 'flex',
       flexDirection: 'column',
       transition: 'border-color 0.2s',
+      boxShadow: listing.isFeatured ? '0 0 12px rgba(240,168,48,0.08)' : 'none',
     }}
-      className="hover:border-[rgba(204,0,170,0.25)]"
+      className={listing.isFeatured ? '' : 'hover:border-[rgba(204,0,170,0.25)]'}
     >
       {/* Image or category icon */}
       <div style={{ height: '140px', background: 'rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
@@ -247,6 +295,17 @@ function ListingCard({
         }}>
           {catLabel[listing.category] ?? listing.category}
         </span>
+        {/* Featured badge */}
+        {listing.isFeatured && (
+          <span style={{
+            position: 'absolute', top: '10px', right: isOwner ? '70px' : '10px',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px',
+            color: '#050508', background: '#f0a830',
+            padding: '3px 8px', borderRadius: '3px',
+          }}>
+            ⚡ {locale === 'cs' ? 'Zvýrazněno' : 'Featured'}
+          </span>
+        )}
         {isOwner && (
           <span style={{
             position: 'absolute', top: '10px', right: '10px',
@@ -289,7 +348,7 @@ function ListingCard({
         </div>
 
         {/* Contact section */}
-        <div style={{ marginTop: 'auto', paddingTop: '8px', borderTop: '0.5px solid rgba(255,255,255,0.04)', display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+        <div style={{ marginTop: 'auto', paddingTop: '8px', borderTop: '0.5px solid rgba(255,255,255,0.04)', display: 'flex', gap: '6px', flexWrap: 'wrap', alignItems: 'center' }}>
           {listing.contact.telegram && (
             <a
               href={`https://t.me/${listing.contact.telegram.replace('@', '')}`}
@@ -298,6 +357,15 @@ function ListingCard({
               className="hover:text-[#cc00aa] hover:border-[rgba(204,0,170,0.4)]"
             >
               ✈ {listing.contact.telegram}
+            </a>
+          )}
+          {listing.contact.email && (
+            <a
+              href={`mailto:${listing.contact.email}`}
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', color: '#4a6066', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '3px', padding: '4px 8px', textDecoration: 'none', transition: 'all 0.15s' }}
+              className="hover:text-[#cc00aa] hover:border-[rgba(204,0,170,0.4)]"
+            >
+              ✉ {listing.contact.email}
             </a>
           )}
           {listing.contact.signal && (
@@ -309,6 +377,16 @@ function ListingCard({
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '3px', padding: '4px 8px' }}>
               🛡 {listing.contact.threema}
             </span>
+          )}
+          {isOwner && (
+            <div style={{ marginLeft: 'auto' }}>
+              <ListingOwnerActions
+                listingId={listing._id}
+                locale={locale}
+                isFeatured={listing.isFeatured}
+                boostedSlotsFull={boostedSlotsFull}
+              />
+            </div>
           )}
         </div>
       </div>

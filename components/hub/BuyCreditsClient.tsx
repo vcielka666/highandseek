@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 
 interface Package {
   credits: number
-  usd: number
+  czk: number
   label: string
 }
 

@@ -217,7 +217,7 @@ export default async function ProfilePage(props: {
         {/* XP bar */}
         <div style={{ marginTop: '16px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>{profileUser.xp.toLocaleString()} XP</span>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>{profileUser.xp.toLocaleString('en-US')} XP</span>
             {next && <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>→ {next.name}</span>}
           </div>
           <div style={{ height: '3px', background: 'rgba(240,168,48,0.1)', borderRadius: '2px', overflow: 'hidden' }}>

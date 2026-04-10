@@ -79,8 +79,21 @@ export async function POST() {
 
   await grow.save()
 
-  // Increment user growsCompleted
-  await User.findByIdAndUpdate(session.user.id, { $inc: { growsCompleted: 1 } })
+  // Increment user growsCompleted and save clone to bank (quality >= 40 = viable clone)
+  const cloneAvailable = qualityScore >= 40
+  const cloneUpdate: Record<string, unknown> = { $inc: { growsCompleted: 1 } }
+  if (cloneAvailable) {
+    cloneUpdate.$push = {
+      cloneBank: {
+        strainSlug:    grow.strainSlug,
+        strainName:    grow.strainName,
+        strainType:    grow.strainType,
+        floweringTime: grow.floweringTime,
+        takenAt:       new Date(),
+      },
+    }
+  }
+  await User.findByIdAndUpdate(session.user.id, cloneUpdate)
 
   return NextResponse.json({
     gramsYield,
@@ -88,5 +101,7 @@ export async function POST() {
     creditsEarned,
     xpEarned: totalXP,
     isPerkEligible: grow.isPerkEligible,
+    cloneAvailable,
+    cloneStrain: cloneAvailable ? { slug: grow.strainSlug, name: grow.strainName } : null,
   })
 }
