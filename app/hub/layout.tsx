@@ -24,7 +24,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   const criticalWarnings = activeGrow?.warnings?.filter(w => w.severity === 'critical' && !w.resolvedAt).length ?? 0
 
   return (
-    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex' }}>
+    <div style={{ minHeight: '100vh', background: '#050508', display: 'flex', overflowX: 'hidden' }}>
       <HubSidebar session={session} credits={credits} avatar={avatar} xp={xp} criticalWarnings={criticalWarnings} />
 
       <main style={{
