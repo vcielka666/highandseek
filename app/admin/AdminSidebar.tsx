@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   Users,
   Leaf,
+  Dna,
   BarChart3,
   Settings,
   LogOut,
@@ -22,6 +23,7 @@ const NAV = [
   { href: '/admin/products',   label: 'Products',   icon: Package },
   { href: '/admin/users',      label: 'Users',      icon: Users },
   { href: '/admin/hub',        label: 'Hub Stats',  icon: Leaf },
+  { href: '/admin/strains',    label: 'Strains',    icon: Dna  },
   { href: '/admin/analytics',  label: 'Analytics',  icon: BarChart3 },
   { href: '/admin/system',     label: 'System',     icon: Settings },
 ]

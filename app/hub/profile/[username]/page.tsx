@@ -144,7 +144,7 @@ export default async function ProfilePage(props: {
       {/* Profile header */}
       <div style={{ padding: '0 24px 24px', borderBottom: '0.5px solid rgba(204,0,170,0.1)' }}>
         {/* Avatar — overlaps banner */}
-        <div style={{ marginTop: '-40px', marginBottom: '12px' }}>
+        <div style={{ marginTop: '-40px', marginBottom: '12px', position: 'relative', zIndex: 1 }}>
           <div style={{
             width: '80px', height: '80px', borderRadius: '50%',
             background: 'rgba(204,0,170,0.15)', border: '3px solid #050508',

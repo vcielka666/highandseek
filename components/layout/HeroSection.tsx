@@ -68,63 +68,110 @@ export default function HeroSection() {
         {/* CTAs */}
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', opacity: 0, animation: 'fadeUp 0.6s ease forwards 1.1s' }}>
 
-          {/* Collection button — strain-of-day background */}
-          <Link
-            href="/shop"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '18px 0',
-              width: '200px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              background: 'rgba(0,212,200,0.08)',
-              border: '1px solid #00d4c8',
-              boxShadow: '0 0 20px rgba(0,212,200,0.1), inset 0 0 20px rgba(0,212,200,0.05)',
-              transition: 'all 0.25s',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-            className="hover:bg-[rgba(0,212,200,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(0,212,200,0.25),inset_0_0_30px_rgba(0,212,200,0.08)]"
-          >
-            <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8', position: 'relative', zIndex: 1 }}>
-              {t.hero.cta1Label}
-            </span>
-            <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066', position: 'relative', zIndex: 1 }}>
-              {t.hero.cta1Sub}
-            </span>
-          </Link>
+          {/* Collection button — image floats behind it */}
+          <div style={{ position: 'relative', overflow: 'visible', maxWidth: 'none' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/landingPage/behindCollection.png"
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '-40px',
+                top: '-33px',
+                width: '348px',
+                maxWidth: 'none',
+                height: 'auto',
+                objectFit: 'fill',
+                opacity: 0.65,
+                mixBlendMode: 'screen',
+                pointerEvents: 'none',
+                zIndex: 0,
+                transform: 'scaleX(-1)',
+                WebkitMaskImage: 'radial-gradient(ellipse 85% 55% at 50% 50%, black 10%, transparent 60%)',
+                maskImage: 'radial-gradient(ellipse 85% 55% at 50% 50%, black 10%, transparent 60%)',
+              }}
+            />
+            <Link
+              href="/shop"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '18px 0',
+                width: '200px',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                background: 'rgba(0,212,200,0.08)',
+                border: 'none',
+                boxShadow: '0 0 20px rgba(0,212,200,0.1), inset 0 0 20px rgba(0,212,200,0.05)',
+                transition: 'all 0.25s',
+                position: 'relative',
+                zIndex: 1,
+              }}
+              className="hover:bg-[rgba(0,212,200,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(0,212,200,0.25),inset_0_0_30px_rgba(0,212,200,0.08)]"
+            >
+              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8', position: 'relative', zIndex: 1 }}>
+                {t.hero.cta1Label}
+              </span>
+              <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066', position: 'relative', zIndex: 1 }}>
+                {t.hero.cta1Sub}
+              </span>
+            </Link>
+          </div>
 
-          {/* Hub button */}
-          <Link
-            href="/hub"
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '4px',
-              padding: '18px 0',
-              width: '200px',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              background: 'rgba(204,0,170,0.08)',
-              border: '1px solid #cc00aa',
-              boxShadow: '0 0 20px rgba(204,0,170,0.1), inset 0 0 20px rgba(204,0,170,0.05)',
-              transition: 'all 0.25s',
-              position: 'relative',
-              overflow: 'hidden',
-            }}
-            className="hover:bg-[rgba(204,0,170,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(204,0,170,0.25),inset_0_0_30px_rgba(204,0,170,0.08)]"
-          >
-            <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa' }}>
-              {t.hero.cta2Label}
-            </span>
-            <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066' }}>
-              {t.hero.cta2Sub}
-            </span>
-          </Link>
+          {/* Hub button — steam floats behind it */}
+          <div style={{ position: 'relative', overflow: 'visible', maxWidth: 'none' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/landingPage/steam.png"
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: 'absolute',
+                left: '-53px',
+                top: '-49px',
+                width: '348px',
+                maxWidth: 'none',
+                height: 'auto',
+                objectFit: 'fill',
+                opacity: 0.65,
+                mixBlendMode: 'screen',
+                pointerEvents: 'none',
+                zIndex: 0,
+                WebkitMaskImage: 'radial-gradient(ellipse 85% 55% at 50% 50%, black 10%, transparent 60%)',
+                maskImage: 'radial-gradient(ellipse 85% 55% at 50% 50%, black 10%, transparent 60%)',
+              }}
+            />
+            <Link
+              href="/hub"
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '4px',
+                padding: '18px 0',
+                width: '200px',
+                borderRadius: '6px',
+                textDecoration: 'none',
+                background: 'rgba(204,0,170,0.08)',
+                border: 'none',
+                boxShadow: '0 0 20px rgba(204,0,170,0.1), inset 0 0 20px rgba(204,0,170,0.05)',
+                transition: 'all 0.25s',
+                position: 'relative',
+                zIndex: 1,
+              }}
+              className="hover:bg-[rgba(204,0,170,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(204,0,170,0.25),inset_0_0_30px_rgba(204,0,170,0.08)]"
+            >
+              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa' }}>
+                {t.hero.cta2Label}
+              </span>
+              <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066' }}>
+                {t.hero.cta2Sub}
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

@@ -25,6 +25,16 @@ export const XP_EVENTS = {
   QUIZ_SPEED_BONUS:             10,
   QUIZ_PERFECT_SCORE:           150,
   ACADEMY_TOPIC_FIRST_COMPLETE: 50,
+  // Strain Avatar
+  STRAIN_FIRST_CHAT:         20,
+  STRAIN_CHAT_MESSAGE:       15,
+  STRAIN_CARE_WATER:          5,
+  STRAIN_CARE_FEED:          10,
+  STRAIN_CARE_LIGHT:          5,
+  STRAIN_CARE_FLUSH:          5,
+  STRAIN_AVATAR_LEVEL_UP:    50,
+  STRAIN_CHAT_SESSION_LONG:  30,
+  STRAIN_BG_CHANGE:           3,
 } as const
 
 export const LEVELS = [

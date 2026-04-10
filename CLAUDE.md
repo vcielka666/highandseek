@@ -476,6 +476,80 @@ File: `lib/notifications/telegram.ts`
 
 ---
 
+## AI Strain Avatar System
+
+### Models
+
+**`lib/db/models/Strain.ts`**
+```
+slug, name, type (indica|sativa|hybrid), genetics, floweringTime, difficulty
+personality: { archetype, tone[], catchphrase, favoriteAction, hatedAction,
+               topics[], forbiddenTopics[], systemPrompt, customSystemPrompt }
+visuals: { avatarLevels[{ level, imageUrl, animationClass }],
+           idleAnimation, happyAnimation, sadAnimation }
+stats: { totalChats, totalMessages, helpfulVotes, unhelpfulVotes }
+shopProductSlug, isActive, isComingSoon
+```
+
+**`lib/db/models/AvatarState.ts`** (per user per strain)
+```
+userId, strainSlug
+level (1-10), xp, xpToNextLevel
+needs: { hydration, nutrients, energy, happiness (0-100), lastUpdated }
+status: thriving|happy|neutral|sad|wilting
+cooldowns: { water, feed, light, flush } (Date or null)
+careHistory[{ action, timestamp, xpEarned }]
+chatCount, lastChatAt, lastCareAt
+Unique index: { userId, strainSlug }
+```
+
+**`lib/db/models/StrainChat.ts`**
+```
+userId, strainSlug
+messages[{ role: user|assistant, content, timestamp }]
+xpEarned
+```
+
+### Decay System (`lib/avatar/decay.ts`)
+- `calculateCurrentNeeds(stored)` — pure, time-based decay, NO DB save
+  - hydration: -1/h, nutrients: -0.5/h, energy: -0.75/h, happiness: -0.5/h (-2/h if no chat 48h+)
+- `calculateStatus(needs)` → thriving(80+) | happy(60+) | neutral(40+) | sad(20+) | wilting
+- `calculateXpMultiplier(status)` → 1.5|1.2|1.0|0.7|0.3
+- `AVATAR_LEVELS` — 10 levels: Seedling(0)→Cutting(50)→...→Legendary(2500)
+- `CARE_COOLDOWNS_MS` — water:8h, feed:24h, light:12h, flush:72h
+
+### Care Actions Effects
+- water: hydration +40, energy +5
+- feed: nutrients +40, energy +5
+- light: energy +40, happiness +5
+- flush: hydration +20, nutrients -20
+- hatedAction: happiness -15 extra
+- favouriteAction: happiness +10 extra
+
+### API Routes
+```
+GET  /api/hub/strains                       All active strains + user states
+GET  /api/hub/strains/[slug]                Single strain + user state
+POST /api/hub/strains/[slug]/care           { action: water|feed|light|flush }
+POST /api/hub/strains/[slug]/chat           { message } → Claude Haiku response
+GET  /api/hub/strains/[slug]/chat/history   Last 20 messages
+GET/POST /api/admin/strains                 Admin strain list
+GET/PATCH /api/admin/strains/[slug]         Admin strain detail
+POST /api/admin/strains/[slug]/test-chat    Test personality (no DB save, no XP)
+```
+
+### Seed Script
+`pnpm tsx scripts/seed-strains.ts` — seeds 7 strain personalities (cherrygasm, jack-herer, odb, dosidos, milky-dreams, tarte-tarin, velvet-moon)
+
+### XP Events Added
+```
+STRAIN_FIRST_CHAT: 20, STRAIN_CHAT_MESSAGE: 15 (× multiplier)
+STRAIN_CARE_WATER: 5, STRAIN_CARE_FEED: 10, STRAIN_CARE_LIGHT: 5, STRAIN_CARE_FLUSH: 5
+STRAIN_AVATAR_LEVEL_UP: 50, STRAIN_CHAT_SESSION_LONG: 30
+```
+
+---
+
 ## Seekers Integration — Planned, Not Yet Built
 
 Sister project Seekers (seekers-game.com) will be 

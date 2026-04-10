@@ -56,7 +56,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         token.id       = user.id!
         token.username = user.username
@@ -64,6 +64,16 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.xp       = user.xp
         token.level    = user.level
         token.avatar   = user.avatar
+      }
+      if (trigger === 'update') {
+        await connectDB()
+        const fresh = await User.findById(token.id)
+          .select('avatar username displayName')
+          .lean<{ avatar?: string; username?: string }>()
+        if (fresh) {
+          token.avatar   = fresh.avatar   ?? token.avatar
+          token.username = fresh.username ?? token.username
+        }
       }
       return token
     },

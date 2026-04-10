@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import Image from 'next/image'
 
@@ -144,6 +145,7 @@ function OptionPills<T extends string>({
 
 export default function EditProfileForm({ initial, strainOptions, earnedBadges, profileUsername }: Props) {
   const router = useRouter()
+  const { update: updateSession } = useSession()
   const [form, setForm] = useState<FormState>(initial)
   const [saving, setSaving] = useState(false)
   const [uploading, setUploading] = useState(false)
@@ -190,6 +192,7 @@ export default function EditProfileForm({ initial, strainOptions, earnedBadges, 
         return
       }
       toast.success('Profile saved')
+      await updateSession()
       // If username changed, redirect to new profile URL
       const newUsername = (data.user as { username?: string })?.username ?? form.username
       router.push(`/hub/profile/${newUsername}`)

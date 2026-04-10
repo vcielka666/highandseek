@@ -19,6 +19,8 @@ export const CREDIT_COSTS = {
   QUIZ_RETRY_3RD_PLUS:   50,
   MARKETPLACE_POST:      15,
   MARKETPLACE_EXTEND:    10,
+  AVATAR_BG_TEMPLATE:    3,
+  AVATAR_BG_CUSTOM:      6,
 } as const
 
 export async function awardCredits(userId: string, amount: number, reason: string): Promise<number> {
