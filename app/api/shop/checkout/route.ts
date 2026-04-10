@@ -16,13 +16,14 @@ const itemSchema = z.object({
 const schema = z.object({
   items: z.array(itemSchema).min(1),
   customerEmail: z.string().email(),
+  userId: z.string().optional(),
   shippingAddress: z.object({
-    name:       z.string().min(1),
-    address:    z.string().min(1),
-    city:       z.string().min(1),
-    postalCode: z.string().min(1),
-    country:    z.string().length(2),
-  }),
+    name:       z.string().optional().default(''),
+    address:    z.string().optional().default(''),
+    city:       z.string().optional().default(''),
+    postalCode: z.string().optional().default(''),
+    country:    z.string().optional().default('CZ'),
+  }).optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -33,19 +34,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 })
     }
 
-    const { items, customerEmail, shippingAddress } = parsed.data
+    const { items, customerEmail, userId } = parsed.data
     const totalAmount = items.reduce((sum, i) => sum + i.price * i.quantity, 0)
-    const amountCents = Math.round(totalAmount * 100)
+    // CZK smallest unit is haléř (×100)
+    const amountHalers = Math.round(totalAmount * 100)
+
+    const metadata: Record<string, string> = {
+      customerEmail,
+      orderItems: JSON.stringify(items.map((i) => ({
+        productId: i.productId,
+        name: i.name,
+        quantity: i.quantity,
+        price: i.price,
+      }))).slice(0, 490),
+    }
+    if (userId) metadata.userId = userId
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountCents,
-      currency: 'eur',
+      amount: amountHalers,
+      currency: 'czk',
       receipt_email: customerEmail,
-      metadata: {
-        customerEmail,
-        shippingName: shippingAddress.name,
-        itemCount: String(items.length),
-      },
+      metadata,
     })
 
     return NextResponse.json({ clientSecret: paymentIntent.client_secret })

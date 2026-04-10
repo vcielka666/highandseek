@@ -17,10 +17,7 @@ export default async function ProductPage({ params }: { params: Params }) {
   const relatedRaw = await Product.find({
     slug: { $ne: slug },
     isAvailable: true,
-    $or: [
-      { category: raw.category },
-      { 'strain.type': raw.strain.type },
-    ],
+    category: raw.category,
   }).limit(3).lean<ProductDTO[]>()
 
   // Serialize

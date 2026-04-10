@@ -372,3 +372,22 @@ strain profiles exist (strain data needed for flowering times)
 8. **`HeroGrid.tsx` is a server component** — pure SVG, no client state needed
 9. **Fonts via CSS variables** — always reference as `fontFamily: 'var(--font-cacha)'` etc, never hardcode font names in component styles
 10. **`useSearchParams` requires Suspense** — pattern: inner component reads params, outer default export wraps in `<Suspense>`
+
+
+## Seekers Integration — Planned, Not Yet Built
+
+Sister project Seekers (seekers-game.com) will be 
+integrated in a future sprint. Do NOT build any 
+Seekers-specific code in H&S now.
+
+When integration happens:
+- Seekers will migrate from Payload CMS to Auth.js v5 
+  + Mongoose (full analysis already done)
+- Shared MongoDB database: "universe_db"  
+- Single user account works across both apps
+- Shared: credits, XP, profile, bio, avatar, links
+- Seekers uses tRPC, H&S uses REST API routes
+- Shared AUTH_SECRET for unified JWT
+
+For now: H&S is fully standalone.
+Current Seekers DB: seekers_db (do not touch)

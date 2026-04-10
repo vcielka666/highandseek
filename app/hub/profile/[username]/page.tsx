@@ -3,11 +3,12 @@ import { redirect, notFound } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
+import Order from '@/lib/db/models/Order'
 import Link from 'next/link'
 import { getXPProgress } from '@/lib/xp/index'
 import { BADGES } from '@/lib/badges/index'
 
-type Tab = 'overview' | 'grows' | 'badges' | 'activity'
+type Tab = 'overview' | 'grows' | 'badges' | 'activity' | 'orders'
 
 export default async function ProfilePage(props: {
   params: Promise<{ username: string }>
@@ -18,7 +19,7 @@ export default async function ProfilePage(props: {
 
   const { username } = await props.params
   const { tab: rawTab } = await props.searchParams
-  const tab: Tab = (['overview', 'grows', 'badges', 'activity'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
+  const tab: Tab = (['overview', 'grows', 'badges', 'activity', 'orders'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
 
   await connectDB()
 
@@ -51,6 +52,12 @@ export default async function ProfilePage(props: {
     .limit(10)
     .lean<{ event: string; amount: number; createdAt: Date }[]>()
 
+  const userOrders = isOwnProfile
+    ? await Order.find({ userId: profileUser._id.toString() })
+        .sort({ createdAt: -1 })
+        .lean<{ _id: { toString(): string }; items: { name: string; quantity: number; price: number }[]; totalAmount: number; status: string; createdAt: Date }[]>()
+    : []
+
   const EVENT_LABELS: Record<string, string> = {
     WATER_PLANT: '🌿 Watered plant',
     FEED_PLANT: '🧪 Fed plant',
@@ -70,6 +77,7 @@ export default async function ProfilePage(props: {
     { value: 'grows',     label: 'Grows' },
     { value: 'badges',    label: `Badges (${profileUser.badges.length})` },
     { value: 'activity',  label: 'Activity' },
+    ...(isOwnProfile ? [{ value: 'orders' as Tab, label: `Orders (${userOrders.length})` }] : []),
   ]
 
   const cardStyle: React.CSSProperties = {
@@ -320,6 +328,66 @@ export default async function ProfilePage(props: {
               </div>
             )) : (
               <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', padding: '20px 0' }}>No activity yet.</div>
+            )}
+          </div>
+        )}
+
+        {/* Orders — own profile only */}
+        {tab === 'orders' && isOwnProfile && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {userOrders.length === 0 ? (
+              <div style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', marginBottom: '14px' }}>No orders yet.</div>
+                <Link href="/shop" style={{ fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '8px 16px', textDecoration: 'none' }}>
+                  Go to Shop →
+                </Link>
+              </div>
+            ) : (
+              <>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginBottom: '6px' }}>
+                  {userOrders.length} order{userOrders.length !== 1 ? 's' : ''} · <Link href="/shop/orders" style={{ color: '#00d4c8', textDecoration: 'none' }}>View full history →</Link>
+                </div>
+                {userOrders.slice(0, 5).map((order) => {
+                  const STATUS_MAP: Record<string, { color: string; label: string }> = {
+                    paid: { color: '#00d4c8', label: 'Paid' },
+                    shipped: { color: '#f0a830', label: 'Shipped' },
+                    delivered: { color: '#8844cc', label: 'Delivered' },
+                    pending: { color: '#4a6066', label: 'Pending' },
+                  }
+                  const s = STATUS_MAP[order.status] ?? STATUS_MAP.pending
+                  const ref = order._id.toString().slice(-8).toUpperCase()
+                  const date = new Date(order.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })
+                  return (
+                    <div key={order._id.toString()} style={cardStyle}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '0.5px solid rgba(204,0,170,0.08)', flexWrap: 'wrap', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', fontWeight: 700, color: '#e8f0ef', letterSpacing: '1px' }}>#{ref}</span>
+                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: s.color, padding: '2px 7px', borderRadius: '3px', border: `0.5px solid ${s.color}44` }}>
+                            {s.label}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>{date}</span>
+                          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', fontWeight: 700, color: '#00d4c8' }}>
+                            {order.totalAmount.toLocaleString('cs-CZ')} Kč
+                          </span>
+                        </div>
+                      </div>
+                      <div style={{ padding: '10px 16px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        {order.items.map((item, i) => (
+                          <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '10px' }}>
+                            <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)' }}>{item.name}</span>
+                            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', textAlign: 'right' }}>×{item.quantity}</span>
+                            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', textAlign: 'right', whiteSpace: 'nowrap' }}>
+                              {(item.price * item.quantity).toLocaleString('cs-CZ')} Kč
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })}
+              </>
             )}
           </div>
         )}

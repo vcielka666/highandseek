@@ -3,9 +3,11 @@
 import { useCart } from '@/stores/cartStore'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useSession } from 'next-auth/react'
 
 export default function CartDrawer() {
   const { items, isOpen, closeCart, removeItem, updateQty, totalPrice } = useCart()
+  const { data: session } = useSession()
 
   return (
     <>
@@ -22,18 +24,18 @@ export default function CartDrawer() {
         style={{
           position: 'fixed',
           top: 0,
-          right: isOpen ? 0 : '-420px',
-          width: '380px',
+          right: 0,
+          width: 'min(380px, 100vw)',
           height: '100vh',
           zIndex: 301,
           background: '#0d0d10',
           borderLeft: '0.5px solid rgba(0,212,200,0.2)',
           display: 'flex',
           flexDirection: 'column',
-          transition: 'right 0.3s ease',
+          transform: isOpen ? 'translateX(0)' : 'translateX(100%)',
+          transition: 'transform 0.3s ease',
           boxShadow: isOpen ? '-4px 0 60px rgba(0,0,0,0.7)' : 'none',
         }}
-        className="max-[420px]:w-full max-[420px]:right-0 max-[420px]:translate-x-full max-[420px]:data-[open=true]:translate-x-0"
       >
         {/* Header */}
         <div style={{
@@ -43,23 +45,35 @@ export default function CartDrawer() {
           padding: '20px 24px',
           borderBottom: '0.5px solid rgba(0,212,200,0.1)',
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '1px', color: '#e8f0ef' }}>
-              YOUR CART
-            </span>
-            {items.length > 0 && (
-              <span style={{
-                background: '#00d4c8',
-                color: '#050508',
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '10px',
-                fontWeight: 700,
-                borderRadius: '10px',
-                padding: '2px 8px',
-                lineHeight: 1.4,
-              }}>
-                {items.reduce((sum, i) => sum + i.quantity, 0)}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '1px', color: '#e8f0ef' }}>
+                YOUR CART
               </span>
+              {items.length > 0 && (
+                <span style={{
+                  background: '#00d4c8',
+                  color: '#050508',
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: '10px',
+                  fontWeight: 700,
+                  borderRadius: '10px',
+                  padding: '2px 8px',
+                  lineHeight: 1.4,
+                }}>
+                  {items.reduce((sum, i) => sum + i.quantity, 0)}
+                </span>
+              )}
+            </div>
+            {session && (
+              <Link
+                href="/shop/orders"
+                onClick={closeCart}
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066', textDecoration: 'none', transition: 'color 0.15s' }}
+                className="hover:text-[#00d4c8]"
+              >
+                View order history →
+              </Link>
             )}
           </div>
           <button
@@ -94,7 +108,7 @@ export default function CartDrawer() {
             </div>
           ) : (
             items.map((item) => (
-              <div key={item.productId} style={{
+              <div key={item.cartKey} style={{
                 display: 'flex',
                 gap: '14px',
                 padding: '16px 24px',
@@ -126,24 +140,24 @@ export default function CartDrawer() {
                     {item.name}
                   </div>
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#00d4c8' }}>
-                    €{(item.price * item.quantity).toFixed(2)}
+                    {(item.price * item.quantity).toLocaleString('cs-CZ')} Kč
                   </div>
 
                   {/* Qty controls */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '8px' }}>
                     <button
-                      onClick={() => updateQty(item.productId, item.quantity - 1)}
+                      onClick={() => updateQty(item.cartKey, item.quantity - 1)}
                       style={{ width: '22px', height: '22px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.2)', background: 'transparent', color: '#e8f0ef', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
                     >−</button>
                     <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#e8f0ef', minWidth: '16px', textAlign: 'center' }}>
                       {item.quantity}
                     </span>
                     <button
-                      onClick={() => updateQty(item.productId, item.quantity + 1)}
+                      onClick={() => updateQty(item.cartKey, item.quantity + 1)}
                       style={{ width: '22px', height: '22px', borderRadius: '3px', border: '0.5px solid rgba(0,212,200,0.2)', background: 'transparent', color: '#e8f0ef', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px' }}
                     >+</button>
                     <button
-                      onClick={() => removeItem(item.productId)}
+                      onClick={() => removeItem(item.cartKey)}
                       style={{ marginLeft: 'auto', background: 'transparent', border: 'none', cursor: 'pointer', color: '#4a6066', display: 'flex', padding: '2px' }}
                       className="hover:text-[#cc00aa] transition-colors"
                     >
@@ -166,7 +180,7 @@ export default function CartDrawer() {
                 Subtotal
               </span>
               <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
-                €{totalPrice().toFixed(2)}
+                {totalPrice().toLocaleString('cs-CZ')} Kč
               </span>
             </div>
             <Link

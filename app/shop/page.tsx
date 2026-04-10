@@ -4,6 +4,7 @@ import Product from '@/lib/db/models/Product'
 import type { ProductDTO } from '@/types/shop'
 import ProductCard from '@/components/shop/ProductCard'
 import Link from 'next/link'
+import CategorySwitcher from '@/components/shop/CategorySwitcher'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
 
@@ -82,16 +83,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
         gap: '12px',
       }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-          {category && CATEGORY_LABELS[category] && (
-            <span style={{
-              fontFamily: 'var(--font-cacha)',
-              fontSize: '15px',
-              letterSpacing: '1px',
-              color: '#e8f0ef',
-            }}>
-              {CATEGORY_LABELS[category]}
-            </span>
-          )}
+          {category && <CategorySwitcher current={category} />}
           <span style={{
             fontFamily: 'var(--font-dm-mono)',
             fontSize: '10px',

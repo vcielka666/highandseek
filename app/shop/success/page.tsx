@@ -5,21 +5,27 @@ import { useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { Suspense } from 'react'
+import { useCart } from '@/stores/cartStore'
 
 function SuccessContent() {
   const searchParams = useSearchParams()
   const { data: session } = useSession()
+  const { clearCart } = useCart()
   const [showXP, setShowXP] = useState(false)
 
   const paymentIntent = searchParams.get('payment_intent')
   const status = searchParams.get('redirect_status')
 
   useEffect(() => {
-    if (status === 'succeeded' && session) {
-      const timer = setTimeout(() => setShowXP(true), 800)
-      return () => clearTimeout(timer)
+    if (status === 'succeeded') {
+      clearCart()
+      if (session) {
+        const timer = setTimeout(() => setShowXP(true), 800)
+        return () => clearTimeout(timer)
+      }
     }
-  }, [status, session])
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status])
 
   const isSuccess = status === 'succeeded'
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import {
   Elements,
@@ -67,6 +67,74 @@ const sectionTitleStyle: React.CSSProperties = {
   borderBottom: '0.5px solid rgba(0,212,200,0.1)',
 }
 
+const XP_INFO = [
+  { icon: '⚡', label: 'XP & Levels', text: 'Every purchase earns XP. Level up to unlock perks.' },
+  { icon: '🎁', label: 'Discounts', text: 'Higher levels = bigger shop discounts. Up to 20% off.' },
+  { icon: '🌿', label: 'AI Strain Avatars', text: 'Each strain has an AI personality. Chat, get grow tips, earn bonus XP.' },
+  { icon: '🏆', label: 'Credibility', text: 'Your level is your badge. Displayed in the Hub community.' },
+]
+
+function XpBadge() {
+  const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    function handler(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [open])
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          background: 'none',
+          border: 'none',
+          padding: 0,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+        }}
+      >
+        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830', letterSpacing: '0.5px' }}>
+          🌱 +50 XP on purchase
+        </span>
+      </button>
+
+      {open && (
+        <div style={{
+          marginTop: '12px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '10px',
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: '#8a5e1a' }}>
+            Hub Progression System
+          </div>
+          {XP_INFO.map((item) => (
+            <div key={item.label} style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
+              <span style={{ fontSize: '13px', lineHeight: 1, flexShrink: 0, marginTop: '1px' }}>{item.icon}</span>
+              <div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', fontWeight: 700, color: '#f0a830', letterSpacing: '0.5px', marginBottom: '2px' }}>
+                  {item.label}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.5 }}>
+                  {item.text}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function CheckoutForm({ clientSecret }: { clientSecret: string }) {
   const stripe = useStripe()
   const elements = useElements()
@@ -116,18 +184,6 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
     }
   }
 
-  const stripeAppearance = {
-    theme: 'night' as const,
-    variables: {
-      colorPrimary: '#00d4c8',
-      colorBackground: '#0d0d12',
-      colorText: '#e8f0ef',
-      colorDanger: '#cc00aa',
-      fontFamily: 'DM Sans, sans-serif',
-      borderRadius: '4px',
-    },
-  }
-
   if (items.length === 0) {
     return (
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', gap: '16px' }}>
@@ -152,11 +208,10 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '32px', alignItems: 'start' }}
-        className="max-lg:grid-cols-1">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8 items-start">
 
         {/* Left: Form */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+        <div className="order-2 lg:order-1" style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
           {/* Contact */}
           <div>
             <div style={sectionTitleStyle}>1. Contact</div>
@@ -222,9 +277,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
           {/* Payment */}
           <div>
             <div style={sectionTitleStyle}>3. Payment</div>
-            <Elements stripe={stripePromise} options={{ clientSecret, appearance: stripeAppearance }}>
-              <PaymentElement options={{ layout: 'tabs' }} />
-            </Elements>
+            <PaymentElement options={{ layout: 'tabs' }} />
           </div>
 
           <button
@@ -246,23 +299,21 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
             }}
             className="hover:bg-[#00f5e8] hover:shadow-[0_0_20px_rgba(0,212,200,0.4)]"
           >
-            Place order · €{totalPrice().toFixed(2)}
+            Place order · {totalPrice().toLocaleString('cs-CZ')} Kč
           </button>
         </div>
 
         {/* Right: Order summary */}
-        <div style={{
+        <div className="order-1 lg:order-2 lg:sticky lg:top-20" style={{
           background: '#0d0d10',
           border: '0.5px solid rgba(0,212,200,0.12)',
           borderRadius: '8px',
           padding: '20px',
-          position: 'sticky',
-          top: '80px',
         }}>
           <div style={sectionTitleStyle}>Order Summary</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
             {items.map((item) => (
-              <div key={item.productId} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div key={item.cartKey} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
                 <div style={{ width: '44px', height: '44px', borderRadius: '4px', background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.15)', position: 'relative', flexShrink: 0, overflow: 'hidden' }}>
                   {item.image
                     ? <Image src={item.image} alt={item.name} fill style={{ objectFit: 'cover' }} />
@@ -278,7 +329,7 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
                   </div>
                 </div>
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#00d4c8', flexShrink: 0 }}>
-                  €{(item.price * item.quantity).toFixed(2)}
+                  {(item.price * item.quantity).toLocaleString('cs-CZ')} Kč
                 </span>
               </div>
             ))}
@@ -287,16 +338,9 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '1px', color: '#4a6066' }}>Total</span>
             <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#00d4c8' }}>
-              €{totalPrice().toFixed(2)}
+              {totalPrice().toLocaleString('cs-CZ')} Kč
             </span>
           </div>
-          {session && (
-            <div style={{ marginTop: '14px', padding: '10px', background: 'rgba(240,168,48,0.06)', border: '0.5px solid rgba(240,168,48,0.15)', borderRadius: '4px' }}>
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830', letterSpacing: '0.5px' }}>
-                🌱 +50 XP on purchase
-              </span>
-            </div>
-          )}
         </div>
       </form>
     </>
@@ -321,23 +365,28 @@ export default function CheckoutPage() {
           price: i.price,
         })),
         customerEmail: session?.user?.email ?? 'guest@checkout.com',
+        userId: session?.user?.id ?? undefined,
         shippingAddress: { name: '', address: '', city: '', postalCode: '', country: 'CZ' },
       }),
     })
       .then((r) => r.json())
-      .then((d) => { if (d.clientSecret) setClientSecret(d.clientSecret) })
+      .then((d) => {
+        if (d.clientSecret) setClientSecret(d.clientSecret)
+        else toast.error(d.error ?? 'Failed to initialise checkout')
+      })
       .catch(() => toast.error('Failed to initialise checkout'))
   }, [items.length, session?.user?.email])
 
   return (
-    <div style={{ padding: '32px 24px 64px', maxWidth: '1000px' }}>
+    <div style={{ padding: '24px 16px 64px', maxWidth: '1000px', width: '100%', boxSizing: 'border-box' }}>
       <div style={{ marginBottom: '32px' }}>
         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#007a74', marginBottom: '8px' }}>
           Shop · Checkout
         </div>
-        <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', letterSpacing: '1px', color: '#e8f0ef' }}>
+        <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', letterSpacing: '1px', color: '#e8f0ef', marginBottom: '10px' }}>
           Complete your order
         </h1>
+        {session && <XpBadge />}
       </div>
 
       {!clientSecret ? (

@@ -8,17 +8,17 @@ const OrderItemSchema = new mongoose.Schema({
 }, { _id: false })
 
 const ShippingAddressSchema = new mongoose.Schema({
-  name:       { type: String, required: true },
-  address:    { type: String, required: true },
-  city:       { type: String, required: true },
-  postalCode: { type: String, required: true },
-  country:    { type: String, required: true },
+  name:       { type: String, default: '' },
+  address:    { type: String, default: '' },
+  city:       { type: String, default: '' },
+  postalCode: { type: String, default: '' },
+  country:    { type: String, default: '' },
 }, { _id: false })
 
 const OrderSchema = new mongoose.Schema({
   items:                 { type: [OrderItemSchema], required: true },
   totalAmount:           { type: Number, required: true },
-  currency:              { type: String, default: 'eur' },
+  currency:              { type: String, default: 'czk' },
   customerEmail:         { type: String, required: true, lowercase: true },
   shippingAddress:       { type: ShippingAddressSchema, required: true },
   stripePaymentIntentId: { type: String, default: '' },

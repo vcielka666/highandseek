@@ -1,9 +1,12 @@
 import type { Metadata } from 'next'
-import { Orbitron, DM_Sans, DM_Mono } from 'next/font/google'
+import { Orbitron, DM_Sans, DM_Mono, Geist } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
 import AuthSessionProvider from '@/components/providers/SessionProvider'
 import ToastProvider from '@/components/providers/ToastProvider'
+import { cn } from "@/lib/utils";
+
+const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const orbitron = Orbitron({
   subsets: ['latin'],
@@ -47,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="sk"
-      className={`${orbitron.variable} ${dmSans.variable} ${dmMono.variable} ${cacha.variable}`}
+      className={cn(orbitron.variable, dmSans.variable, dmMono.variable, cacha.variable, "font-sans", geist.variable)}
     >
       <body className="min-h-full flex flex-col">
         <AuthSessionProvider>

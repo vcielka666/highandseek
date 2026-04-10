@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 
 interface FilterSidebarProps {
@@ -10,9 +11,9 @@ interface FilterSidebarProps {
 }
 
 const CATEGORIES = [
-  { value: 'flower', label: 'FLOWERS' },
-  { value: 'seed', label: 'GENETICS' },
-  { value: 'merch', label: 'MERCH' },
+  { value: 'flower', label: 'FLOWERS',  icon: '/icons/flowersIcon.png',  iconSize: 40 },
+  { value: 'seed',   label: 'GENETICS', icon: '/icons/geneticsIcon.png', iconSize: 40 },
+  { value: 'merch',  label: 'MERCH',    icon: '/icons/merchIcon.png',    iconSize: 26 },
 ]
 
 const TYPES = [
@@ -258,7 +259,7 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
   function CategoryGroup({
     options, value, onChange,
   }: {
-    options: { value: string; label: string }[]
+    options: { value: string; label: string; icon: string; iconSize: number }[]
     value: string
     onChange: (v: string) => void
   }) {
@@ -271,7 +272,10 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
               key={opt.value}
               onClick={() => onChange(opt.value)}
               style={{
-                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
                 padding: '10px 12px',
                 borderRadius: '4px',
                 cursor: 'pointer',
@@ -286,6 +290,13 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
               }}
               className={active ? '' : 'hover:bg-[rgba(0,212,200,0.05)] hover:text-[#c0e8e6]'}
             >
+              <Image
+                src={opt.icon}
+                alt={opt.label}
+                width={opt.iconSize}
+                height={opt.iconSize}
+                style={{ opacity: active ? 1 : 0.4, transition: 'opacity 0.15s', flexShrink: 0 }}
+              />
               {opt.label}
             </div>
           )
@@ -389,7 +400,15 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
       {/* Mobile close button — hidden on desktop */}
       <div style={{ alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px 12px', borderBottom: '0.5px solid rgba(0,212,200,0.07)' }}
         className="flex lg:hidden">
-        <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', color: '#e8f0ef' }}>Filter</span>
+        <span style={{
+          fontFamily: 'var(--font-cacha)',
+          fontSize: '14px',
+          letterSpacing: '1px',
+          background: 'linear-gradient(90deg, #00d4c8 0%, #8844cc 50%, #cc00aa 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>Category</span>
         <button
           onClick={onClose}
           style={{ background: 'transparent', border: 'none', cursor: 'pointer', color: '#4a6066', padding: '4px', display: 'flex', alignItems: 'center' }}

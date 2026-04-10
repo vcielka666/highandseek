@@ -13,6 +13,7 @@ export interface ProductDTO {
     difficulty: 'easy' | 'medium' | 'hard' | null
     seedType: 'feminized' | 'autoflower' | 'regular' | null
     climate: 'indoor' | 'outdoor' | 'both' | null
+    terpenes: string
   }
   description: string
   shortDescription: string
@@ -26,6 +27,7 @@ export interface ProductDTO {
 }
 
 export interface CartItem {
+  cartKey: string   // unique per variant: productId for seeds/merch, productId-weight for flowers
   productId: string
   slug: string
   name: string

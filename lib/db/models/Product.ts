@@ -13,6 +13,7 @@ const ProductSchema = new mongoose.Schema({
     difficulty:     { type: String, enum: ['easy', 'medium', 'hard', null], default: null },
     seedType:       { type: String, enum: ['feminized', 'autoflower', 'regular', null], default: null },
     climate:        { type: String, enum: ['indoor', 'outdoor', 'both', null], default: null },
+    terpenes:       { type: String, default: '' },
   },
   description:      { type: String, required: true },
   shortDescription: { type: String, required: true, maxlength: 100 },

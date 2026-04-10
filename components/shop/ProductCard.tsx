@@ -7,6 +7,11 @@ import { useCart } from '@/stores/cartStore'
 import { toast } from 'sonner'
 import type { ProductDTO } from '@/types/shop'
 
+const EUR_TO_CZK = 25
+const EUR_TO_USD = 1.08
+function czk(eur: number) { return `${Math.round(eur * EUR_TO_CZK).toLocaleString('cs-CZ')} Kč` }
+function usd(eur: number) { return `$${Math.round(eur * EUR_TO_USD)}` }
+
 const BADGE_COLORS: Record<string, { bg: string; color: string; label: string }> = {
   indica:    { bg: 'rgba(204,0,170,0.15)',  color: '#cc00aa', label: 'INDICA'   },
   sativa:    { bg: 'rgba(0,212,200,0.15)',  color: '#00d4c8', label: 'SATIVA'   },
@@ -38,10 +43,11 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
     e.preventDefault()
     e.stopPropagation()
     addItem({
+      cartKey: product._id,
       productId: product._id,
       slug: product.slug,
       name: product.name,
-      price: product.price,
+      price: Math.round(product.price * EUR_TO_CZK / 100), // EUR → test CZK price
       image: product.images[0] ?? '',
     }, qty)
     toast.success(`${product.name} added to cart`)
@@ -50,7 +56,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
 
   return (
     <Link
-      href={`/shop/${product.slug}`}
+      href={`/shop/${product.slug}?category=${product.category}`}
       style={{ textDecoration: 'none' }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setQty(1) }}
@@ -228,23 +234,17 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{
-              fontFamily: 'var(--font-orbitron)',
-              fontSize: '16px',
-              fontWeight: 700,
-              color: '#00d4c8',
-            }}>
-              €{product.price}
-            </span>
-
+            <div>
+              <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8' }}>
+                {czk(product.price)}
+              </span>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '6px' }}>
+                {usd(product.price)}
+              </span>
+            </div>
             {product.strain.floweringTime && (
-              <span style={{
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '9px',
-                color: '#4a6066',
-                letterSpacing: '0.5px',
-              }}>
-                {product.strain.floweringTime}d flower
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>
+                {product.strain.floweringTime}d
               </span>
             )}
           </div>
