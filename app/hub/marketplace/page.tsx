@@ -6,6 +6,7 @@ import User from '@/lib/db/models/User'
 import { getServerT } from '@/lib/i18n/server'
 import Link from 'next/link'
 import Breadcrumb from '@/components/ui/Breadcrumb'
+import MarketplaceAddButton from '@/components/hub/MarketplaceAddButton'
 import type { ListingCategory } from '@/lib/db/models/Listing'
 
 const CATEGORY_ICONS: Record<ListingCategory | 'all', string> = {
@@ -99,18 +100,7 @@ export default async function MarketplacePage(props: {
             {m.subtitle}
           </p>
         </div>
-        <Link
-          href="/hub/marketplace/new"
-          style={{
-            fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
-            color: '#050508', background: '#f0a830',
-            padding: '10px 18px', borderRadius: '4px', textDecoration: 'none',
-            transition: 'opacity 0.15s', whiteSpace: 'nowrap', flexShrink: 0,
-          }}
-          className="hover:opacity-90"
-        >
-          {m.addListing}
-        </Link>
+        <MarketplaceAddButton label={m.addListing} />
       </div>
 
       {/* Credits info */}
@@ -283,7 +273,7 @@ function ListingCard({
 
         {/* Price */}
         <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: listing.price === 0 ? '#00d4c8' : '#f0a830' }}>
-          {listing.price === 0 ? m.free : `€${listing.price}`}
+          {listing.price === 0 ? m.free : `${listing.price.toLocaleString('cs-CZ')} Kč`}
         </div>
 
         {/* Location + expiry */}

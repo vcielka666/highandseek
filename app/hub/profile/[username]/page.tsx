@@ -111,13 +111,13 @@ export default async function ProfilePage(props: {
   const allBadgeIds = Object.keys(BADGES) as (keyof typeof BADGES)[]
   const earnedBadgeIds = new Set(userBadges.map(b => b.badgeId))
 
-  const TABS: { value: Tab; label: string }[] = [
-    { value: 'overview',  label: 'Overview' },
-    { value: 'grows',     label: 'Grows' },
-    { value: 'badges',    label: `Badges (${userBadges.length})` },
-    { value: 'activity',  label: 'Activity' },
-    ...(isOwnProfile ? [{ value: 'orders' as Tab, label: `Orders (${userOrders.length})` }] : []),
-    ...(isOwnProfile ? [{ value: 'listings' as Tab, label: `Listings (${userListings.length})` }] : []),
+  const TABS: { value: Tab; label: string; icon: string }[] = [
+    { value: 'overview',  label: 'Overview',                        icon: '◈' },
+    { value: 'grows',     label: 'Grows',                           icon: '🌱' },
+    { value: 'badges',    label: `Badges ${userBadges.length > 0 ? `· ${userBadges.length}` : ''}`,   icon: '🏆' },
+    { value: 'activity',  label: 'Activity',                        icon: '⚡' },
+    ...(isOwnProfile ? [{ value: 'orders'   as Tab, label: `Orders ${userOrders.length > 0 ? `· ${userOrders.length}` : ''}`,     icon: '🛒' }] : []),
+    ...(isOwnProfile ? [{ value: 'listings' as Tab, label: `Listings ${userListings.length > 0 ? `· ${userListings.length}` : ''}`, icon: '🏪' }] : []),
   ]
 
   const cardStyle: React.CSSProperties = {
@@ -252,22 +252,38 @@ export default async function ProfilePage(props: {
       )}
 
       {/* Tabs */}
-      <div style={{ display: 'flex', borderBottom: '0.5px solid rgba(204,0,170,0.1)', overflowX: 'auto', marginTop: '20px' }}>
-        {TABS.map(({ value, label }) => (
+      <div style={{ position: 'relative', marginTop: '20px', borderBottom: '0.5px solid rgba(204,0,170,0.1)' }}>
+        {/* Fade hint — right edge */}
+        <div style={{
+          position: 'absolute', right: 0, top: 0, bottom: '1px',
+          width: '48px', pointerEvents: 'none', zIndex: 1,
+          background: 'linear-gradient(to right, transparent, #050508)',
+        }} />
+        <div className="hide-scrollbar" style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '10px 16px 10px' }}>
+        {TABS.map(({ value, label, icon }) => {
+          const active = tab === value
+          return (
           <Link
             key={value}
             href={`/hub/profile/${profileUser.username}?tab=${value}`}
             style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px',
-              padding: '12px 16px', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
-              color: tab === value ? '#cc00aa' : '#4a6066',
-              borderBottom: tab === value ? '2px solid #cc00aa' : '2px solid transparent',
+              display: 'inline-flex', alignItems: 'center', gap: '6px',
+              padding: '7px 14px',
+              borderRadius: '20px',
+              textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0,
+              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+              background: active ? '#cc00aa' : 'rgba(204,0,170,0.07)',
+              color: active ? '#050508' : '#4a6066',
+              border: `0.5px solid ${active ? 'transparent' : 'rgba(204,0,170,0.14)'}`,
+              fontWeight: active ? 700 : 400,
               transition: 'all 0.15s',
             }}
           >
+            <span style={{ fontSize: '12px', lineHeight: 1 }}>{icon}</span>
             {label}
           </Link>
-        ))}
+        )})}
+        </div>
       </div>
 
       {/* Tab content */}

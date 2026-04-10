@@ -35,6 +35,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           role: string
           xp: number
           level: number
+          avatar: string
         }>()
 
         if (!user) return null
@@ -49,6 +50,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           role:     user.role,
           xp:       user.xp,
           level:    user.level,
+          avatar:   user.avatar ?? '',
         }
       },
     }),
@@ -61,6 +63,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.role     = user.role
         token.xp       = user.xp
         token.level    = user.level
+        token.avatar   = user.avatar
       }
       return token
     },
@@ -70,6 +73,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       session.user.role     = token.role as string
       session.user.xp       = token.xp as number
       session.user.level    = token.level as number
+      session.user.avatar   = token.avatar as string
       return session
     },
   },

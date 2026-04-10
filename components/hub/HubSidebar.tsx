@@ -87,7 +87,7 @@ export default function HubSidebar({ session, credits }: HubSidebarProps) {
         {/* User block */}
         <div style={{ padding: '20px 16px 16px', borderBottom: '0.5px solid rgba(204,0,170,0.1)' }}>
           <Link href={`/hub/profile/${session.user.username}`} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-            <Avatar username={session.user.username} avatar={session.user.image ?? ''} />
+            <Avatar username={session.user.username} avatar={session.user.avatar ?? ''} />
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: '#e8f0ef', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {session.user.username}
@@ -221,7 +221,7 @@ export default function HubSidebar({ session, credits }: HubSidebarProps) {
         {/* Drawer header */}
         <div style={{ padding: '16px', borderBottom: '0.5px solid rgba(204,0,170,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <Link href={`/hub/profile/${session.user.username}`} onClick={close} style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
-            <Avatar username={session.user.username} avatar={session.user.image ?? ''} />
+            <Avatar username={session.user.username} avatar={session.user.avatar ?? ''} />
             <div style={{ minWidth: 0 }}>
               <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: '#e8f0ef', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {session.user.username}

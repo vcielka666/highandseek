@@ -47,7 +47,7 @@ export const translations = {
     hubNav: {
       home: 'Hub Home',
       seekers: 'Seekers',
-      ganjatarz: 'Ganjatarz',
+      ganjatarz: 'Avatars',
       growSim: 'Grow Simulator',
       academy: 'Grow Academy',
       forumBridge: 'Forum Bridge',
@@ -291,7 +291,7 @@ export const translations = {
     hubNav: {
       home: 'Hub Domů',
       seekers: 'Seekers',
-      ganjatarz: 'Ganjatarz',
+      ganjatarz: 'Avatary',
       growSim: 'Grow Simulátor',
       academy: 'Grow Akademie',
       forumBridge: 'Forum Bridge',

@@ -144,6 +144,8 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [telegramContact, setTelegramContact] = useState('')
+  const [summaryVisible, setSummaryVisible] = useState(false)
+  useEffect(() => { const t = setTimeout(() => setSummaryVisible(true), 2000); return () => clearTimeout(t) }, [])
 
   // Quick Contact state
   const [inquiryContact, setInquiryContact] = useState('')
@@ -370,6 +372,9 @@ function CheckoutForm({ clientSecret }: { clientSecret: string }) {
           border: '0.5px solid rgba(0,212,200,0.12)',
           borderRadius: '8px',
           padding: '20px',
+          transform: summaryVisible ? 'perspective(1000px) rotateY(0deg)' : 'perspective(1000px) rotateY(-90deg)',
+          opacity: summaryVisible ? 1 : 0,
+          transition: 'transform 0.55s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.4s ease',
         }}>
           <div style={sectionTitleStyle}>Order Summary</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>

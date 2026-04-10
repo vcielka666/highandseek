@@ -184,8 +184,25 @@ export default async function HubPage() {
             {strainOfDay ? (
               <>
                 <div style={{ marginBottom: '8px' }}>
-                  <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '15px', fontWeight: 700, color: '#e8f0ef', marginBottom: '3px' }}>
-                    {strainOfDay.name}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '3px' }}>
+                    <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '15px', fontWeight: 700, color: '#e8f0ef' }}>
+                      {strainOfDay.name}
+                    </div>
+                    {strainOfDay.images?.[0] && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={strainOfDay.images[0]}
+                        alt={strainOfDay.name}
+                        style={{
+                          width: '64px',
+                          height: '64px',
+                          objectFit: 'cover',
+                          borderRadius: '6px',
+                          flexShrink: 0,
+                          animation: 'floatY 6s ease-in-out infinite',
+                        }}
+                      />
+                    )}
                   </div>
                   {strainOfDay.strain.type && (
                     <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1.5px', color: '#cc00aa', textTransform: 'uppercase' }}>

@@ -8,6 +8,7 @@ declare module 'next-auth' {
       role: string
       xp: number
       level: number
+      avatar: string
     } & DefaultSession['user']
   }
   interface User {
@@ -16,6 +17,7 @@ declare module 'next-auth' {
     role: string
     xp: number
     level: number
+    avatar: string
   }
 }
 
@@ -26,5 +28,6 @@ declare module 'next-auth/jwt' {
     role: string
     xp: number
     level: number
+    avatar: string
   }
 }
