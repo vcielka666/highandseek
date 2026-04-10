@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <AdminSidebar email={session.user.email ?? ''} />
 
       {/* Main content — offset by sidebar width */}
-      <main className="md:ml-60 ml-12 min-h-screen p-6">
+      <main className="md:ml-60 ml-12 min-h-screen p-3 md:p-6">
         {children}
       </main>
     </div>

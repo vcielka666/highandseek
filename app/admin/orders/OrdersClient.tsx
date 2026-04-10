@@ -319,7 +319,8 @@ export default function OrdersClient() {
       </div>
 
       {/* Table */}
-      <div className="rounded border overflow-hidden" style={{ border: '0.5px solid rgba(240,168,48,0.12)', background: '#0a0d10' }}>
+      <div style={{ overflowX: 'auto' }}>
+      <div className="rounded border overflow-hidden" style={{ border: '0.5px solid rgba(240,168,48,0.12)', background: '#0a0d10', minWidth: '600px' }}>
         <Table>
           <TableHeader>
             <TableRow style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
@@ -365,6 +366,7 @@ export default function OrdersClient() {
             )}
           </TableBody>
         </Table>
+      </div>
       </div>
 
       {/* Pagination */}

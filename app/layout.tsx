@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Orbitron, DM_Sans, DM_Mono, Geist } from 'next/font/google'
 import localFont from 'next/font/local'
 import './globals.css'
@@ -35,11 +35,26 @@ const cacha = localFont({
   display: 'swap',
 })
 
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#050508',
+}
+
 export const metadata: Metadata = {
   title: 'High & Seek — CBD Shop & Community',
   description:
     'CBD e-commerce, AI strain personalities, Seekers geocaching integration. Komunita, fórum, XP. Jeden účet pre všetko.',
   keywords: ['CBD', 'cannabis', 'seeds', 'flowers', 'AI strains', 'Seekers', 'geocaching'],
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'High & Seek',
+  },
+  icons: {
+    apple: '/apple-touch-icon.svg',
+  },
 }
 
 export default function RootLayout({

@@ -52,9 +52,9 @@ export default function HeroSection() {
         </div>
 
         {/* Title */}
-        <h1 style={{ fontFamily: 'var(--font-orbitron)', fontSize: 'clamp(36px, 6vw, 72px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '8px', opacity: 0, animation: 'fadeUp 0.6s ease forwards 0.5s' }}>
+        <h1 style={{ fontFamily: 'var(--font-orbitron)', fontSize: 'clamp(28px, 8vw, 72px)', fontWeight: 700, lineHeight: 1.1, letterSpacing: '-1px', marginBottom: '8px', opacity: 0, animation: 'fadeUp 0.6s ease forwards 0.5s' }}>
           <span style={{ color: '#e8f0ef', fontFamily: 'var(--font-cacha)' }}>HIGH</span>
-          <span style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(48px, 8vw, 96px)', fontWeight: 700, color: '#cc00aa', display: 'block', lineHeight: 1, textShadow: '0 0 40px rgba(204,0,170,0.5)', opacity: 0, animation: 'fadeUp 0.6s ease forwards 0.7s, glitch 8s step-end infinite 2s' }}>
+          <span style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(40px, 11vw, 96px)', fontWeight: 700, color: '#cc00aa', display: 'block', lineHeight: 1, textShadow: '0 0 40px rgba(204,0,170,0.5)', opacity: 0, animation: 'fadeUp 0.6s ease forwards 0.7s, glitch 8s step-end infinite 2s' }}>
             &amp;
           </span>
           <span style={{ color: 'transparent', WebkitTextStroke: '1px #00d4c8', display: 'block', fontFamily: 'var(--font-orbitron)' }}>
@@ -69,12 +69,13 @@ export default function HeroSection() {
         <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap', opacity: 0, animation: 'fadeUp 0.6s ease forwards 1.1s' }}>
 
           {/* Collection button — image floats behind it */}
-          <div style={{ position: 'relative', overflow: 'visible', maxWidth: 'none' }}>
+          <div style={{ position: 'relative', overflow: 'hidden' }} className="w-full sm:w-auto sm:overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/landingPage/behindCollection.png"
               alt=""
               aria-hidden="true"
+              className="hidden sm:block"
               style={{
                 position: 'absolute',
                 left: '-40px',
@@ -100,7 +101,6 @@ export default function HeroSection() {
                 alignItems: 'center',
                 gap: '4px',
                 padding: '18px 0',
-                width: '200px',
                 borderRadius: '6px',
                 textDecoration: 'none',
                 background: 'rgba(0,212,200,0.08)',
@@ -110,7 +110,7 @@ export default function HeroSection() {
                 position: 'relative',
                 zIndex: 1,
               }}
-              className="hover:bg-[rgba(0,212,200,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(0,212,200,0.25),inset_0_0_30px_rgba(0,212,200,0.08)]"
+              className="w-full sm:w-[200px] hover:bg-[rgba(0,212,200,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(0,212,200,0.25),inset_0_0_30px_rgba(0,212,200,0.08)]"
             >
               <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8', position: 'relative', zIndex: 1 }}>
                 {t.hero.cta1Label}
@@ -122,12 +122,13 @@ export default function HeroSection() {
           </div>
 
           {/* Hub button — steam floats behind it */}
-          <div style={{ position: 'relative', overflow: 'visible', maxWidth: 'none' }}>
+          <div style={{ position: 'relative', overflow: 'hidden' }} className="w-full sm:w-auto sm:overflow-visible">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/landingPage/steam.png"
               alt=""
               aria-hidden="true"
+              className="hidden sm:block"
               style={{
                 position: 'absolute',
                 left: '-53px',
@@ -152,7 +153,6 @@ export default function HeroSection() {
                 alignItems: 'center',
                 gap: '4px',
                 padding: '18px 0',
-                width: '200px',
                 borderRadius: '6px',
                 textDecoration: 'none',
                 background: 'rgba(204,0,170,0.08)',
@@ -162,7 +162,7 @@ export default function HeroSection() {
                 position: 'relative',
                 zIndex: 1,
               }}
-              className="hover:bg-[rgba(204,0,170,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(204,0,170,0.25),inset_0_0_30px_rgba(204,0,170,0.08)]"
+              className="w-full sm:w-[200px] hover:bg-[rgba(204,0,170,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(204,0,170,0.25),inset_0_0_30px_rgba(204,0,170,0.08)]"
             >
               <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa' }}>
                 {t.hero.cta2Label}
