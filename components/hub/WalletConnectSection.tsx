@@ -34,10 +34,12 @@ export function WalletConnectSection({ walletAddress, userId }: Props) {
   const [connected, setConnected] = useState(false)
   const [address, setAddress] = useState(walletAddress)
   const [phantomAvailable, setPhantomAvailable] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
+    const mobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+    setIsMobile(mobile)
     setPhantomAvailable(!!getPhantom())
-    // If already connected in the session
     const phantom = getPhantom()
     if (phantom?.publicKey) {
       setConnected(true)
@@ -136,27 +138,61 @@ export function WalletConnectSection({ walletAddress, userId }: Props) {
           <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
             Connect your Phantom wallet to pay with SOL.
           </div>
-          {!phantomAvailable && (
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830' }}>
-              Phantom not detected.{' '}
-              <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" style={{ color: '#8844cc', textDecoration: 'none' }}>
-                Install Phantom →
+          {isMobile && !phantomAvailable ? (
+            <div style={{ background: 'rgba(136,68,204,0.06)', border: '0.5px solid rgba(136,68,204,0.2)', borderRadius: '8px', padding: '14px' }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', marginBottom: '8px', letterSpacing: '0.5px' }}>
+                📱 Mobile detected
+              </div>
+              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)', lineHeight: 1.6, marginBottom: '10px' }}>
+                Phantom wallet extension doesn&apos;t work in regular mobile browsers. To connect on mobile:
+              </div>
+              <ol style={{ margin: 0, paddingLeft: '16px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {[
+                  { step: '1.', text: 'Install the Phantom app on your phone' },
+                  { step: '2.', text: 'Open Phantom → tap the browser icon (🌐) at the bottom' },
+                  { step: '3.', text: 'Navigate to this page inside the Phantom browser' },
+                  { step: '4.', text: 'The Connect button will work from there' },
+                ].map(({ step, text }) => (
+                  <li key={step} style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5, listStyle: 'none', paddingLeft: 0, display: 'flex', gap: '8px' }}>
+                    <span style={{ color: '#8844cc', fontFamily: 'var(--font-dm-mono)', flexShrink: 0 }}>{step}</span>
+                    {text}
+                  </li>
+                ))}
+              </ol>
+              <a
+                href="https://phantom.app"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ display: 'inline-block', marginTop: '12px', fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#8844cc', textDecoration: 'none', border: '0.5px solid rgba(136,68,204,0.3)', borderRadius: '4px', padding: '7px 14px' }}
+              >
+                Get Phantom →
               </a>
             </div>
+          ) : (
+            <>
+              {!phantomAvailable && (
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830' }}>
+                  Phantom not detected.{' '}
+                  <a href="https://phantom.app" target="_blank" rel="noopener noreferrer" style={{ color: '#8844cc', textDecoration: 'none' }}>
+                    Install Phantom →
+                  </a>
+                </div>
+              )}
+              <button
+                onClick={handleConnect}
+                disabled={connecting || !phantomAvailable}
+                style={{
+                  fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
+                  color: '#050508', background: !phantomAvailable ? 'rgba(136,68,204,0.3)' : connecting ? 'rgba(136,68,204,0.6)' : '#8844cc',
+                  border: 'none', borderRadius: '4px', padding: '10px 20px',
+                  cursor: !phantomAvailable || connecting ? 'not-allowed' : 'pointer',
+                  alignSelf: 'flex-start',
+                }}
+              >
+                {connecting ? 'Connecting...' : '👻 Connect Phantom'}
+              </button>
+            </>
           )}
-          <button
-            onClick={handleConnect}
-            disabled={connecting || !phantomAvailable}
-            style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
-              color: '#050508', background: !phantomAvailable ? 'rgba(136,68,204,0.3)' : connecting ? 'rgba(136,68,204,0.6)' : '#8844cc',
-              border: 'none', borderRadius: '4px', padding: '10px 20px',
-              cursor: !phantomAvailable || connecting ? 'not-allowed' : 'pointer',
-              alignSelf: 'flex-start',
-            }}
-          >
-            {connecting ? 'Connecting...' : '👻 Connect Phantom'}
-          </button>
         </div>
       )}
     </div>
