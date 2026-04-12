@@ -12,7 +12,11 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
-    setUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
+    try {
+      setUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
+    } catch {
+      setUnlocked(false)
+    }
   }, [])
 
   async function handleUnlock() {
@@ -26,7 +30,7 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
       })
       const data = await res.json() as { success: boolean }
       if (data.success) {
-        localStorage.setItem(FLOWER_KEY, 'true')
+        try { localStorage.setItem(FLOWER_KEY, 'true') } catch { /* private mode */ }
         window.dispatchEvent(new CustomEvent('flower-unlocked'))
         setUnlocked(true)
       } else {

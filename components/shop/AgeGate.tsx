@@ -11,8 +11,11 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
   const [shake, setShake] = useState(false)
 
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY)
-    setVerified(stored === 'true')
+    try {
+      setVerified(localStorage.getItem(STORAGE_KEY) === 'true')
+    } catch {
+      setVerified(false)
+    }
   }, [])
 
   function handleEnter() {
@@ -22,7 +25,7 @@ export default function AgeGate({ children }: { children: React.ReactNode }) {
       setTimeout(() => setShake(false), 500)
       return
     }
-    localStorage.setItem(STORAGE_KEY, 'true')
+    try { localStorage.setItem(STORAGE_KEY, 'true') } catch { /* private mode */ }
     setVerified(true)
   }
 
