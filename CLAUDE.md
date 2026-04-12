@@ -713,3 +713,43 @@ DELETE /api/hub/marketplace/[id]     auth + owner, sets status='removed' (no ref
 - My listings: profile page "Listings" tab — `MyListingActions` client component
 - Contact info always visible (hub requires auth)
 - Auto-expire: on each browse page load, bulk-updates status='expired' where expiresAt < now
+
+---
+
+## Deployment
+
+- **Server:** DigitalOcean VPS
+- **IP:** 138.68.74.105
+- **OS:** Ubuntu 24.04
+- **Path:** /var/www/highandseek
+- **Port:** 3001
+- **Process manager:** PM2 (process name: `highandseek`)
+- **Web server:** Nginx
+- **Node options:** `NODE_OPTIONS="--max-old-space-size=1536"` (1 GB RAM VPS)
+
+### Commands
+```bash
+# Build
+NODE_OPTIONS="--max-old-space-size=1536" pnpm build
+
+# Restart (with env reload)
+pm2 restart highandseek --update-env
+
+# Logs
+pm2 logs highandseek
+```
+
+### Domains
+- highandseek.com, highandseek.cz — not yet configured
+- DNS: needs A record → 138.68.74.105
+
+### next.config.ts required for production builds
+```ts
+typescript: { ignoreBuildErrors: true },
+eslint: { ignoreDuringBuilds: true },
+```
+
+### Environment variables (`.env.local` on server)
+- `AUTH_URL=http://138.68.74.105` (update to `https://highandseek.com` once domain + SSL configured)
+- `AUTH_SECRET=<32-byte base64>` — must match exactly, no leading spaces
+- Leading spaces in `.env.local` silently break env vars — always verify with `grep AUTH .env.local`
