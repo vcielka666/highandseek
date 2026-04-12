@@ -9,6 +9,17 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET,
   trustHost: true,
   session: { strategy: 'jwt' },
+  cookies: {
+    sessionToken: {
+      name: 'authjs.session-token',
+      options: {
+        httpOnly: true,
+        sameSite: 'lax' as const,
+        path: '/',
+        secure: (process.env.AUTH_URL ?? '').startsWith('https'),
+      },
+    },
+  },
   pages: {
     signIn: '/auth/login',
     error:  '/auth/login',
