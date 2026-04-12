@@ -8,10 +8,14 @@ export default function FlowersBgImage() {
   useEffect(() => {
     function onScroll() {
       const scrolled = window.scrollY
-      const maxScroll = document.body.scrollHeight - window.innerHeight
+      const maxScroll = Math.max(
+        document.body.scrollHeight,
+        document.documentElement.scrollHeight
+      ) - window.innerHeight
       const progress = maxScroll > 0 ? Math.min(scrolled / maxScroll, 1) : 0
       setOpacity(progress * 0.5)
     }
+    onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
