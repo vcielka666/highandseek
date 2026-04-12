@@ -68,6 +68,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      const base = process.env.NEXTAUTH_URL || process.env.AUTH_URL || baseUrl
+      if (url.startsWith('/')) return `${base}${url}`
+      if (url.startsWith(base)) return url
+      return base
+    },
     async jwt({ token, user, trigger }) {
       if (user) {
         token.id       = user.id!

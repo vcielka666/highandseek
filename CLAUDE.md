@@ -48,12 +48,14 @@ NEXTAUTH_SECRET=<32-byte base64 string>
 AUTH_SECRET=<same or separate value>
 TELEGRAM_BOT_TOKEN=   # from @BotFather — create bot, then /token
 TELEGRAM_CHAT_ID=     # your personal chat ID — message @userinfobot to get it
+MYSTERY_BOX_PASSWORD_HASH=  # bcrypt hash — generate with: pnpm tsx scripts/generate-mystery-hash.ts YOUR_PASSWORD
 ```
 
 **Important:**
 - Database name is `highandseeek_db` — never use `seekers` or `test` or `admin`
 - Auth secret must be a real non-empty value. The config uses `process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET` with `||` (not `??`) to handle empty strings correctly
 - MongoDB Atlas Network Access must whitelist your IP (or `0.0.0.0/0` for dev)
+- `MYSTERY_BOX_PASSWORD_HASH` is a bcrypt hash — **never store the plaintext password**. The password is verified server-side only via `POST /api/mystery/verify`. No password or hash is ever sent to the client.
 
 ---
 

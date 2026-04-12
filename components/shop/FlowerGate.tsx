@@ -3,28 +3,42 @@
 import { useState, useEffect } from 'react'
 
 const FLOWER_KEY = 'hs-flower-access'
-const FLOWER_PASSWORD = 'kunda'
 
 export default function FlowerGate({ children }: { children: React.ReactNode }) {
   const [unlocked, setUnlocked] = useState<boolean | null>(null)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     setUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
   }, [])
 
-  function handleUnlock() {
-    if (password.trim().toLowerCase() !== FLOWER_PASSWORD) {
-      setError('Incorrect password.')
-      setShake(true)
-      setTimeout(() => setShake(false), 400)
-      return
+  async function handleUnlock() {
+    if (!password.trim()) return
+    setLoading(true)
+    try {
+      const res = await fetch('/api/mystery/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: password.trim() }),
+      })
+      const data = await res.json() as { success: boolean }
+      if (data.success) {
+        localStorage.setItem(FLOWER_KEY, 'true')
+        window.dispatchEvent(new CustomEvent('flower-unlocked'))
+        setUnlocked(true)
+      } else {
+        setError('Incorrect password.')
+        setShake(true)
+        setTimeout(() => setShake(false), 400)
+      }
+    } catch {
+      setError('Something went wrong. Try again.')
+    } finally {
+      setLoading(false)
     }
-    localStorage.setItem(FLOWER_KEY, 'true')
-    window.dispatchEvent(new CustomEvent('flower-unlocked'))
-    setUnlocked(true)
   }
 
   if (unlocked === null) return null
@@ -125,7 +139,7 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
                 type="password"
                 value={password}
                 onChange={e => { setPassword(e.target.value); setError('') }}
-                onKeyDown={e => e.key === 'Enter' && handleUnlock()}
+                onKeyDown={e => e.key === 'Enter' && !loading && handleUnlock()}
                 placeholder="Enter password"
                 style={{
                   width: '100%',
@@ -158,22 +172,23 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
 
             <button
               onClick={handleUnlock}
+              disabled={loading}
               style={{
                 width: '100%',
                 height: '46px',
                 borderRadius: '6px',
                 border: 'none',
-                background: 'linear-gradient(90deg, #00d4c8, #007a74)',
+                background: loading ? 'rgba(0,212,200,0.4)' : 'linear-gradient(90deg, #00d4c8, #007a74)',
                 color: '#050508',
                 fontFamily: 'var(--font-cacha)',
                 fontSize: '13px',
                 letterSpacing: '2px',
-                cursor: 'pointer',
+                cursor: loading ? 'not-allowed' : 'pointer',
                 transition: 'opacity 0.15s',
               }}
               className="hover:opacity-90"
             >
-              Unlock Access
+              {loading ? '...' : 'Unlock Access'}
             </button>
           </div>
         </div>
