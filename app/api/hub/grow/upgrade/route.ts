@@ -34,7 +34,7 @@ const UPGRADE_CATALOG: Record<string, UpgradeEntry> = {
   },
   humidifier: {
     name:        'Ultrasonic Humidifier',
-    creditsCost: 50,
+    creditsCost: 0,
     apply:       (_s, env) => { env.humidity = Math.min(90, Number(env.humidity) + 15) },
   },
   dehumidifier: {

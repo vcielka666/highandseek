@@ -23,62 +23,6 @@ const STAT_ICONS: Record<string, string> = {
   seedType:      '🌱',
 }
 
-const STAT_INFO: Record<string, { emoji: string; title: string; what: string; note: string }> = {
-  thc: {
-    emoji: '🔥',
-    title: 'THC — Tetrahydrocannabinol',
-    what: 'The main psychoactive compound in cannabis. Higher % = stronger mental and body effects.',
-    note: 'Legal CBD products stay below 1% THC by law. Values shown are from lab analysis of the genetic lineage.',
-  },
-  cbd: {
-    emoji: '💚',
-    title: 'CBD — Cannabidiol',
-    what: 'Non-psychoactive. Known for calming, anti-inflammatory and therapeutic properties.',
-    note: 'CBD balances THC effects. High-CBD strains give clear-headed, functional results without the high.',
-  },
-  cbn: {
-    emoji: '😴',
-    title: 'CBN — Cannabinol',
-    what: 'A mildly psychoactive cannabinoid formed when THC ages. Associated with deep relaxation and sleep.',
-    note: 'CBN is rare in fresh flower. Forms naturally as the plant or product ages. Sought after for sleep support.',
-  },
-  floweringTime: {
-    emoji: '⏱',
-    title: 'Flowering Time',
-    what: 'How long the plant takes to complete the flowering stage and be ready for harvest.',
-    note: 'Counted from the 12/12 light flip (or from germination for autoflowers). Shorter = faster harvest; longer = typically heavier and more complex.',
-  },
-  difficulty: {
-    emoji: '⚡',
-    title: 'Grow Difficulty',
-    what: 'How demanding this strain is to cultivate successfully.',
-    note: 'Easy: beginner-friendly, forgiving. Medium: standard care needed. Hard: sensitive to environment, requires experience.',
-  },
-  yield: {
-    emoji: '💪',
-    title: 'Expected Yield',
-    what: 'How much dried flower you can expect per plant or per m² under optimal indoor conditions.',
-    note: 'Actual yield depends heavily on setup, lighting, training and grow skill. These are breeder estimates under ideal conditions.',
-  },
-  seedType: {
-    emoji: '🌱',
-    title: 'Seed Type',
-    what: 'Describes how the plant flowers — whether it needs a light schedule change or flowers automatically.',
-    note: 'Feminized: guaranteed female, requires 12/12 flip. Autoflower: flowers by age regardless of light. Regular: mix of male/female.',
-  },
-  origin: {
-    emoji: '📍',
-    title: 'Genetic Origin',
-    what: 'Where the strain\'s genetics originate from — affects growth patterns, terpene profile and potency.',
-    note: 'Landrace = original unmodified genetics from a specific region. USA/European = bred and selected in modern programs.',
-  },
-  climate: {
-    emoji: '🏔',
-    title: 'Optimal Climate',
-    what: 'Whether this strain was bred for indoor, outdoor or both environments.',
-    note: 'Indoor strains are optimised for tent/room grows. Outdoor strains are more mould-resistant and handle weather variation.',
-  },
-}
 
 const ORIGIN_LABELS: Record<string, string> = {
   usa: 'USA Genetics', european: 'European', landrace: 'Landrace',
@@ -220,8 +164,8 @@ function TerpeneTag({ name }: { name: string }) {
 
 const STAT_POPUP_W = 240
 
-function StatTag({ statKey, label, value, icon }: { statKey: string; label: string; value: string; icon?: string }) {
-  const info = STAT_INFO[statKey]
+function StatTag({ statKey, label, value, icon, statInfoMap }: { statKey: string; label: string; value: string; icon?: string; statInfoMap: Record<string, { emoji: string; title: string; what: string; note: string }> }) {
+  const info = statInfoMap[statKey]
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const [popupPos, setPopupPos] = useState({ left: '50%', transform: 'translateX(-50%)', arrowLeft: '50%' })
@@ -337,10 +281,11 @@ export default function ProductDetailClient({
   const [qty, setQty] = useState(1)
   const [selectedVariant, setSelectedVariant] = useState(0)
   const { addItem, openCart } = useCart()
-  const { locale } = useLanguage()
+  const { locale, t } = useLanguage()
   const isCs = locale === 'cs'
   const desc = isCs && product.descriptionCs ? product.descriptionCs : product.description
   const shortDesc = isCs && product.shortDescriptionCs ? product.shortDescriptionCs : product.shortDescription
+  const statInfoMap = t.shopDetail.statInfo as Record<string, { emoji: string; title: string; what: string; note: string }>
 
   const images = product.images.length > 0 ? product.images : ['']
 
@@ -621,7 +566,7 @@ export default function ProductDetailClient({
           {stats.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '24px' }}>
               {stats.map(({ key, label, value }) => (
-                <StatTag key={key} statKey={key} label={label} value={value} icon={STAT_ICONS[key]} />
+                <StatTag key={key} statKey={key} label={label} value={value} icon={STAT_ICONS[key]} statInfoMap={statInfoMap} />
               ))}
             </div>
           )}

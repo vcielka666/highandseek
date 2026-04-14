@@ -518,6 +518,64 @@ export const translations = {
       // VPD info
       vpdInfo: 'VPD = Vapor Pressure Deficit. Think of it as how "thirsty" the air around your plant is.\n\nWhen VPD is right, the plant moves water and nutrients up from the roots efficiently — like breathing normally. Too high = the air is so dry the plant closes its pores to save water (stunted growth, nutrient lockout). Too low = the air is so humid the plant barely transpires — slow growth and mould take over.\n\nYou cannot set VPD directly. It is calculated automatically from your temperature + humidity.\n\nTo RAISE VPD (air is too humid / lazy):\n→ Increase temperature\n→ Decrease humidity (open exhaust fan, add dehumidifier)\n\nTo LOWER VPD (air is too dry / plant stressed):\n→ Decrease temperature\n→ Increase humidity (add humidifier, reduce fan speed)\n\nTarget ranges by stage:\n• Seedling  0.4–0.8 kPa — baby plants need gentle, humid air\n• Veg       0.8–1.2 kPa — growth mode, moderate pull\n• Flower    1.0–1.6 kPa — push humidity down below 50%\n• Late flower 1.2–1.8 kPa — keep it dry to prevent bud rot',
     },
+    shopDetail: {
+      statInfo: {
+        thc: {
+          emoji: '🔥',
+          title: 'THC — Tetrahydrocannabinol',
+          what: 'The main psychoactive compound in cannabis. Higher % = stronger mental and body effects.',
+          note: 'Legal CBD products stay below 1% THC by law. Values shown are from lab analysis of the genetic lineage.',
+        },
+        cbd: {
+          emoji: '💚',
+          title: 'CBD — Cannabidiol',
+          what: 'Non-psychoactive. Known for calming, anti-inflammatory and therapeutic properties.',
+          note: 'CBD balances THC effects. High-CBD strains give clear-headed, functional results without the high.',
+        },
+        cbn: {
+          emoji: '😴',
+          title: 'CBN — Cannabinol',
+          what: 'A mildly psychoactive cannabinoid formed when THC ages. Associated with deep relaxation and sleep.',
+          note: 'CBN is rare in fresh flower. It builds up naturally as the plant or product ages and is sought after for sleep support.',
+        },
+        floweringTime: {
+          emoji: '⏱',
+          title: 'Flowering Time',
+          what: 'How many days the plant spends in the flowering stage before it is ready to harvest.',
+          note: 'Shorter flowering = faster harvest but often lighter yield. Longer flowering = heavier, more resinous buds. Autoflowers count from germination, photoperiod strains count from the flip to 12h darkness.',
+        },
+        difficulty: {
+          emoji: '⚡',
+          title: 'Grow Difficulty',
+          what: 'How demanding this strain is to cultivate successfully.',
+          note: 'Easy: beginner-friendly, forgiving of mistakes. Medium: standard care needed. Hard: sensitive to environment and nutrition, requires experience.',
+        },
+        yield: {
+          emoji: '💪',
+          title: 'Expected Yield',
+          what: 'Estimated grams of dry flower per plant or per m² under good indoor conditions.',
+          note: 'Breeder estimates under optimal conditions. Actual yield depends on your setup, training techniques and overall grow quality.',
+        },
+        seedType: {
+          emoji: '🌱',
+          title: 'Seed Type',
+          what: 'Feminized: 99.9% female plants — no males, no pollination risk. The standard choice for growing bud.\n\nAutoflower: flowers by age (usually 70–90 days from seed), not affected by light hours. Small, fast, beginner-friendly.\n\nRegular: natural 50/50 mix of male and female. Used by breeders to create new genetics. Requires sexing plants.',
+          note: 'For first-time growers: start with feminized or autoflower seeds. Regular seeds are for experienced growers who want to breed.',
+        },
+        origin: {
+          emoji: '📍',
+          title: 'Genetic Origin',
+          what: 'Where the strain\'s genetics come from — influences structure, terpene profile and effect.',
+          note: 'Landrace = original genetics from a specific region, untouched by breeding. USA/European = modern selections bred for potency, yield and specific effects.',
+        },
+        climate: {
+          emoji: '🏔',
+          title: 'Optimal Climate',
+          what: 'Whether this strain was developed for indoor, outdoor or both growing environments.',
+          note: 'Indoor strains are optimised for controlled grow rooms. Outdoor strains are more mould-resistant and can handle weather changes.',
+        },
+      },
+    },
     growSetup: {
       stepLabel: (step: number, total: number) => `Setup wizard · Step ${step} of ${total}`,
       steps: ['Speed', 'Strain', 'Tent', 'Light', 'Medium', 'Watering', 'Accessories', 'Review'],
@@ -563,6 +621,12 @@ export const translations = {
       } as Record<string, string>,
       // Light step
       lightTypeLabel:  'Light Type',
+      lightDescs: {
+        led: '⚡ Most efficient technology. Full spectrum, runs cool. Lower electricity costs. Best choice for most home growers — easy heat management, top yields per watt.',
+        hps: '🔥 High-Pressure Sodium. Proven workhorse with deep canopy penetration and heavy yields. Runs very hot — good ventilation is mandatory. Standard in commercial grows.',
+        cmh: '☀️ Ceramic Metal Halide. Full spectrum closest to natural sunlight — excellent resin and terpene production. Great quality/quantity balance. Middle ground option.',
+        cfl: '💡 Compact Fluorescent. Cheap and low heat. Very limited light penetration — only useful for seedlings, clones, or micro grows under 30cm canopy.',
+      } as Record<string, string>,
       wattageLabel:    'Wattage',
       brandLabel:      'Brand (optional)',
       brandPh:         'e.g. Mars Hydro, AC Infinity...',
@@ -579,6 +643,11 @@ export const translations = {
       // Watering + nutrients step
       wateringLabel:    'Watering Method',
       waterNames:       { manual: 'Manual', blumat: 'Blumat Auto', drip: 'Drip Timer' } as Record<string, string>,
+      waterDescs: {
+        manual:  '🪣 Hand watering. Full control — you read the plant and decide when to water. Best for learning and for living soil where you feel the pot weight. Requires daily attention.',
+        blumat:  '🌿 Blumat ceramic stakes. Gravity-fed, soil-moisture-triggered automatic watering. Set it and forget it. Ideal for living soil — mimics natural slow hydration without overwatering.',
+        drip:    '⏱️ Timer-controlled drip lines. Precise, automated, and scalable. Required for coco and hydro where consistent watering frequency is critical. Easy to over/under-water at first.',
+      } as Record<string, string>,
       nutrientsLabel:   'Nutrients',
       nutrientNames:    { organic: 'Organic', mineral: 'Mineral', none: 'None' } as Record<string, string>,
       disabledSoilNut:  'Mineral salts disrupt the soil food web',
@@ -589,13 +658,15 @@ export const translations = {
       // Accessories step
       ventilationLabel: 'Ventilation',
       exhaustFan:       'Exhaust fan',
+      exhaustFanDesc:   'Pulls hot, humid air out of the tent through a carbon filter. Essential for temperature and smell control. Size it for 1–2× full air volume change per minute.',
       cfmLabel:         'CFM Rating',
       circulationFan:   'Circulation fan',
+      circulationFanDesc: 'Moves air inside the tent. Strengthens stems, prevents hot/cold spots, and stops mold from settling on leaves. Always recommended.',
       carbonFilter:     'Carbon filter',
+      carbonFilterDesc: 'Activated carbon eliminates odor by scrubbing air before it exits the exhaust. Connect to exhaust fan inlet. Essential if smell is a concern.',
       monitoringLabel:  'Monitoring',
-      phMeter:          'pH meter',
-      ecMeter:          'EC/TDS meter',
-      hygrometer:       'Thermohygrometer',
+      hygrometer:       'Thermohygrometer (temp + humidity)',
+      hygrometerDesc:   'Measures temperature and humidity inside the tent. Essential — you cannot grow well without knowing your VPD. Add one from the start.',
       // Review step
       reviewLabel:     'Review Setup',
       strainLabel:     'Strain',
@@ -1134,6 +1205,64 @@ export const translations = {
       // VPD info
       vpdInfo: 'VPD = Deficit tlaku par. Představ si to jako to, jak „žíznivý" je vzduch kolem tvé rostliny.\n\nKdyž je VPD správné, rostlina efektivně pohybuje vodou a živinami od kořenů nahoru — jako normální dýchání. Příliš vysoké = vzduch je tak suchý, že rostlina zavírá průduchy, aby šetřila vodu (zpomalený růst, blokáda živin). Příliš nízké = vzduch je tak vlhký, že rostlina skoro netranspiruje — pomalý růst a plísně přebírají vládu.\n\nVPD nemůžeš nastavit přímo. Vypočítá se automaticky z teploty + vlhkosti.\n\nZVÝŠIT VPD (vzduch příliš vlhký / rostlina líná):\n→ Zvyš teplotu\n→ Sniž vlhkost (otevři ventilátor, přidej odvlhčovač)\n\nSNÍŽIT VPD (vzduch příliš suchý / rostlina ve stresu):\n→ Sniž teplotu\n→ Zvyš vlhkost (přidej zvlhčovač, sniž rychlost ventilátoru)\n\nCílové hodnoty dle fáze:\n• Semenáč    0,4–0,8 kPa — mladé rostliny potřebují jemný, vlhký vzduch\n• Vegetace   0,8–1,2 kPa — růstový režim, mírné napětí\n• Kvetení    1,0–1,6 kPa — sniž vlhkost pod 50%\n• Pozdní květ 1,2–1,8 kPa — sucho zabraňuje hnilobě pupenů',
     },
+    shopDetail: {
+      statInfo: {
+        thc: {
+          emoji: '🔥',
+          title: 'THC — Tetrahydrokanabinol',
+          what: 'Hlavní psychoaktivní látka v konopí. Vyšší % = silnější mentální a tělesné účinky.',
+          note: 'Legální CBD produkty musí ze zákona obsahovat méně než 1 % THC. Uvedené hodnoty pocházejí z laboratorní analýzy genetické linie.',
+        },
+        cbd: {
+          emoji: '💚',
+          title: 'CBD — Kanabidiol',
+          what: 'Nepsychoaktivní látka. Známá pro uklidňující, protizánětlivé a terapeutické vlastnosti.',
+          note: 'CBD vyvažuje účinky THC. Odrůdy s vysokým CBD poskytují čistou, funkční pohodu bez psychického efektu.',
+        },
+        cbn: {
+          emoji: '😴',
+          title: 'CBN — Kanabinolem',
+          what: 'Mírně psychoaktivní kanabinoidy vznikající stárnutím THC. Spojován s hlubokou relaxací a spánkem.',
+          note: 'CBN se v čerstvém květu vyskytuje zřídka. Přirozeně se tvoří tím, jak rostlina nebo produkt stárne a je ceněný pro podporu spánku.',
+        },
+        floweringTime: {
+          emoji: '⏱',
+          title: 'Doba květu',
+          what: 'Kolik dní stráví rostlina ve fázi kvetení, než je připravena ke sklizni.',
+          note: 'Kratší kvetení = rychlejší sklizeň, ale often menší výnos. Delší kvetení = těžší, pryskyřicovitější pupeny. Autoflowery se počítají od klíčení, fotoperiodické od přepnutí na 12h tmu.',
+        },
+        difficulty: {
+          emoji: '⚡',
+          title: 'Náročnost pěstování',
+          what: 'Jak náročná je tato odrůda na úspěšné vypěstování.',
+          note: 'Snadná: vhodná pro začátečníky, odpouští chyby. Střední: vyžaduje standardní péči. Náročná: citlivá na prostředí a výživu, potřebuje zkušenosti.',
+        },
+        yield: {
+          emoji: '💪',
+          title: 'Očekávaný výnos',
+          what: 'Odhadované gramy sušeného květu na rostlinu nebo na m² při dobrých podmínkách uvnitř.',
+          note: 'Odhady šlechtitelů za optimálních podmínek. Skutečný výnos závisí na tvém setupu, tréninkových technikách a celkové kvalitě growu.',
+        },
+        seedType: {
+          emoji: '🌱',
+          title: 'Typ semínka',
+          what: 'Feminizované: 99,9 % samičích rostlin — žádní samci, žádné riziko opylení. Standardní volba pro pěstování květu.\n\nAutoflower: kvete podle věku (obvykle 70–90 dní od semínka), nezávisle na světelných hodinách. Malé, rychlé, vhodné pro začátečníky.\n\nRegulérní: přirozená směs samců a samic 50/50. Používají šlechtitelé pro tvorbu nových genetik. Vyžaduje určení pohlaví rostlin.',
+          note: 'Pro první pěstování: začni s feminizovanými nebo autoflower semínky. Regulérní jsou pro zkušené pěstitele, kteří chtějí křížit.',
+        },
+        origin: {
+          emoji: '📍',
+          title: 'Genetický původ',
+          what: 'Odkud pochází genetika odrůdy — ovlivňuje strukturu, terpenový profil a účinek.',
+          note: 'Landrace = původní genetika z konkrétního regionu, nedotčená šlechtěním. USA/Evropská = moderní selekce šlechtěné na potenci, výnos a specifické účinky.',
+        },
+        climate: {
+          emoji: '🏔',
+          title: 'Optimální klima',
+          what: 'Zda byla tato odrůda vyvinuta pro pěstování uvnitř, venku nebo v obou prostředích.',
+          note: 'Interiérové odrůdy jsou optimalizovány pro kontrolované grow roomce. Exteriérové jsou odolnější vůči plísním a zvládají výkyvy počasí.',
+        },
+      },
+    },
     growSetup: {
       stepLabel: (step: number, total: number) => `Průvodce nastavením · Krok ${step} z ${total}`,
       steps: ['Rychlost', 'Odrůda', 'Stan', 'Světlo', 'Substrát', 'Zalévání', 'Příslušenství', 'Přehled'],
@@ -1179,6 +1308,12 @@ export const translations = {
       } as Record<string, string>,
       // Light step
       lightTypeLabel:  'Typ světla',
+      lightDescs: {
+        led: '⚡ Nejefektivnější technologie. Plné spektrum, nízká teplota. Nižší spotřeba. Nejlepší volba pro domácí growy — snadná správa tepla, výborný výnos na watt.',
+        hps: '🔥 High-Pressure Sodium. Osvědčený výkonný zdroj s hlubokým průnikem do zeleně a vysokými výnosy. Velmi se zahřívá — dobrá ventilace je nutností. Standard v komerčních growech.',
+        cmh: '☀️ Ceramic Metal Halide. Plné spektrum nejblíže přirozenému slunečnímu světlu — výborná pryskyřice a terpeny. Skvělý poměr kvality a výnosu. Střední cesta.',
+        cfl: '💡 Kompaktní zářivka. Levné a nízká teplota. Velmi omezený průnik světla — vhodné pouze pro semenáčky, klony nebo mikrogrow do 30cm zeleně.',
+      } as Record<string, string>,
       wattageLabel:    'Výkon (W)',
       brandLabel:      'Značka (volitelné)',
       brandPh:         'např. Mars Hydro, AC Infinity...',
@@ -1195,6 +1330,11 @@ export const translations = {
       // Watering + nutrients step
       wateringLabel:    'Způsob zalévání',
       waterNames:       { manual: 'Ručně', blumat: 'Blumat Auto', drip: 'Kapková soustava' } as Record<string, string>,
+      waterDescs: {
+        manual:  '🪣 Ruční zalévání. Plná kontrola — čteš rostlinu a sám rozhoduješ. Nejlepší pro učení a living soil, kde cítíš váhu hrnce. Vyžaduje každodenní péči.',
+        blumat:  '🌿 Blumat keramické tyče. Gravitační, automatické zalévání řízené vlhkostí substrátu. Nastav a zapomeň. Ideální pro living soil — napodobuje přirozené pomalé zavlažování bez přelití.',
+        drip:    '⏱️ Kapková soustava s časovačem. Přesné, automatické a škálovatelné. Vyžaduje se pro coco a hydro, kde je klíčová konzistentní frekvence zálivky. Zpočátku snadné přelít nebo podlít.',
+      } as Record<string, string>,
       nutrientsLabel:   'Živiny',
       nutrientNames:    { organic: 'Organické', mineral: 'Minerální', none: 'Žádné' } as Record<string, string>,
       disabledSoilNut:  'Minerální soli narušují půdní potravinovou síť',
@@ -1205,13 +1345,15 @@ export const translations = {
       // Accessories step
       ventilationLabel: 'Ventilace',
       exhaustFan:       'Výfukový ventilátor',
+      exhaustFanDesc:   'Odvádí horký, vlhký vzduch ven přes uhlíkový filtr. Nezbytné pro regulaci teploty a zápachu. Dimenzuj na 1–2× výměnu objemu vzduchu za minutu.',
       cfmLabel:         'Výkon (CFM)',
       circulationFan:   'Cirkulační ventilátor',
+      circulationFanDesc: 'Pohybuje vzduchem uvnitř stanu. Zpevňuje stonky, zabraňuje horkým/studeným místům a usazování plísní na listech. Vždy doporučeno.',
       carbonFilter:     'Uhlíkový filtr',
+      carbonFilterDesc: 'Aktivní uhlí eliminuje zápach filtrací vzduchu před výfukem. Připoj na vstup výfukového ventilátoru. Nezbytné, pokud je zápach problém.',
       monitoringLabel:  'Měření',
-      phMeter:          'pH metr',
-      ecMeter:          'EC/TDS metr',
-      hygrometer:       'Teplota/vlhkoměr',
+      hygrometer:       'Teplota/vlhkoměr (temp + vlhkost)',
+      hygrometerDesc:   'Měří teplotu a vlhkost ve stanu. Nezbytné — bez znalosti VPD nelze dobře pěstovat. Přidej od začátku.',
       // Review step
       reviewLabel:     'Přehled nastavení',
       strainLabel:     'Odrůda',

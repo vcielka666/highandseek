@@ -631,12 +631,24 @@ function SetupWizardInner() {
       {step === 3 && (
         <div style={S.card}>
           <div style={S.label}>{g.lightTypeLabel}</div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
             {(['led', 'hps', 'cmh', 'cfl'] as Setup['lightType'][]).map(l => (
               <button key={l} onClick={() => set('lightType', l)} style={S.btn(setup.lightType === l)}>
                 {l.toUpperCase()}
               </button>
             ))}
+          </div>
+
+          <div style={{
+            background: 'rgba(204,0,170,0.05)',
+            border: '0.5px solid rgba(204,0,170,0.15)',
+            borderRadius: '6px',
+            padding: '12px 14px',
+            marginBottom: '20px',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+              {g.lightDescs[setup.lightType]}
+            </div>
           </div>
 
           <div style={S.label}>{g.wattageLabel}</div>
@@ -698,7 +710,7 @@ function SetupWizardInner() {
       {step === 5 && (
         <div style={S.card}>
           <div style={S.label}>{g.wateringLabel}</div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
             {(['manual', 'blumat', 'drip'] as Setup['watering'][]).map(w => {
               const disabled = !rules.allowedWatering.includes(w)
               return (
@@ -708,6 +720,18 @@ function SetupWizardInner() {
                 </button>
               )
             })}
+          </div>
+
+          <div style={{
+            background: 'rgba(204,0,170,0.05)',
+            border: '0.5px solid rgba(204,0,170,0.15)',
+            borderRadius: '6px',
+            padding: '12px 14px',
+            marginBottom: '20px',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+              {g.waterDescs[setup.watering]}
+            </div>
           </div>
 
           <div style={S.label}>{g.nutrientsLabel}</div>
@@ -735,49 +759,67 @@ function SetupWizardInner() {
       {step === 6 && (
         <div style={S.card}>
           <div style={S.label}>{g.ventilationLabel}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={setup.hasExhaustFan} onChange={e => set('hasExhaustFan', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.exhaustFan}</span>
-            </label>
-            {setup.hasExhaustFan && (
-              <div style={{ marginLeft: '28px' }}>
-                <div style={S.label}>{g.cfmLabel}</div>
-                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {[100, 150, 200, 300, 400, 600].map(cfm => (
-                    <button key={cfm} onClick={() => set('exhaustCFM', cfm)} style={S.btn(setup.exhaustCFM === cfm)}>
-                      {cfm} CFM
-                    </button>
-                  ))}
-                </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '20px' }}>
+
+            {/* Exhaust fan */}
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '6px' }}>
+                <input type="checkbox" checked={setup.hasExhaustFan} onChange={e => set('hasExhaustFan', e.target.checked)} />
+                <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.exhaustFan}</span>
+              </label>
+              <div style={{ marginLeft: '28px', fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5, marginBottom: setup.hasExhaustFan ? '10px' : '0' }}>
+                {g.exhaustFanDesc}
               </div>
-            )}
-            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={setup.hasCirculationFan} onChange={e => set('hasCirculationFan', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.circulationFan}</span>
-            </label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-              <input type="checkbox" checked={setup.hasCarbonFilter} onChange={e => set('hasCarbonFilter', e.target.checked)} />
-              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.carbonFilter}</span>
-            </label>
+              {setup.hasExhaustFan && (
+                <div style={{ marginLeft: '28px' }}>
+                  <div style={S.label}>{g.cfmLabel}</div>
+                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {[100, 150, 200, 300, 400, 600].map(cfm => (
+                      <button key={cfm} onClick={() => set('exhaustCFM', cfm)} style={S.btn(setup.exhaustCFM === cfm)}>
+                        {cfm} CFM
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Circulation fan */}
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '6px' }}>
+                <input type="checkbox" checked={setup.hasCirculationFan} onChange={e => set('hasCirculationFan', e.target.checked)} />
+                <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.circulationFan}</span>
+              </label>
+              <div style={{ marginLeft: '28px', fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+                {g.circulationFanDesc}
+              </div>
+            </div>
+
+            {/* Carbon filter */}
+            <div>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '6px' }}>
+                <input type="checkbox" checked={setup.hasCarbonFilter} onChange={e => set('hasCarbonFilter', e.target.checked)} />
+                <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.carbonFilter}</span>
+              </label>
+              <div style={{ marginLeft: '28px', fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+                {g.carbonFilterDesc}
+              </div>
+            </div>
           </div>
 
           <div style={S.label}>{g.monitoringLabel}</div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[
-              { key: 'hasPHMeter',    label: g.phMeter },
-              { key: 'hasECMeter',    label: g.ecMeter },
-              { key: 'hasHygrometer', label: g.hygrometer },
-            ].map(({ key, label }) => (
-              <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}>
-                <input
-                  type="checkbox"
-                  checked={setup[key as keyof Setup] as boolean}
-                  onChange={e => set(key as keyof Setup, e.target.checked as Setup[keyof Setup])}
-                />
-                <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{label}</span>
-              </label>
-            ))}
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '6px' }}>
+              <input
+                type="checkbox"
+                checked={setup.hasHygrometer}
+                onChange={e => set('hasHygrometer', e.target.checked)}
+              />
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.hygrometer}</span>
+            </label>
+            <div style={{ marginLeft: '28px', fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+              {g.hygrometerDesc}
+            </div>
           </div>
         </div>
       )}

@@ -8,8 +8,9 @@ async function main() {
   }
 
   const hash = await bcrypt.hash(password, 12)
+  const hashB64 = Buffer.from(hash).toString('base64')
   console.log('Add to .env.local:')
-  console.log(`MYSTERY_BOX_PASSWORD_HASH=${hash}`)
+  console.log(`MYSTERY_BOX_PASSWORD_HASH=${hashB64}`)
 }
 
 main()

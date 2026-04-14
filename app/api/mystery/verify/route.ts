@@ -9,11 +9,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ success: false }, { status: 400 })
   }
 
-  const hash = process.env.MYSTERY_BOX_PASSWORD_HASH
-  if (!hash) {
+  const hashB64 = process.env.MYSTERY_BOX_PASSWORD_HASH
+  if (!hashB64) {
     return NextResponse.json({ success: false }, { status: 500 })
   }
 
+  const hash = Buffer.from(hashB64, 'base64').toString('utf8')
   const isValid = await bcrypt.compare(password, hash)
   return NextResponse.json({ success: isValid })
 }

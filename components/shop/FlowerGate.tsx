@@ -128,72 +128,74 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
             <div style={{ height: '0.5px', background: 'linear-gradient(90deg, transparent, rgba(0,212,200,0.15), transparent)', marginBottom: '20px' }} />
 
             {/* Password input */}
-            <div style={{ marginBottom: error ? '10px' : '20px' }}>
-              <div style={{
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '9px',
-                letterSpacing: '2px',
-                textTransform: 'uppercase',
-                color: '#4a6066',
-                marginBottom: '8px',
-              }}>
-                Password
+            <form onSubmit={e => { e.preventDefault(); if (!loading) handleUnlock() }}>
+              <div style={{ marginBottom: error ? '10px' : '20px' }}>
+                <div style={{
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: '9px',
+                  letterSpacing: '2px',
+                  textTransform: 'uppercase',
+                  color: '#4a6066',
+                  marginBottom: '8px',
+                }}>
+                  Password
+                </div>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={e => { setPassword(e.target.value); setError('') }}
+                  placeholder="Enter password"
+                  autoComplete="current-password"
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: `0.5px solid ${error ? 'rgba(204,0,170,0.5)' : 'rgba(0,212,200,0.15)'}`,
+                    borderRadius: '6px',
+                    color: '#e8f0ef',
+                    fontFamily: 'var(--font-dm-mono)',
+                    fontSize: '14px',
+                    letterSpacing: '3px',
+                    outline: 'none',
+                    transition: 'border-color 0.15s',
+                    boxSizing: 'border-box',
+                  }}
+                />
               </div>
-              <input
-                type="password"
-                value={password}
-                onChange={e => { setPassword(e.target.value); setError('') }}
-                onKeyDown={e => e.key === 'Enter' && !loading && handleUnlock()}
-                placeholder="Enter password"
+
+              {error && (
+                <div style={{
+                  fontFamily: 'var(--font-dm-mono)',
+                  fontSize: '11px',
+                  color: '#cc00aa',
+                  marginBottom: '16px',
+                  letterSpacing: '0.5px',
+                }}>
+                  ✕ {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
                 style={{
                   width: '100%',
-                  padding: '11px 14px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: `0.5px solid ${error ? 'rgba(204,0,170,0.5)' : 'rgba(0,212,200,0.15)'}`,
+                  height: '46px',
                   borderRadius: '6px',
-                  color: '#e8f0ef',
-                  fontFamily: 'var(--font-dm-mono)',
-                  fontSize: '14px',
-                  letterSpacing: '3px',
-                  outline: 'none',
-                  transition: 'border-color 0.15s',
-                  boxSizing: 'border-box',
+                  border: 'none',
+                  background: loading ? 'rgba(0,212,200,0.4)' : 'linear-gradient(90deg, #00d4c8, #007a74)',
+                  color: '#050508',
+                  fontFamily: 'var(--font-cacha)',
+                  fontSize: '13px',
+                  letterSpacing: '2px',
+                  cursor: loading ? 'not-allowed' : 'pointer',
+                  transition: 'opacity 0.15s',
                 }}
-              />
-            </div>
-
-            {error && (
-              <div style={{
-                fontFamily: 'var(--font-dm-mono)',
-                fontSize: '11px',
-                color: '#cc00aa',
-                marginBottom: '16px',
-                letterSpacing: '0.5px',
-              }}>
-                ✕ {error}
-              </div>
-            )}
-
-            <button
-              onClick={handleUnlock}
-              disabled={loading}
-              style={{
-                width: '100%',
-                height: '46px',
-                borderRadius: '6px',
-                border: 'none',
-                background: loading ? 'rgba(0,212,200,0.4)' : 'linear-gradient(90deg, #00d4c8, #007a74)',
-                color: '#050508',
-                fontFamily: 'var(--font-cacha)',
-                fontSize: '13px',
-                letterSpacing: '2px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                transition: 'opacity 0.15s',
-              }}
-              className="hover:opacity-90"
-            >
-              {loading ? '...' : 'Unlock Access'}
-            </button>
+                className="hover:opacity-90"
+              >
+                {loading ? '...' : 'Unlock Access'}
+              </button>
+            </form>
           </div>
         </div>
       </div>
