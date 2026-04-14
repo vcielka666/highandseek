@@ -14,6 +14,7 @@ interface Props {
 export default function ListingOwnerActions({ listingId, locale, isFeatured, boostedSlotsFull }: Props) {
   const router = useRouter()
   const [confirmingDelete, setConfirmingDelete] = useState(false)
+  const [confirmingBoost, setConfirmingBoost] = useState(false)
   const [loading, setLoading] = useState<'delete' | 'boost' | null>(null)
 
   async function handleDelete() {
@@ -37,6 +38,12 @@ export default function ListingOwnerActions({ listingId, locale, isFeatured, boo
   }
 
   async function handleBoost() {
+    if (!confirmingBoost) {
+      setConfirmingBoost(true)
+      setTimeout(() => setConfirmingBoost(false), 4000)
+      return
+    }
+    setConfirmingBoost(false)
     setLoading('boost')
     try {
       const res = await fetch(`/api/hub/marketplace/${listingId}`, {
@@ -88,13 +95,17 @@ export default function ListingOwnerActions({ listingId, locale, isFeatured, boo
             : (locale === 'cs' ? 'Zvýrazni na 3 dny za 5 kreditů' : 'Feature for 3 days — 5 credits')}
           style={{
             ...btnBase,
-            border: '0.5px solid rgba(240,168,48,0.35)',
-            background: boostedSlotsFull ? 'transparent' : 'rgba(240,168,48,0.08)',
+            border: `0.5px solid ${confirmingBoost ? 'rgba(240,168,48,0.7)' : 'rgba(240,168,48,0.35)'}`,
+            background: confirmingBoost ? 'rgba(240,168,48,0.18)' : boostedSlotsFull ? 'transparent' : 'rgba(240,168,48,0.08)',
             color: boostedSlotsFull ? '#2a3a3e' : '#f0a830',
             opacity: loading === 'boost' ? 0.5 : 1,
           }}
         >
-          {loading === 'boost' ? '...' : '⚡'}
+          {loading === 'boost'
+            ? '...'
+            : confirmingBoost
+              ? (locale === 'cs' ? '⚡ −5 kreditů · potvrdit?' : '⚡ −5 credits · confirm?')
+              : '⚡'}
         </button>
       )}
 
