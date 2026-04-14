@@ -58,7 +58,7 @@ function LoginForm({ callbackUrl }: { callbackUrl: string }) {
       toast.error('Invalid email or password.')
     } else {
       toast.success('Welcome back!')
-      router.push(callbackUrl)
+      window.location.href = callbackUrl
     }
   }
 

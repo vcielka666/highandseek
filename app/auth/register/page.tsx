@@ -81,7 +81,7 @@ function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
       toast.error('Account created but login failed. Please sign in manually.')
     } else {
       toast.success('Account created! Welcome.')
-      router.push(callbackUrl)
+      window.location.href = callbackUrl
     }
   }
 
