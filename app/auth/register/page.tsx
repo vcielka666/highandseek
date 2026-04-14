@@ -334,7 +334,7 @@ function RegisterForm({ callbackUrl }: { callbackUrl: string }) {
 
 function RegisterFormWrapper() {
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/'
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/hub'
   return <RegisterForm callbackUrl={callbackUrl} />
 }
 

@@ -288,7 +288,7 @@ function LoginForm({ callbackUrl }: { callbackUrl: string }) {
 
 function LoginFormWrapper() {
   const searchParams = useSearchParams()
-  const callbackUrl = searchParams.get('callbackUrl') ?? '/'
+  const callbackUrl = searchParams.get('callbackUrl') ?? '/hub'
   return <LoginForm callbackUrl={callbackUrl} />
 }
 
