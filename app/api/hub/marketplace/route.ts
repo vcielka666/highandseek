@@ -13,9 +13,10 @@ const PAGE_SIZE = 20
 
 const CreateSchema = z.object({
   title:       z.string().min(3).max(80),
-  description: z.string().min(10).max(500),
+  description: z.string().min(3).max(500),
   category:    z.enum(CATEGORIES),
-  price:       z.number().min(0),
+  price:       z.number().min(0).default(0),
+  priceNote:   z.string().max(30).optional(),
   location:    z.string().max(80).optional(),
   contact: z.object({
     telegram: z.string().max(80).optional(),
@@ -105,7 +106,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error.issues[0]?.message ?? 'Invalid body' }, { status: 400 })
   }
 
-  const { title, description, category, price, location, contact, images } = parsed.data
+  const { title, description, category, price, priceNote, location, contact, images } = parsed.data
 
   await connectDB()
 
@@ -130,7 +131,7 @@ export async function POST(req: Request) {
 
   const listing = await Listing.create({
     userId:      session.user.id,
-    title, description, category, price, location, contact, images,
+    title, description, category, price, priceNote, location, contact, images,
     status:      'active',
     creditsCost: cost,
     expiresAt,

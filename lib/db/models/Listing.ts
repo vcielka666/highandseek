@@ -10,6 +10,7 @@ export interface IListing {
   description: string
   category: ListingCategory
   price: number
+  priceNote?: string
   location?: string
   contact: {
     telegram?: string
@@ -36,8 +37,9 @@ const ListingSchema = new Schema<IListing>(
       enum: ['equipment', 'clones', 'seeds', 'nutrients', 'art', 'other'],
       required: true,
     },
-    price:    { type: Number, required: true, min: 0, default: 0 },
-    location: { type: String, maxlength: 80, trim: true },
+    price:     { type: Number, required: true, min: 0, default: 0 },
+    priceNote: { type: String, maxlength: 30, trim: true },
+    location:  { type: String, maxlength: 80, trim: true },
     contact: {
       telegram: { type: String, trim: true },
       signal:   { type: String, trim: true },

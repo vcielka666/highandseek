@@ -107,6 +107,8 @@ export default function NewListingForm({ userCredits, COST }: Props) {
 
     setSubmitting(true)
     try {
+      const numericPrice = parseFloat(price.replace(',', '.'))
+      const isNumeric = !isNaN(numericPrice) && price.trim() !== ''
       const res = await fetch('/api/hub/marketplace', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +116,8 @@ export default function NewListingForm({ userCredits, COST }: Props) {
           title: title.trim(),
           description: description.trim(),
           category,
-          price: parseFloat(price) || 0,
+          price: isNumeric ? numericPrice : 0,
+          priceNote: !isNumeric && price.trim() ? price.trim() : undefined,
           location: location.trim() || undefined,
           contact: {
             telegram: telegram.trim() || undefined,
@@ -187,9 +190,10 @@ export default function NewListingForm({ userCredits, COST }: Props) {
         <div>
           <label style={labelStyle}>{m.priceLabel}</label>
           <input
-            type="number" min="0" step="0.01"
+            type="text"
             value={price} onChange={e => setPrice(e.target.value)}
             placeholder={m.pricePlaceholder}
+            maxLength={30}
             style={inputStyle}
           />
         </div>
@@ -294,8 +298,28 @@ export default function NewListingForm({ userCredits, COST }: Props) {
         </div>
       </div>
 
-      {/* Credits warning */}
-      {(COST > 0 || extraCost > 0) && (
+      {/* Cost summary — always visible */}
+      {totalCost === 0 ? (
+        <div style={{
+          padding: '14px 18px',
+          background: 'rgba(0,212,200,0.06)',
+          border: '0.5px solid rgba(0,212,200,0.3)',
+          borderRadius: '6px',
+          display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px',
+        }}>
+          <div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#00d4c8', marginBottom: '2px' }}>
+              ✓ {m.successToastFree.replace('!', '')}
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+              {m.yourBalance}: {userCredits} credits
+            </div>
+          </div>
+          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#00d4c8' }}>
+            FREE
+          </span>
+        </div>
+      ) : (
         <div style={{
           padding: '14px 18px',
           background: canAfford ? 'rgba(240,168,48,0.05)' : 'rgba(204,0,0,0.06)',
@@ -305,11 +329,11 @@ export default function NewListingForm({ userCredits, COST }: Props) {
         }}>
           <div>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: canAfford ? '#f0a830' : '#cc4444' }}>
-              {canAfford ? `Total cost: ${totalCost} credits` : m.insufficientCredits}
+              {canAfford ? `Cost: ${totalCost} credits` : m.insufficientCredits}
             </span>
             {extraCost > 0 && (
               <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '3px' }}>
-                Base {COST} + {extraImages} extra image{extraImages > 1 ? 's' : ''} ×{EXTRA_IMAGE_COST} = {totalCost}
+                Base {COST} + {extraImages} extra image{extraImages > 1 ? 's' : ''} = {totalCost}
               </div>
             )}
           </div>
@@ -325,14 +349,17 @@ export default function NewListingForm({ userCredits, COST }: Props) {
         disabled={submitting || !canAfford}
         style={{
           fontFamily: 'var(--font-cacha)', fontSize: '15px', letterSpacing: '2px', textTransform: 'uppercase',
-          color: '#050508', background: submitting || !canAfford ? 'rgba(240,168,48,0.4)' : '#f0a830',
+          color: '#050508',
+          background: submitting || !canAfford
+            ? 'rgba(74,96,102,0.4)'
+            : totalCost === 0 ? '#00d4c8' : '#f0a830',
           border: 'none', borderRadius: '4px', padding: '14px 32px',
           cursor: submitting || !canAfford ? 'not-allowed' : 'pointer',
           transition: 'opacity 0.15s', width: '100%',
         }}
         className={submitting || !canAfford ? '' : 'hover:opacity-90'}
       >
-        {submitting ? '...' : m.submit}
+        {submitting ? '...' : totalCost === 0 ? `${m.submit} — Free` : `${m.submit} — ${totalCost} credits`}
       </button>
     </form>
   )
