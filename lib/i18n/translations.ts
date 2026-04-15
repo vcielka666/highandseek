@@ -426,6 +426,15 @@ export const translations = {
       actionDefoliate: '✂️ Defo',
       actionFlush: '🚿 Flush',
       doneLbl: 'done',
+      // Defoliate warning dialogs
+      defoliateSeedlingTitle: '⚠️ Very risky!',
+      defoliateSeedlingBody: 'Defoliating a seedling removes the leaves it needs to grow. This severely stunts development and cuts yield by −20%. Growers never do this.',
+      defoliateEarlyVegTitle: '⚠️ Not recommended',
+      defoliateEarlyVegBody: 'Your plant is still building leaf mass in early veg. Defoliating now removes the photosynthesis surface it needs. No yield benefit — wait until mid-veg (day 14+) for best results.',
+      defoliateLatFlowerTitle: '⚠️ Over-defoliation risk',
+      defoliateLatFlowerBody: "You've already defoliated multiple times. Aggressive defoliation in late flower stresses buds and reduces resin production. Yield penalty: −5%.",
+      confirmActionBtn: 'Proceed anyway',
+      cancelActionBtn: 'Cancel',
       // Stage / days
       flowerDayLabel: 'Flower day',
       vegDaysLabel: 'Veg',
@@ -1113,6 +1122,15 @@ export const translations = {
       actionDefoliate: '✂️ Defo',
       actionFlush: '🚿 Flush',
       doneLbl: 'hotovo',
+      // Defoliate warning dialogs
+      defoliateSeedlingTitle: '⚠️ Velmi riskantní!',
+      defoliateSeedlingBody: 'Defoliace semenáče odstraní listy, které potřebuje k růstu. Výnos se sníží o −20%. Žádný pěstitel tohle nedělá.',
+      defoliateEarlyVegTitle: '⚠️ Nedoporučuje se',
+      defoliateEarlyVegBody: 'Rostlina je v rané vegetaci a teprve buduje listovou plochu. Defoliace teď ji zbytečně zpomalí. Žádný bonus na výnos — počkej na mid-veg (den 14+).',
+      defoliateLatFlowerTitle: '⚠️ Přílišná defoliace',
+      defoliateLatFlowerBody: 'Již jsi defolioval/a vícekrát. Agresivní defoliace v pozdním kvetení stresuje puky a snižuje tvorbu pryskyřice. Penalizace výnosu: −5%.',
+      confirmActionBtn: 'Přesto pokračovat',
+      cancelActionBtn: 'Zrušit',
       // Stage / days
       flowerDayLabel: 'Den kvetení',
       vegDaysLabel: 'Veg',

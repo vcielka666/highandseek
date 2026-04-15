@@ -300,6 +300,9 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [showYieldInfo, setShowYieldInfo]       = useState(false)
   const [showStageInfo, setShowStageInfo]       = useState(false)
 
+  // Defoliate confirmation dialog
+  const [confirmDialog, setConfirmDialog] = useState<{ type: string; title: string; body: string; severity: 'warning' | 'danger' } | null>(null)
+
   // Fan speed drag slider
   const [fanSliderActive, setFanSliderActive]   = useState(false)
   const [dragFanSpeed, setDragFanSpeed]         = useState(100)
@@ -514,6 +517,28 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       setGrow(data.grow)
       toast.success(data.effect)
     })
+  }
+
+  function requestAction(type: string) {
+    if (type === 'defoliate' && grow) {
+      const seedlingEnd = grow.isClone ? 4 : 7
+      const vegDays = grow.currentDay - seedlingEnd
+      const prevDefoCount = grow.actions.filter(a => a.type === 'defoliate').length
+
+      if (grow.stage === 'seedling') {
+        setConfirmDialog({ type, title: g.defoliateSeedlingTitle, body: g.defoliateSeedlingBody, severity: 'danger' })
+        return
+      }
+      if (grow.stage === 'veg' && vegDays < 14) {
+        setConfirmDialog({ type, title: g.defoliateEarlyVegTitle, body: g.defoliateEarlyVegBody, severity: 'warning' })
+        return
+      }
+      if ((grow.stage === 'late_flower' || grow.stage === 'harvest') && prevDefoCount >= 2) {
+        setConfirmDialog({ type, title: g.defoliateLatFlowerTitle, body: g.defoliateLatFlowerBody, severity: 'warning' })
+        return
+      }
+    }
+    doAction(type)
   }
 
   async function advanceDay() {
@@ -1399,30 +1424,74 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                       { type: 'flush',     label: g.actionFlush,     xp: 5,  disabled: false },
                     ] as const
                     return (
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
-                        {actions.map(({ type, label, xp, disabled }) => (
-                          <button
-                            key={type}
-                            onClick={() => doAction(type)}
-                            disabled={pending || disabled}
-                            title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
-                            style={{
-                              fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
-                              padding: '9px 4px', borderRadius: '4px',
-                              border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
-                              background: 'rgba(10,36,40,0.5)',
-                              color: disabled ? '#3a4a50' : '#e8f0ef',
-                              cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
-                              opacity: pending ? 0.5 : 1, textAlign: 'center',
-                            }}
-                          >
-                            {label}
-                            <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
-                              {disabled ? g.doneLbl : `+${xp}xp`}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
+                      <>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
+                          {actions.map(({ type, label, xp, disabled }) => (
+                            <button
+                              key={type}
+                              onClick={() => requestAction(type)}
+                              disabled={pending || disabled}
+                              title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
+                              style={{
+                                fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
+                                padding: '9px 4px', borderRadius: '4px',
+                                border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
+                                background: 'rgba(10,36,40,0.5)',
+                                color: disabled ? '#3a4a50' : '#e8f0ef',
+                                cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
+                                opacity: pending ? 0.5 : 1, textAlign: 'center',
+                              }}
+                            >
+                              {label}
+                              <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
+                                {disabled ? g.doneLbl : `+${xp}xp`}
+                              </span>
+                            </button>
+                          ))}
+                        </div>
+
+                        {/* Confirmation dialog for risky defoliation */}
+                        {confirmDialog && (
+                          <div style={{
+                            marginTop: '10px', padding: '12px 14px',
+                            background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.08)' : 'rgba(240,168,48,0.07)',
+                            border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.4)' : 'rgba(240,168,48,0.4)'}`,
+                            borderRadius: '6px',
+                          }}>
+                            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                              {confirmDialog.title}
+                            </div>
+                            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.5, marginBottom: '10px' }}>
+                              {confirmDialog.body}
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button
+                                onClick={() => { const t = confirmDialog.type; setConfirmDialog(null); doAction(t) }}
+                                style={{
+                                  fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
+                                  padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
+                                  border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.5)' : 'rgba(240,168,48,0.5)'}`,
+                                  background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.15)' : 'rgba(240,168,48,0.12)',
+                                  color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830',
+                                }}
+                              >
+                                {g.confirmActionBtn}
+                              </button>
+                              <button
+                                onClick={() => setConfirmDialog(null)}
+                                style={{
+                                  fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
+                                  padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
+                                  border: '0.5px solid rgba(74,96,102,0.3)',
+                                  background: 'transparent', color: '#4a6066',
+                                }}
+                              >
+                                {g.cancelActionBtn}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )
                   })()}
                 </div>

@@ -115,41 +115,61 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
 
-  // Handle defoliation — humidity reduction depends on how many times done before
+  // Handle defoliation — stage-aware yield consequences
   if (type === 'defoliate') {
     const stage = grow.stage as GrowStage
-    if (stage === 'seedling') {
-      return NextResponse.json({ error: 'Defoliation not available for seedlings' }, { status: 400 })
-    }
-
+    const seedlingEnd = (grow as typeof grow & { isClone?: boolean }).isClone ? 4 : 7
+    const vegDays = grow.currentDay - seedlingEnd
     const prevDefoCount = grow.actions.filter((a: { type: string }) => a.type === 'defoliate').length
 
-    // Humidity delta: 1st → -6, 2nd → -3, 3rd+ → 0 (except late_flower → -20)
     let humidityDelta = 0
-    let humidityNote = ''
-    if (prevDefoCount === 0) {
-      humidityDelta = -6
-      humidityNote = 'humidity −6%'
-    } else if (prevDefoCount === 1) {
+    let xpEarned = 15
+    let effectMsg = ''
+
+    if (stage === 'seedling') {
+      // Severely harmful — allowed if user force-confirmed client-side
+      grow.yieldProjection = Math.round(grow.yieldProjection * 0.80)
       humidityDelta = -3
-      humidityNote = 'humidity −3%'
-    } else if (stage === 'late_flower' || stage === 'harvest') {
-      humidityDelta = -20
-      humidityNote = 'heavy late-flower defoliation — humidity −20%'
+      xpEarned = 0
+      effectMsg = '⚠️ Seedling defoliated — severe stress, yield −20%'
+    } else if (stage === 'veg' && vegDays < 14) {
+      // Early veg — no yield benefit, minor humidity improvement from first defo
+      humidityDelta = prevDefoCount === 0 ? -4 : 0
+      xpEarned = 5
+      const humNote = humidityDelta < 0 ? `, humidity ${humidityDelta}%` : ''
+      effectMsg = `Early veg defoliation — no yield bonus${humNote}`
+    } else if ((stage === 'late_flower' || stage === 'harvest') && prevDefoCount >= 2) {
+      // Over-defoliation in late flower stresses buds
+      grow.yieldProjection = Math.round(grow.yieldProjection * 0.95)
+      humidityDelta = -15
+      xpEarned = 5
+      effectMsg = '⚠️ Over-defoliation — bud stress, yield −5%, humidity −15%'
     } else {
-      humidityNote = 'canopy already open — no humidity effect'
+      // Normal stage-appropriate defoliation
+      let humidityNote = ''
+      if (prevDefoCount === 0) {
+        humidityDelta = -6
+        humidityNote = 'humidity −6%'
+      } else if (prevDefoCount === 1) {
+        humidityDelta = -3
+        humidityNote = 'humidity −3%'
+      } else if (stage === 'late_flower' || stage === 'harvest') {
+        humidityDelta = -20
+        humidityNote = 'heavy late-flower defoliation — humidity −20%'
+      } else {
+        humidityNote = 'canopy already open — no humidity effect'
+      }
+      const yieldBonus = prevDefoCount < 2 ? 0.05 : 0
+      if (yieldBonus > 0) {
+        grow.yieldProjection = Math.round(grow.yieldProjection * (1 + yieldBonus))
+      }
+      effectMsg = `Defoliated — ${humidityNote}${yieldBonus > 0 ? ', yield +5%' : ''}`
     }
 
     if (humidityDelta !== 0) {
       const env = grow.environment as { humidity: number }
       env.humidity = Math.max(0, Math.min(100, env.humidity + humidityDelta))
       grow.markModified('environment')
-    }
-
-    // Yield bonus only on first two defoliations
-    const yieldBonus = prevDefoCount < 2 ? 0.05 : 0
-    if (yieldBonus > 0) {
-      grow.yieldProjection = Math.round(grow.yieldProjection * (1 + yieldBonus))
     }
 
     const newAttributes = calculateAttributes(
@@ -162,10 +182,11 @@ export async function POST(req: NextRequest) {
     grow.set('attributes', newAttributes)
     grow.markModified('attributes')
 
-    const effectMsg = `Defoliated — ${humidityNote}${yieldBonus > 0 ? ', yield +5%' : ''}`
-    grow.actions.push({ type, timestamp: new Date(), xpEarned: 15, effect: effectMsg })
-    await awardXP(session.user.id, 'DEFOLIATION', 15)
-    grow.xpEarned += 15
+    grow.actions.push({ type, timestamp: new Date(), xpEarned, effect: effectMsg })
+    if (xpEarned > 0) {
+      await awardXP(session.user.id, 'DEFOLIATION', xpEarned)
+      grow.xpEarned += xpEarned
+    }
     await grow.save()
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
