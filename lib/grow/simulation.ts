@@ -61,20 +61,21 @@ export function getDefaultLightHours(stage: GrowStage): number {
 // ── Advance one day ────────────────────────────────────────────────────────────
 
 export function advanceDay(params: {
-  currentDay:       number
-  floweringTime:    number
-  flipDay?:         number | null
-  isClone?:         boolean
-  setup:            Setup
-  environment:      Environment
-  health:           number
-  maxHealth:        number
-  currentWatering:  number
-  currentNutrients: number
-  strainType:       'indica' | 'sativa' | 'hybrid'
-  existingWarnings: Warning[]
+  currentDay:          number
+  floweringTime:       number
+  flipDay?:            number | null
+  isClone?:            boolean
+  setup:               Setup
+  environment:         Environment
+  health:              number
+  maxHealth:           number
+  currentWatering:     number
+  currentNutrients:    number
+  strainType:          'indica' | 'sativa' | 'hybrid'
+  existingWarnings:    Warning[]
+  storedYieldProjection: number
 }): DayResult {
-  const { currentDay, floweringTime, flipDay, isClone, setup, environment, health, maxHealth, currentWatering, currentNutrients, strainType, existingWarnings } = params
+  const { currentDay, floweringTime, flipDay, isClone, setup, environment, health, maxHealth, currentWatering, currentNutrients, strainType, existingWarnings, storedYieldProjection } = params
 
   const newDay = currentDay + 1
   const stage = getStage(newDay, floweringTime, flipDay, isClone)
@@ -92,7 +93,11 @@ export function advanceDay(params: {
   const decayedNutrients = Math.max(0, currentNutrients - nutrientsDecay)
 
   const attributes = calculateAttributes(setup, autoEnv, stage, decayedWatering, decayedNutrients)
-  const yieldProjection = estimateYield(setup, strainType)
+  // Use stored yield as base — preserves action bonuses (LST, defo, etc.)
+  // Fall back to fresh estimate only if stored value is 0 or missing
+  const baseYield = storedYieldProjection > 0 ? storedYieldProjection : estimateYield(setup, strainType)
+  // Scale by health change ratio so bonuses persist but unhealthy plants yield less
+  const yieldProjection = baseYield
 
   // ── Build new warnings ─────────────────────────────────────────────────────
   const newWarnings: Warning[] = []
@@ -163,7 +168,7 @@ export function advanceDay(params: {
     attributes,
     health:          newHealth,
     maxHealth:       newMaxHealth,
-    yieldProjection: Math.round(yieldProjection * (newHealth / 100)),
+    yieldProjection: Math.max(0, Math.round(yieldProjection * (newHealth / Math.max(1, health)))),
     warnings:        newWarnings,
     died,
   }

@@ -6,7 +6,6 @@ import VirtualGrow from '@/lib/db/models/VirtualGrow'
 import Strain from '@/lib/db/models/Strain'
 import User from '@/lib/db/models/User'
 import { awardXP } from '@/lib/xp'
-import { spendCredits } from '@/lib/credits'
 import { calculateAttributes, estimateYield, generateGuide, type GrowAttributes } from '@/lib/grow/attributes'
 
 const LIGHT_IMAGES: Record<string, string> = {
@@ -63,9 +62,6 @@ const StartSchema = z.object({
   message: 'Either strainSlug, customStrain or cloneStrainSlug is required',
 })
 
-const GROW_COST_CREDITS       = 3
-const CUSTOM_STRAIN_COST      = 5
-
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -85,46 +81,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'You already have an active grow' }, { status: 409 })
   }
 
-  // Check credits — first grow is free (realtime only)
-  const user = await User.findById(session.user.id).select('growsCompleted credits cloneBank').lean<{
-    growsCompleted: number; credits: number
+  const user = await User.findById(session.user.id).select('growsCompleted cloneBank').lean<{
+    growsCompleted: number
     cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
   }>()
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  // First grow is free regardless of speed (no customStrain)
-  const isFree = user.growsCompleted === 0 && !customStrain
-
-  // Custom strain costs 5 credits on top of grow cost
-  const totalCost = (isFree ? 0 : GROW_COST_CREDITS) + (customStrain ? CUSTOM_STRAIN_COST : 0)
-  if (totalCost > 0 && user.credits < totalCost) {
-    return NextResponse.json({
-      error: `Insufficient credits (need ${totalCost})`,
-      needed: totalCost,
-      have: user.credits,
-    }, { status: 402 })
-  }
-
+  // All grows are free — credits will be introduced later
   // Resolve strain data
   let strainData: { slug: string; name: string; type: 'indica' | 'sativa' | 'hybrid'; floweringTime: number }
   let isClone = false
 
   if (cloneStrainSlug) {
-    // Clone grow — find in user's cloneBank (clones are free, no credit cost)
     const clone = user?.cloneBank?.find(c => c.strainSlug === cloneStrainSlug)
     if (!clone) return NextResponse.json({ error: 'Clone not found in your bank' }, { status: 404 })
     strainData = { slug: clone.strainSlug, name: clone.strainName, type: clone.strainType, floweringTime: clone.floweringTime }
     isClone = true
-    // Remove used clone from bank
     await User.findByIdAndUpdate(session.user.id, {
       $pull: { cloneBank: { strainSlug: cloneStrainSlug } },
     })
   } else if (customStrain) {
-    // Deduct credits for custom strain
-    await spendCredits(session.user.id, CUSTOM_STRAIN_COST, 'custom_strain_grow')
-    if (!isFree) {
-      await spendCredits(session.user.id, GROW_COST_CREDITS, 'virtual_grow_start')
-    }
     strainData = {
       slug:          `custom-${Date.now()}`,
       name:          customStrain.name,
@@ -136,9 +112,6 @@ export async function POST(req: NextRequest) {
       slug: string; name: string; type: 'indica' | 'sativa' | 'hybrid'; floweringTime: number
     }>()
     if (!strain) return NextResponse.json({ error: 'Strain not found' }, { status: 404 })
-    if (!isFree) {
-      await spendCredits(session.user.id, GROW_COST_CREDITS, 'virtual_grow_start')
-    }
     strainData = strain
   }
 
@@ -193,7 +166,7 @@ export async function POST(req: NextRequest) {
     attributes:    initialAttributes,
     warnings:      initialWarnings,
     yieldProjection,
-    creditsSpent:  totalCost,
+    creditsSpent:  0,
     lastAdvanced:  new Date(Date.now() - dayDurationSeconds * 1000), // allow exactly 1 day on first load
   })
 

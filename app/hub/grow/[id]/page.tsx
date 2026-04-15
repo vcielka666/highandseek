@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
-import type PlantSVGType from '@/lib/grow/PlantSVG'
+import type PlantImageType from '@/lib/grow/PlantImage'
 import { useLanguage } from '@/stores/languageStore'
 import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attributes'
 import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
 
-type PlantSVGProps = Parameters<typeof PlantSVGType>[0]
-const PlantSVG = dynamic(() => import('@/lib/grow/PlantSVG'), { ssr: false }) as React.ComponentType<PlantSVGProps>
+type PlantImageProps = Parameters<typeof PlantImageType>[0]
+const PlantImage = dynamic(() => import('@/lib/grow/PlantImage'), { ssr: false }) as React.ComponentType<PlantImageProps>
 
 // ── Asset URLs ─────────────────────────────────────────────────────────────────
 
@@ -782,7 +782,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 { label: 'Total days',    value: String(grow.currentDay) },
                 { label: 'Veg days',      value: String(Math.max(0, vegDays)) },
                 { label: 'Flower days',   value: String(Math.max(0, totalFlowerDays)) },
-                { label: 'Est. yield',    value: `~${grow.yieldProjection}g` },
+                { label: 'Est. yield',    value: `${Math.max(0, grow.yieldProjection)}g` },
                 { label: 'Health',        value: `${grow.health}%` },
                 { label: 'Quality est.',  value: qualityLabel },
               ].map(({ label, value }) => (
@@ -926,6 +926,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   transition: 'filter 0.15s',
                 }}
               />
+              {/* Mirror spacer on right — keeps lamp image exactly centered */}
+              <div style={{ minWidth: '52px' }} />
             </div>
           )}
 
@@ -995,9 +997,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           )}
 
           {/* Plant */}
-          <div style={{ position: 'absolute', bottom: '90px', left: '50%', transform: 'translateX(-50%)' }}>
-            <PlantSVG
-              stage={grow.stage as PlantSVGProps['stage']}
+          <div style={{
+            position: 'absolute', bottom: '90px', left: '50%', transform: 'translateX(-50%)',
+            filter: isLight ? 'none' : 'brightness(0.12)',
+            transition: 'filter 2s ease',
+          }}>
+            <PlantImage
+              stage={grow.stage}
               strainType={grow.strainType}
               health={grow.health}
               day={grow.currentDay}
@@ -1009,7 +1015,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               }}
               potCount={1}
               containerWidth={160}
-              animated={true}
+              tentSize={grow.setup.tentSize}
             />
           </div>
 
@@ -1124,7 +1130,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
               }}
             >
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>~{grow.yieldProjection}g</span>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>est. {Math.max(0, grow.yieldProjection)}g</span>
               <span style={{ fontSize: '8px', color: showYieldInfo ? '#00d4c8' : 'rgba(0,212,200,0.3)' }}>ⓘ</span>
             </button>
             {showYieldInfo && (

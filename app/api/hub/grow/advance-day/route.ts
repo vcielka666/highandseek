@@ -59,17 +59,18 @@ export async function POST() {
 
     const result = advanceDay({
       currentDay,
-      floweringTime:    grow.floweringTime,
-      flipDay:          growAny.manualFlipDay ?? null,
-      isClone:          growAny.isClone ?? false,
-      setup:            grow.setup as Setup,
-      environment:      grow.environment as Environment,
+      floweringTime:         grow.floweringTime,
+      flipDay:               growAny.manualFlipDay ?? null,
+      isClone:               growAny.isClone ?? false,
+      setup:                 grow.setup as Setup,
+      environment:           grow.environment as Environment,
       health,
       maxHealth,
       currentWatering,
       currentNutrients,
-      strainType:       grow.strainType as 'indica' | 'sativa' | 'hybrid',
+      strainType:            grow.strainType as 'indica' | 'sativa' | 'hybrid',
       existingWarnings,
+      storedYieldProjection: yieldProjection,
     })
 
     currentDay       = result.currentDay

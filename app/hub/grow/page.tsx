@@ -143,16 +143,9 @@ export default async function GrowPage() {
             <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6, marginBottom: '10px' }}>
               {g.realtimeDesc}
             </div>
-            {growsCompleted === 0 && (
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8', marginBottom: '12px' }}>
-                {g.realtimeFree}
-              </div>
-            )}
-            {growsCompleted > 0 && (
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginBottom: '12px' }}>
-                {g.realtimeCost}
-              </div>
-            )}
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8', marginBottom: '12px' }}>
+              {g.realtimeFree}
+            </div>
             <Link href="/hub/grow/setup" style={{
               fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase',
               color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '8px 16px',
