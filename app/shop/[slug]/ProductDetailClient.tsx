@@ -279,7 +279,10 @@ export default function ProductDetailClient({
     setHoveredImage(null)
   }
   const [qty, setQty] = useState(1)
-  const [selectedVariant, setSelectedVariant] = useState(0)
+  const [selectedVariant, setSelectedVariant] = useState(1)
+  const [customGrams, setCustomGrams] = useState('')
+  const [customActive, setCustomActive] = useState(false)
+  const customInputRef = useRef<HTMLInputElement>(null)
   const { addItem, openCart } = useCart()
   const { locale, t } = useLanguage()
   const isCs = locale === 'cs'
@@ -289,7 +292,39 @@ export default function ProductDetailClient({
 
   const images = product.images.length > 0 ? product.images : ['']
 
+  // Price per gram — derived from the smallest variant (most accurate base rate)
+  const pricePerGram = (() => {
+    if (!hasVariants || weightOptions.length === 0) return 0
+    // Parse grams from label (e.g. "5g" → 5, "10g" → 10)
+    const parsed = weightOptions
+      .map(o => ({ price: o.price, grams: parseFloat(o.label) }))
+      .filter(o => !isNaN(o.grams) && o.grams > 0)
+    if (parsed.length === 0) return 0
+    // Use cheapest per-gram rate (smallest pack = highest unit price, use it for custom)
+    parsed.sort((a, b) => a.grams - b.grams)
+    return parsed[0].price / parsed[0].grams
+  })()
+
+  const customGramsNum = parseFloat(customGrams)
+  const customPrice = (!isNaN(customGramsNum) && customGramsNum > 0)
+    ? Math.round(customGramsNum * pricePerGram)
+    : 0
+
   function handleAddToCart() {
+    if (customActive && customGramsNum > 0) {
+      const label = `${customGramsNum}g`
+      addItem({
+        cartKey: `${product._id}-custom-${customGramsNum}`,
+        productId: product._id,
+        slug: product.slug,
+        name: `${product.name} ${label}`,
+        price: customPrice,
+        image: product.images[0] ?? '',
+      }, 1)
+      toast.success(`${product.name} ${label} added to cart`)
+      openCart()
+      return
+    }
     if (hasVariants) {
       const option = weightOptions[selectedVariant]
       addItem({
@@ -575,12 +610,14 @@ export default function ProductDetailClient({
           {hasVariants ? (
             <div style={{ marginBottom: '24px' }}>
               <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
-                {weightOptions.map((opt, i) => {
-                  const active = selectedVariant === i
+                {/* Fixed weight buttons — skip 3g, show 5g + 10g */}
+                {weightOptions.slice(1, 3).map((opt, i) => {
+                  const variantIndex = i + 1 // actual index in weightOptions
+                  const active = !customActive && selectedVariant === variantIndex
                   return (
                     <div
                       key={opt.label}
-                      onClick={() => setSelectedVariant(i)}
+                      onClick={() => { setSelectedVariant(variantIndex); setCustomActive(false); setCustomGrams('') }}
                       style={{
                         flex: 1,
                         minWidth: '80px',
@@ -610,14 +647,88 @@ export default function ProductDetailClient({
                     </div>
                   )
                 })}
+
+                {/* Custom gram button */}
+                <div
+                  onClick={() => {
+                    setCustomActive(true)
+                    setSelectedVariant(-1)
+                    setTimeout(() => customInputRef.current?.focus(), 50)
+                  }}
+                  style={{
+                    flex: 1,
+                    minWidth: '80px',
+                    borderRadius: '6px',
+                    padding: '1px',
+                    background: customActive
+                      ? 'linear-gradient(135deg, #00d4c8, #8844cc, #cc00aa)'
+                      : 'rgba(240,168,48,0.15)',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <div style={{
+                    borderRadius: '5px',
+                    padding: '11px 8px',
+                    background: customActive ? 'rgba(10,8,20,0.92)' : 'rgba(240,168,48,0.04)',
+                    textAlign: 'center',
+                    transition: 'background 0.2s',
+                  }}>
+                    {customActive ? (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px', marginBottom: '4px' }}>
+                          <input
+                            ref={customInputRef}
+                            type="number"
+                            min="1"
+                            max="999"
+                            value={customGrams}
+                            onChange={e => setCustomGrams(e.target.value)}
+                            onClick={e => e.stopPropagation()}
+                            placeholder="0"
+                            style={{
+                              width: '52px',
+                              background: 'transparent',
+                              border: 'none',
+                              borderBottom: '1px solid rgba(0,212,200,0.5)',
+                              color: '#e8f0ef',
+                              fontFamily: 'var(--font-orbitron)',
+                              fontSize: '16px',
+                              fontWeight: 700,
+                              textAlign: 'center',
+                              outline: 'none',
+                              padding: '0 2px',
+                            }}
+                          />
+                          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#e8f0ef' }}>g</span>
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px', color: customPrice > 0 ? 'rgba(0,212,200,0.8)' : '#4a6066' }}>
+                          {customPrice > 0 ? `${customPrice.toLocaleString('en-US')} Kč` : '— Kč'}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#7a6030', marginBottom: '4px' }}>
+                          ?g
+                        </div>
+                        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '0.5px', color: '#4a6066' }}>
+                          custom
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
+
               <button
                 onClick={handleAddToCart}
-                disabled={product.stock === 0}
+                disabled={product.stock === 0 || (customActive && customPrice === 0)}
                 style={{
                   width: '100%',
                   height: '46px',
-                  background: product.stock === 0 ? 'rgba(0,212,200,0.3)' : '#00d4c8',
+                  background: product.stock === 0 || (customActive && customPrice === 0)
+                    ? 'rgba(0,212,200,0.3)'
+                    : '#00d4c8',
                   color: '#050508',
                   fontFamily: 'var(--font-cacha)',
                   fontSize: '14px',
@@ -625,12 +736,19 @@ export default function ProductDetailClient({
                   textTransform: 'uppercase',
                   border: 'none',
                   borderRadius: '4px',
-                  cursor: product.stock === 0 ? 'not-allowed' : 'pointer',
+                  cursor: product.stock === 0 || (customActive && customPrice === 0) ? 'not-allowed' : 'pointer',
                   transition: 'all 0.2s',
                 }}
                 className="hover:bg-[#00f5e8] hover:shadow-[0_0_20px_rgba(0,212,200,0.4)]"
               >
-                {product.stock === 0 ? 'Out of Stock' : `Add ${weightOptions[selectedVariant].label} — ${weightOptions[selectedVariant].price.toLocaleString('en-US')} Kč`}
+                {product.stock === 0
+                  ? 'Out of Stock'
+                  : customActive
+                    ? customPrice > 0
+                      ? `Add ${customGrams}g — ${customPrice.toLocaleString('en-US')} Kč`
+                      : 'Enter grams above'
+                    : `Add ${weightOptions[selectedVariant]?.label ?? ''} — ${weightOptions[selectedVariant]?.price.toLocaleString('en-US') ?? ''} Kč`
+                }
               </button>
             </div>
           ) : (
