@@ -36,6 +36,7 @@ export interface Setup {
   hasECMeter:        boolean
   hasHygrometer:     boolean
   potSize:           'small' | 'medium' | 'large'
+  plantCount?:       number   // 1–4
 }
 
 export interface Environment {
@@ -656,5 +657,15 @@ export function estimateYield(setup: Setup, strainType: 'indica' | 'sativa' | 'h
   const baseGramsPerM2 = strainType === 'sativa' ? 420 : strainType === 'indica' ? 380 : 400
   const lightModifier = Math.min(1.3, setup.lightWatts / (area * 400))
   const potModifier = setup.potSize === 'large' ? 1.1 : setup.potSize === 'small' ? 0.85 : 1.0
-  return Math.round(area * baseGramsPerM2 * lightModifier * potModifier)
+  const plantCount = setup.plantCount ?? 1
+
+  // Crowding model: each plant performs best with 0.25m² (4 plants/m² optimal)
+  // More space per plant → each plant yields more (capped at 1.4× bonus)
+  // Less space → crowding penalty (down to 0.55× at extreme density)
+  const areaPerPlant  = area / plantCount
+  const spaceFactor   = Math.min(1.4, Math.max(0.55, areaPerPlant / 0.25))
+
+  // Per-plant base × count × space factor
+  const perPlantBase  = baseGramsPerM2 * 0.25   // grams at optimal density
+  return Math.round(perPlantBase * plantCount * spaceFactor * lightModifier * potModifier)
 }

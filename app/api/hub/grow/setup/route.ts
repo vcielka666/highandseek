@@ -28,7 +28,7 @@ const FIELD_TO_GROUP: Record<string, string> = {
 const SETUP_CHANGE_COST_CREDITS = 1
 const SETUP_CHANGE_XP           = 50
 // These groups are always free — no credit charge ever
-const FREE_GROUPS = new Set(['phMeter', 'hygrometer'])
+const FREE_GROUPS = new Set(['phMeter', 'hygrometer', 'light'])
 
 const SetupPatchSchema = z.object({
   lightType:         z.enum(['led', 'hps', 'cmh', 'cfl']).optional(),

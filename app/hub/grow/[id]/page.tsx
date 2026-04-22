@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import dynamic from 'next/dynamic'
+import Lottie from 'lottie-react'
 import type PlantImageType from '@/lib/grow/PlantImage'
 import { useLanguage } from '@/stores/languageStore'
 import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attributes'
@@ -13,16 +14,24 @@ import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
 type PlantImageProps = Parameters<typeof PlantImageType>[0]
 const PlantImage = dynamic(() => import('@/lib/grow/PlantImage'), { ssr: false }) as React.ComponentType<PlantImageProps>
 
+// ── Action animation data ──────────────────────────────────────────────────────
+const ACTION_ANIMS: Partial<Record<string, string>> = {
+  water: '/action animations/water.json',
+}
+
 // ── Asset URLs ─────────────────────────────────────────────────────────────────
 
 const ASSETS = {
   tentBg:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046694/tent-bg_tqvklk.png',
   tentBgDark:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775213761/tent-bg-dark_tdybst.png',
   lights: {
-    led: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-led_o3w4p6.png',
-    hps: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-hps_atpeyj.png',
-    cmh: '',
-    cfl: '',
+    led:    'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-led_o3w4p6.png',
+    hps:    '/equip/lights/tent/hps.png',
+    hpsOn:  '/equip/lights/tent/hps on.png',
+    cflOff: '/equip/lights/tent/cfl.png',
+    cflOn:  '/equip/lights/tent/cfl on.png',
+    cmh:    '/equip/lights/cmh.png',
+    cfl:    '/equip/lights/cfl.png',
   } as Record<string, string>,
   exhaust:     'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046842/fan-exhaust_d6cc5c.png',
   circulation: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046841/fan-circulation_q6zbyi.png',
@@ -42,8 +51,19 @@ interface AttributeRange {
   status: 'optimal' | 'warning' | 'critical'
 }
 
+const STRAIN_LOCAL_IMG: Record<string, string> = {
+  'cherrygasm':   '/strains/genetics/cherrygasm.jpg',
+  'jack-herer':   '/strains/genetics/jack-herer.jpg',
+  'odb':          '/strains/genetics/odb.jpg',
+  'dosidos':      '/strains/dosidos.jpg',
+  'milky-dreams': '/strains/genetics/milky-dreams.jpg',
+  'tarte-tarin':  '/strains/genetics/tarte-tarin.jpg',
+  'velvet-moon':  '/strains/genetics/velvet-moon.jpg',
+}
+
 interface VirtualGrow {
   _id: string
+  strainSlug: string
   strainName: string
   strainType: 'indica' | 'sativa' | 'hybrid'
   floweringTime: number
@@ -59,6 +79,7 @@ interface VirtualGrow {
     medium: string; potSize: string; watering: string; nutrients: string
     hasExhaustFan: boolean; exhaustCFM: number; hasCirculationFan: boolean
     hasCarbonFilter: boolean; hasPHMeter: boolean; hasECMeter: boolean; hasHygrometer: boolean
+    plantCount?: number
   }
   environment: { temperature: number; humidity: number; ph: number; ec: number; lightHours: number; lightHeight: number; exhaustFanSpeed: number }
   attributes: {
@@ -264,6 +285,83 @@ function StageGuide({ stage, title, tips }: { stage: string; title: string; tips
   )
 }
 
+// ── Status bar ─────────────────────────────────────────────────────────────────
+
+function StatusBar({
+  cycleLabel, cycleSub, cycleColor, cycleInfoTitle, cycleInfoBody,
+  stageLabel, stageColor, stageInfoTitle, stageInfoBody,
+  progressLabel, yieldLabel, yieldInfoTitle, yieldInfoBody,
+}: {
+  cycleLabel: string; cycleSub: string; cycleColor: string; cycleInfoTitle: string; cycleInfoBody: string
+  stageLabel: string; stageColor: string; stageInfoTitle: string; stageInfoBody: string
+  progressLabel: string; yieldLabel: string; yieldInfoTitle: string; yieldInfoBody: string
+}) {
+  const [open, setOpen] = useState<'cycle' | 'stage' | 'yield' | null>(null)
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(null)
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [])
+
+  const seg = (
+    id: 'cycle' | 'stage' | 'yield',
+    label: string,
+    color: string,
+    infoTitle: string,
+    infoBody: string,
+  ) => (
+    <span style={{ position: 'relative' }}>
+      <button
+        onClick={() => setOpen(v => v === id ? null : id)}
+        style={{
+          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+          fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color,
+          letterSpacing: '0.3px',
+          textDecoration: open === id ? 'underline' : 'none',
+          textUnderlineOffset: '3px',
+          textDecorationColor: color,
+        }}
+      >
+        {label} <span style={{ fontSize: '7px', opacity: 0.5 }}>ⓘ</span>
+      </button>
+      {open === id && (
+        <div style={{
+          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
+          width: '220px', background: '#050f14',
+          border: '0.5px solid rgba(74,96,102,0.35)', borderRadius: '8px', padding: '12px',
+          zIndex: 30, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+          pointerEvents: 'none',
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
+            {infoTitle}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.6 }}>
+            {infoBody}
+          </div>
+        </div>
+      )}
+    </span>
+  )
+
+  return (
+    <div ref={ref} style={{
+      display: 'flex', alignItems: 'center', gap: '8px',
+      marginTop: '10px', flexWrap: 'wrap',
+    }}>
+      {seg('cycle', cycleLabel, cycleColor, cycleInfoTitle, cycleInfoBody)}
+      <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{cycleSub}</span>
+      <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
+      {seg('stage', stageLabel, stageColor, stageInfoTitle, stageInfoBody)}
+      <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
+      {seg('yield', `${progressLabel} · ${yieldLabel}`, '#00d4c8', yieldInfoTitle, yieldInfoBody)}
+    </div>
+  )
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 export default function ActiveGrowPage({ params }: { params: Promise<{ id: string }> }) {
@@ -296,12 +394,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const dragHeightRef   = useRef(60)
   const isDragging      = useRef(false)
 
-  // Info popups
-  const [showYieldInfo, setShowYieldInfo]       = useState(false)
-  const [showStageInfo, setShowStageInfo]       = useState(false)
-
   // Defoliate confirmation dialog
   const [confirmDialog, setConfirmDialog] = useState<{ type: string; title: string; body: string; severity: 'warning' | 'danger' } | null>(null)
+
+  // Action animation overlay
+  const [actionAnim, setActionAnim] = useState<{ src: string; animData: object } | null>(null)
 
   // Fan speed drag slider
   const [fanSliderActive, setFanSliderActive]   = useState(false)
@@ -311,6 +408,18 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const fanDragStartS   = useRef(100)
   const fanDragSpeedRef = useRef(100)
   const isFanDragging   = useRef(false)
+
+  // Tent width measurement for responsive plant sizing
+  const tentRef = useRef<HTMLDivElement>(null)
+  const [tentW, setTentW] = useState(0)
+  useEffect(() => {
+    if (!tentRef.current) return
+    const update = () => setTentW(tentRef.current!.clientWidth)
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(tentRef.current)
+    return () => ro.disconnect()
+  }, [])
 
   useEffect(() => {
     fetch('/api/hub/grow')
@@ -507,6 +616,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   // ── Actions ────────────────────────────────────────────────────────────────
 
   async function doAction(type: string) {
+    // Fire animation immediately, before API responds
+    const animSrc = ACTION_ANIMS[type]
+    if (animSrc) {
+      fetch(animSrc).then(r => r.json()).then(d => setActionAnim({ src: animSrc, animData: d })).catch(() => {})
+    }
     start(async () => {
       const res  = await fetch('/api/hub/grow/action', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -651,9 +765,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     return !attr || attr.status !== 'optimal'
   })
   const criticalCount  = activeWarnings.filter(w => w.severity === 'critical').length
-  const lightImg       = ASSETS.lights[grow.setup.lightType] ?? ''
-  const potImg         = ASSETS.pots[grow.setup.potSize]     ?? ''
-  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 60)
+  const lightImg = grow.setup.lightType === 'hps'
+    ? (isLight ? ASSETS.lights.hpsOn  : ASSETS.lights.hps)
+    : grow.setup.lightType === 'cfl'
+    ? (isLight ? ASSETS.lights.cflOn  : ASSETS.lights.cflOff)
+    : (ASSETS.lights[grow.setup.lightType] ?? '')
+const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 60)
   const lampTop        = lampTopPx(currentHeight)
   const currentFanSpeed = fanSliderActive ? dragFanSpeed : (committedFanSpeed ?? grow.environment.exhaustFanSpeed ?? 100)
 
@@ -728,19 +845,45 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+
+        {/* Right side: strain photo + journal + harvest */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
+          {/* Genetics photo card */}
+          {STRAIN_LOCAL_IMG[grow.strainSlug] && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={STRAIN_LOCAL_IMG[grow.strainSlug]}
+              alt={grow.strainName}
+              style={{
+                width: '80px', height: '80px',
+                objectFit: 'contain',
+                flexShrink: 0,
+              }}
+            />
+          )}
+
+          {/* Journal card button */}
           <Link href={`/hub/grow/${id}/journal/new`} style={{
-            fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '7px 14px',
-            border: '0.5px solid rgba(0,212,200,0.3)', borderRadius: '4px',
-            color: '#00d4c8', textDecoration: 'none',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            width: '80px', height: '80px', flexShrink: 0,
+            background: 'rgba(0,212,200,0.06)',
+            border: '0.5px solid rgba(0,212,200,0.25)',
+            borderRadius: '8px',
+            textDecoration: 'none', gap: '5px',
           }}>
-            {g.journalBtn}
+            <span style={{ fontSize: '24px', lineHeight: 1 }}>📓</span>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+              {g.journalBtn}
+            </span>
           </Link>
+
+          {/* Harvest button */}
           {grow.stage === 'harvest' && (
             <button onClick={doHarvest} disabled={pending} style={{
               fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px',
               padding: '7px 16px', background: '#f0a830', border: 'none',
               borderRadius: '4px', color: '#050508', cursor: 'pointer',
+              alignSelf: 'center',
             }}>
               {g.harvestBtn}
             </button>
@@ -869,7 +1012,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         {/* ── Tent ── */}
         <div>
-        <div style={{
+        <div ref={tentRef} style={{
           position: 'relative', borderRadius: '8px', overflow: 'hidden',
           background: '#0a1a1c', minHeight: '380px',
         }}>
@@ -879,38 +1022,43 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           <img src={ASSETS.tentBgDark} alt="Grow tent night" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: isLight ? 0 : 0.85, transition: 'opacity 2s ease' }} />
 
           {/* Lamp — moves up/down based on height; drag initiates only from the img */}
-          {lightImg && (
+          {lightImg && (<>
+            {/* Light cone — behind the lamp, spreads downward */}
+            {(() => {
+              const lt = grow.setup.lightType
+              const [c1, c2] = lt === 'led'
+                ? ['rgba(180,255,180,0.22)', 'rgba(100,255,120,0.08)']
+                : lt === 'cfl'
+                ? ['rgba(240,245,255,0.26)', 'rgba(200,220,255,0.08)']
+                : ['rgba(255,220,60,0.30)',  'rgba(255,180,10,0.10)']
+              return (
+                <div style={{
+                  position: 'absolute',
+                  top: `${lampTop + 55}px`,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: '340px',
+                  height: '420px',
+                  background: `radial-gradient(ellipse 55% 100% at 50% 0%, ${c1} 0%, ${c2} 40%, transparent 75%)`,
+                  pointerEvents: 'none',
+                  zIndex: 5,
+                  opacity: isLight ? 1 : 0,
+                  transition: 'opacity 2.5s ease',
+                  animation: isLight ? 'hps-cone-pulse 4s ease-in-out infinite' : 'none',
+                }} />
+              )
+            })()}
+
+            {/* Lamp — always perfectly centered; badge is a separate absolutely-placed element */}
             <div style={{
               position: 'absolute',
               top: `${lampTop}px`,
               left: '50%',
               transform: 'translateX(-50%)',
-              display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '8px',
               zIndex: 10, userSelect: 'none',
               transition: lampSliderActive ? 'none' : 'top 0.3s ease',
-              opacity: isLight ? 1 : 0.35,
+              opacity: (grow.setup.lightType === 'hps' || grow.setup.lightType === 'cfl') ? 1 : (isLight ? 1 : 0.25),
             }}>
-              {/* Badge left — only shown while dragging or waiting for API */}
-              {(lampSliderActive || committedHeight !== null) ? (
-                <div style={{
-                  background: 'rgba(240,168,48,0.2)',
-                  border: '0.5px solid rgba(240,168,48,0.6)',
-                  borderRadius: '4px', padding: '4px 8px',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
-                  minWidth: '52px',
-                }}>
-                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#f0a830', fontWeight: 700 }}>
-                    {currentHeight}cm
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', whiteSpace: 'nowrap' }}>
-                    {lampLabel}
-                  </span>
-                </div>
-              ) : (
-                /* Spacer to keep lamp centered */
-                <div style={{ minWidth: '52px' }} />
-              )}
-              {/* The lamp image is the drag handle */}
               <img
                 src={lightImg}
                 alt={`${grow.setup.lightType} light`}
@@ -918,18 +1066,51 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 onMouseDown={e => { e.preventDefault(); startLampDrag(e.clientY) }}
                 onTouchStart={e => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
                 style={{
-                  width: '120px', height: 'auto', cursor: lampSliderActive ? 'grabbing' : 'grab',
-                  touchAction: 'none',
-                  filter: lampSliderActive
-                    ? 'drop-shadow(0 4px 20px rgba(240,200,50,0.8))'
-                    : 'drop-shadow(0 4px 12px rgba(240,200,50,0.4))',
+                  width: grow.setup.lightType === 'cfl' ? '90px' : '120px',
+                  height: 'auto', cursor: lampSliderActive ? 'grabbing' : 'grab',
+                  touchAction: 'none', display: 'block',
+                  filter: (() => {
+                    const lt = grow.setup.lightType
+                    if (!isLight) return 'none'
+                    if (lt === 'led') return lampSliderActive
+                      ? 'drop-shadow(0 0 20px rgba(160,255,160,0.9)) drop-shadow(0 0 6px rgba(100,255,120,0.7))'
+                      : 'drop-shadow(0 0 12px rgba(160,255,160,0.6)) drop-shadow(0 0 4px rgba(100,255,120,0.4))'
+                    if (lt === 'cfl') return lampSliderActive
+                      ? 'drop-shadow(0 0 20px rgba(220,235,255,0.95)) drop-shadow(0 0 6px rgba(200,220,255,0.8))'
+                      : 'drop-shadow(0 0 12px rgba(220,235,255,0.7)) drop-shadow(0 0 4px rgba(200,220,255,0.5))'
+                    return lampSliderActive
+                      ? 'drop-shadow(0 0 22px rgba(255,210,40,0.95)) drop-shadow(0 0 8px rgba(255,180,10,0.8))'
+                      : 'drop-shadow(0 0 14px rgba(255,210,40,0.75)) drop-shadow(0 0 4px rgba(255,180,10,0.5))'
+                  })(),
+                  animation: grow.setup.lightType !== 'led' && isLight ? 'hps-flicker 8s ease-in-out infinite' : 'none',
                   transition: 'filter 0.15s',
                 }}
               />
-              {/* Mirror spacer on right — keeps lamp image exactly centered */}
-              <div style={{ minWidth: '52px' }} />
             </div>
-          )}
+            {/* Height badge — floats left of lamp, completely independent of lamp centering */}
+            {(lampSliderActive || committedHeight !== null) && (
+              <div style={{
+                position: 'absolute',
+                top: `${lampTop + 4}px`,
+                left: 'calc(50% - 120px)',
+                width: '52px',
+                background: 'rgba(240,168,48,0.2)',
+                border: '0.5px solid rgba(240,168,48,0.6)',
+                borderRadius: '4px', padding: '4px 8px',
+                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
+                zIndex: 10, userSelect: 'none',
+                opacity: isLight ? 1 : 0.35,
+                transition: lampSliderActive ? 'none' : 'top 0.3s ease',
+              }}>
+                <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#f0a830', fontWeight: 700 }}>
+                  {currentHeight}cm
+                </span>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', whiteSpace: 'nowrap' }}>
+                  {lampLabel}
+                </span>
+              </div>
+            )}
+          </>)}
 
           {/* Exhaust fan — draggable speed slider */}
           {grow.setup.hasExhaustFan && (
@@ -997,40 +1178,58 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           )}
 
           {/* Plant */}
-          <div style={{
-            position: 'absolute', bottom: '90px', left: '50%', transform: 'translateX(-50%)',
-            filter: isLight ? 'none' : 'brightness(0.12)',
-            transition: 'filter 2s ease',
-          }}>
-            <PlantImage
-              stage={grow.stage}
-              strainType={grow.strainType}
-              health={grow.health}
-              day={grow.currentDay}
-              techniques={{
-                lstApplied:       grow.actions.some(a => a.type === 'lst'),
-                toppingApplied:   grow.actions.some(a => a.type === 'top'),
-                defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
-                lollipopApplied:  grow.hasLollipoped ?? false,
-              }}
-              potCount={1}
-              containerWidth={160}
-              tentSize={grow.setup.tentSize}
-            />
-          </div>
+          {(() => {
+            const pc = grow.setup.plantCount ?? 1
+            const cMult = pc === 1 ? 0.50 : pc === 2 ? 0.70 : 0.78
+            const cCap  = pc === 1 ? 250  : pc === 2 ? 320  : 360
+            const plantContainerW = tentW ? Math.min(Math.round(tentW * cMult), cCap) : (pc === 1 ? 170 : pc === 2 ? 230 : 270)
+            const plantBottom     = tentW ? `${Math.max(40, Math.round(90 - tentW * 0.065))}px` : '40px'
+            return (
+              <div style={{
+                position: 'absolute', bottom: plantBottom, left: '50%', transform: 'translateX(-50%)',
+                filter: isLight ? 'none' : 'brightness(0.12)',
+                transition: 'filter 2s ease',
+              }}>
+                <PlantImage
+                  stage={grow.stage}
+                  strainType={grow.strainType}
+                  health={grow.health}
+                  day={grow.currentDay}
+                  techniques={{
+                    lstApplied:       grow.actions.some(a => a.type === 'lst'),
+                    toppingApplied:   grow.actions.some(a => a.type === 'top'),
+                    defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
+                    lollipopApplied:  grow.hasLollipoped ?? false,
+                  }}
+                  potCount={grow.setup.plantCount ?? 1}
+                  potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
+                  containerWidth={plantContainerW}
+                  tentSize={grow.setup.tentSize}
+                />
+              </div>
+            )
+          })()}
 
-          {/* Pot */}
-          {potImg && (
-            <img src={potImg} alt="pot" style={{
-              position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)',
-              width: '90px', height: 'auto',
-            }} />
+          {/* Action animation overlay */}
+          {actionAnim && (
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 20,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              pointerEvents: 'none',
+            }}>
+              <Lottie
+                animationData={actionAnim.animData}
+                loop={false}
+                onComplete={() => setActionAnim(null)}
+                style={{ width: '30%', maxWidth: '140px', height: 'auto' }}
+              />
+            </div>
           )}
 
           {/* Health badge */}
           <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(5,5,8,0.88)', borderRadius: '5px', padding: '7px 10px', minWidth: '90px' }}>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginBottom: '3px', letterSpacing: '0.5px' }}>{g.healthLabel}</div>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', color: grow.health > 60 ? '#00d4c8' : grow.health > 30 ? '#f0a830' : '#cc00aa', fontWeight: 700, marginBottom: '5px' }}>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', color: grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535', fontWeight: 700, marginBottom: '5px' }}>
               {grow.health}%
               {(grow.maxHealth ?? 100) < 100 && (
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginLeft: '5px' }}>
@@ -1043,7 +1242,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               <div style={{
                 position: 'absolute', left: 0, top: 0, height: '100%',
                 width: `${grow.health}%`,
-                background: grow.health > 60 ? '#00d4c8' : grow.health > 30 ? '#f0a830' : '#cc00aa',
+                background: grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535',
                 borderRadius: '2px', transition: 'width 0.5s',
               }} />
               {(grow.maxHealth ?? 100) < 100 && (
@@ -1056,118 +1255,130 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             </div>
           </div>
 
-          {/* Stage badge + harvest countdown */}
+        </div>
+
+        {/* ── Actions ── */}
+        <div style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px' }}>
           {(() => {
-            const flipDay = grow.manualFlipDay ?? 35
-            const seedlingEnd = grow.isClone ? 4 : 7
-            const vegDays = Math.max(0, flipDay - seedlingEnd)
-            const flowerDay = Math.max(0, grow.currentDay - flipDay)
-            const harvestAtDay = flipDay + grow.floweringTime
-            const daysLeft = Math.max(0, harvestAtDay - grow.currentDay)
-            const inFlower = ['flower', 'late_flower', 'harvest'].includes(grow.stage)
-            const stageDescriptions: Record<string, { title: string; desc: string }> = {
-              seedling:    { title: 'Seedling (Day 1–7)', desc: 'The most delicate stage. The plant is establishing its root system and first leaves. Keep humidity high (65–75%), light gentle (50–200 W/m²), and do not overfeed. Mistakes here are hard to recover from.' },
-              veg:         { title: 'Vegetative Stage', desc: 'The plant grows rapidly, building stems, branches and fan leaves. This is when you train (LST, topping) to shape the canopy. Light can be increased. Nutrients needed depending on medium. Duration determines final yield potential.' },
-              flower:      { title: 'Early Flower (F1–F21)', desc: 'The plant stretches 50–100% in height and begins forming bud sites. Flip to 12/12 light triggered this. Reduce humidity to 45–55% to prevent mould. Start boosting P and K if on mineral nutrients.' },
-              late_flower: { title: 'Late Flower', desc: 'Buds are swelling and resin is forming. This is the critical phase — keep humidity below 50%, watch for bud rot. Many growers flush at this stage. Trichomes will turn milky then amber as harvest approaches.' },
-              harvest:     { title: 'Harvest Ready', desc: 'Trichomes are milky/amber, pistils are mostly red/brown. Harvest now for potency. Waiting longer increases CBN (sleepy) and reduces THC. Cut, dry and cure for best results.' },
-            }
-            const stageInfo = stageDescriptions[grow.stage] ?? stageDescriptions.veg
+            const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
+            const lollipopDone = grow.hasLollipoped ?? false
+            const actions = [
+              { type: 'water',     label: g.actionWater,     xp: 5,  disabled: false },
+              { type: 'feed',      label: g.actionFeed,      xp: 10, disabled: false },
+              { type: 'ph_check',  label: g.actionPh,        xp: 5,  disabled: false },
+              isVeg
+                ? { type: 'lst',      label: g.actionLst,      xp: 25, disabled: false }
+                : { type: 'lollipop', label: g.actionLollipop, xp: 20, disabled: lollipopDone },
+              { type: 'defoliate', label: g.actionDefoliate, xp: 15, disabled: false },
+              { type: 'flush',     label: g.actionFlush,     xp: 5,  disabled: false },
+            ] as const
             return (
-              <div style={{ position: 'absolute', bottom: '12px', left: '12px' }}>
-                <button
-                  onClick={() => setShowStageInfo(v => !v)}
-                  style={{
-                    background: 'rgba(5,5,8,0.85)', borderRadius: '4px', padding: '6px 10px',
-                    border: showStageInfo ? '0.5px solid rgba(204,0,170,0.35)' : '0.5px solid transparent',
-                    cursor: 'pointer', textAlign: 'left',
-                  }}
-                >
-                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    {g.dayLabel} {grow.currentDay} · <span style={{ color: '#cc00aa' }}>{grow.stage.replace('_', ' ')}</span>
-                    <span style={{ fontSize: '8px', color: showStageInfo ? '#cc00aa' : 'rgba(204,0,170,0.3)' }}>ⓘ</span>
-                  </div>
-                  {inFlower && (
-                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginTop: '2px' }}>
-                      <span style={{ color: 'rgba(204,0,170,0.6)' }}>{g.flowerDayLabel} {flowerDay}/{grow.floweringTime}</span>
-                      {daysLeft > 0 && (
-                        <span style={{ color: 'rgba(240,168,48,0.7)', marginLeft: '6px' }}>· {g.harvestInLabel} ~{daysLeft}{g.daysAbbr}</span>
-                      )}
-                    </div>
-                  )}
-                  {!inFlower && grow.stage !== 'seedling' && (
-                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(74,96,102,0.6)', marginTop: '2px' }}>
-                      {g.vegDaysLabel} {vegDays}{g.daysAbbr}
-                    </div>
-                  )}
-                </button>
-                {showStageInfo && (
+              <>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '7px' }}>
+                  {actions.map(({ type, label, xp, disabled }) => (
+                    <button
+                      key={type}
+                      onClick={() => requestAction(type)}
+                      disabled={pending || disabled}
+                      title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
+                      style={{
+                        fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
+                        padding: '9px 4px', borderRadius: '4px',
+                        border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
+                        background: 'rgba(10,36,40,0.5)',
+                        color: disabled ? '#3a4a50' : '#e8f0ef',
+                        cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
+                        opacity: pending ? 0.5 : 1, textAlign: 'center',
+                      }}
+                    >
+                      {label}
+                      <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
+                        {disabled ? g.doneLbl : `+${xp}xp`}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {confirmDialog && (
                   <div style={{
-                    position: 'absolute', bottom: 'calc(100% + 6px)', left: 0,
-                    width: '230px', background: '#050f14',
-                    border: '0.5px solid rgba(204,0,170,0.25)', borderRadius: '8px', padding: '12px',
-                    zIndex: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+                    marginTop: '10px', padding: '12px 14px',
+                    background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.08)' : 'rgba(240,168,48,0.07)',
+                    border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.4)' : 'rgba(240,168,48,0.4)'}`,
+                    borderRadius: '6px',
                   }}>
-                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color: '#cc00aa', marginBottom: '6px' }}>
-                      🌱 {stageInfo.title}
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830', marginBottom: '6px', letterSpacing: '0.5px' }}>
+                      {confirmDialog.title}
                     </div>
-                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)', lineHeight: 1.55 }}>
-                      {stageInfo.desc}
+                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.5, marginBottom: '10px' }}>
+                      {confirmDialog.body}
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => { const t = confirmDialog.type; setConfirmDialog(null); doAction(t) }}
+                        style={{
+                          fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
+                          padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
+                          border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.5)' : 'rgba(240,168,48,0.5)'}`,
+                          background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.15)' : 'rgba(240,168,48,0.12)',
+                          color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830',
+                        }}
+                      >
+                        {g.confirmActionBtn}
+                      </button>
+                      <button
+                        onClick={() => setConfirmDialog(null)}
+                        style={{
+                          fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
+                          padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
+                          border: '0.5px solid rgba(74,96,102,0.3)',
+                          background: 'transparent', color: '#4a6066',
+                        }}
+                      >
+                        {g.cancelActionBtn}
+                      </button>
                     </div>
                   </div>
                 )}
-              </div>
+
+                {/* ── Status bar ── */}
+                {(() => {
+                  const flipDay     = grow.manualFlipDay ?? 35
+                  const seedlingEnd = grow.isClone ? 4 : 7
+                  const vegDays     = Math.max(0, flipDay - seedlingEnd)
+                  const flowerDay   = Math.max(0, grow.currentDay - flipDay)
+                  const daysLeft    = Math.max(0, (flipDay + grow.floweringTime) - grow.currentDay)
+                  const inFlower    = ['flower', 'late_flower', 'harvest'].includes(grow.stage)
+                  const stageColor  = grow.stage === 'harvest' ? '#f0a830' : grow.stage === 'seedling' ? '#56c254' : '#cc00aa'
+
+                  const stageBodyMap = (g.stageInfoBody as Record<string, string>)
+                  const stageInfoBody = stageBodyMap[grow.stage] ?? stageBodyMap.veg
+
+                  return (
+                    <StatusBar
+                      cycleLabel={pending ? g.growingLabel : (isLight ? g.dayLabel : g.nightLabel)}
+                      cycleSub={`${isLight ? g.lightOffIn : g.lightOnIn} ${cycleCountdown}`}
+                      cycleColor={isLight ? '#f0c832' : '#8888cc'}
+                      cycleInfoTitle={g.cycleInfoTitle}
+                      cycleInfoBody={g.cycleInfoBody}
+
+                      stageLabel={`Day ${grow.currentDay} · ${grow.stage.replace('_', ' ')}`}
+                      stageColor={stageColor}
+                      stageInfoTitle={g.stageInfoTitle}
+                      stageInfoBody={stageInfoBody}
+
+                      progressLabel={inFlower
+                        ? `F${flowerDay}/${grow.floweringTime}${daysLeft > 0 ? ` · ~${daysLeft}${g.daysAbbr}` : ' · 🌾'}`
+                        : `${vegDays}${g.daysAbbr} ${g.vegDaysLabel.toLowerCase()}`}
+
+                      yieldLabel={`~${Math.max(0, grow.yieldProjection)}g`}
+                      yieldInfoTitle={g.yieldInfoTitle}
+                      yieldInfoBody={g.yieldInfoBody}
+                    />
+                  )
+                })()}
+              </>
             )
           })()}
-
-          {/* Yield badge — clickable info */}
-          <div style={{ position: 'absolute', bottom: '12px', right: '12px' }}>
-            <button
-              onClick={() => setShowYieldInfo(v => !v)}
-              style={{
-                background: 'rgba(5,5,8,0.88)', borderRadius: '4px', padding: '5px 10px',
-                border: showYieldInfo ? '0.5px solid rgba(0,212,200,0.35)' : '0.5px solid transparent',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '5px',
-              }}
-            >
-              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>est. {Math.max(0, grow.yieldProjection)}g</span>
-              <span style={{ fontSize: '8px', color: showYieldInfo ? '#00d4c8' : 'rgba(0,212,200,0.3)' }}>ⓘ</span>
-            </button>
-            {showYieldInfo && (
-              <div style={{
-                position: 'absolute', bottom: 'calc(100% + 6px)', right: 0,
-                width: '220px', background: '#050f14',
-                border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '8px', padding: '12px',
-                zIndex: 20, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-              }}>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', fontWeight: 700, color: '#00d4c8', marginBottom: '6px' }}>
-                  💪 Yield Projection
-                </div>
-                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)', lineHeight: 1.5, marginBottom: '6px' }}>
-                  Estimated grams of dry flower at harvest based on your setup, strain and grow decisions.
-                </div>
-                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: '#4a6066', lineHeight: 1.5 }}>
-                  Flip timing, defoliation, training and healthy attributes all affect the final number. LST and defoliation increase it; early flips and problems reduce it.
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* ── Day / Night indicator bar ── */}
-        <div style={{
-          marginTop: '6px', padding: '7px 12px',
-          background: isLight ? 'rgba(240,200,50,0.06)' : 'rgba(100,100,200,0.08)',
-          border: `0.5px solid ${isLight ? 'rgba(240,200,50,0.2)' : 'rgba(100,100,200,0.2)'}`,
-          borderRadius: '5px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-          transition: 'all 2s ease',
-        }}>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: isLight ? '#f0c832' : '#8888cc', letterSpacing: '0.5px' }}>
-            {isLight ? g.dayLabel : g.nightLabel}
-          </span>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>
-            {isLight ? g.lightOffIn : g.lightOnIn} {cycleCountdown}
-          </span>
         </div>
         </div>
 
@@ -1411,105 +1622,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   )
                 })()}
 
-                {/* Actions */}
-                <div style={{ borderTop: '0.5px solid rgba(74,96,102,0.15)', marginTop: '14px', paddingTop: '14px' }}>
-                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '10px' }}>
-                    {g.actionsLabel}
-                  </div>
-                  {(() => {
-                    const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
-                    const lollipopDone = grow.hasLollipoped ?? false
-                    const actions = [
-                      { type: 'water',     label: g.actionWater,     xp: 5,  disabled: false },
-                      { type: 'feed',      label: g.actionFeed,      xp: 10, disabled: false },
-                      { type: 'ph_check',  label: g.actionPh,        xp: 5,  disabled: false },
-                      isVeg
-                        ? { type: 'lst',      label: g.actionLst,      xp: 25, disabled: false }
-                        : { type: 'lollipop', label: g.actionLollipop, xp: 20, disabled: lollipopDone },
-                      { type: 'defoliate', label: g.actionDefoliate, xp: 15, disabled: false },
-                      { type: 'flush',     label: g.actionFlush,     xp: 5,  disabled: false },
-                    ] as const
-                    return (
-                      <>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '7px' }}>
-                          {actions.map(({ type, label, xp, disabled }) => (
-                            <button
-                              key={type}
-                              onClick={() => requestAction(type)}
-                              disabled={pending || disabled}
-                              title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
-                              style={{
-                                fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
-                                padding: '9px 4px', borderRadius: '4px',
-                                border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
-                                background: 'rgba(10,36,40,0.5)',
-                                color: disabled ? '#3a4a50' : '#e8f0ef',
-                                cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
-                                opacity: pending ? 0.5 : 1, textAlign: 'center',
-                              }}
-                            >
-                              {label}
-                              <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
-                                {disabled ? g.doneLbl : `+${xp}xp`}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Confirmation dialog for risky defoliation */}
-                        {confirmDialog && (
-                          <div style={{
-                            marginTop: '10px', padding: '12px 14px',
-                            background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.08)' : 'rgba(240,168,48,0.07)',
-                            border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.4)' : 'rgba(240,168,48,0.4)'}`,
-                            borderRadius: '6px',
-                          }}>
-                            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830', marginBottom: '6px', letterSpacing: '0.5px' }}>
-                              {confirmDialog.title}
-                            </div>
-                            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.5, marginBottom: '10px' }}>
-                              {confirmDialog.body}
-                            </div>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                              <button
-                                onClick={() => { const t = confirmDialog.type; setConfirmDialog(null); doAction(t) }}
-                                style={{
-                                  fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
-                                  padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
-                                  border: `0.5px solid ${confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.5)' : 'rgba(240,168,48,0.5)'}`,
-                                  background: confirmDialog.severity === 'danger' ? 'rgba(204,0,0,0.15)' : 'rgba(240,168,48,0.12)',
-                                  color: confirmDialog.severity === 'danger' ? '#ff4040' : '#f0a830',
-                                }}
-                              >
-                                {g.confirmActionBtn}
-                              </button>
-                              <button
-                                onClick={() => setConfirmDialog(null)}
-                                style={{
-                                  fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px',
-                                  padding: '6px 12px', borderRadius: '3px', cursor: 'pointer',
-                                  border: '0.5px solid rgba(74,96,102,0.3)',
-                                  background: 'transparent', color: '#4a6066',
-                                }}
-                              >
-                                {g.cancelActionBtn}
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )
-                  })()}
-                </div>
-
-                <div style={{
-                  width: '100%', marginTop: '10px', padding: '10px 8px',
-                  fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
-                  textTransform: 'uppercase', textAlign: 'center',
-                  color: pending ? '#00d4c8' : '#4a6066',
-                }}>
-                  {pending ? `🌱 ${g.growingLabel}` : countdown ? `⏱ ${countdown}` : ''}
-                </div>
               </div>
             )}
 
@@ -1814,7 +1926,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 .slice(0, 8)
 
               const maxH = grow.maxHealth ?? 100
-              const healthColor = grow.health > 60 ? '#00d4c8' : grow.health > 30 ? '#f0a830' : '#cc00aa'
+              const healthColor = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
 
               return (
                 <div>

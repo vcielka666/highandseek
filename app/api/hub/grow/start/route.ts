@@ -43,6 +43,7 @@ const SetupSchema = z.object({
   hasPHMeter:        z.boolean().default(false),
   hasECMeter:        z.boolean().default(false),
   hasHygrometer:     z.boolean().default(false),
+  plantCount:        z.number().int().min(1).max(4).default(1),
 })
 
 const CustomStrainSchema = z.object({

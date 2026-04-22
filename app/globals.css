@@ -161,6 +161,35 @@ body::after {
   to { transform: rotate(360deg); }
 }
 
+@keyframes bento-border-glow {
+  0%,100% { box-shadow: 0 0 0px rgba(var(--glow-rgb),0); }
+  50%      { box-shadow: 0 0 22px rgba(var(--glow-rgb),0.28); }
+}
+
+@keyframes typing-dot {
+  0%,100% { opacity: 0.25; transform: translateY(0); }
+  50%      { opacity: 1;    transform: translateY(-3px); }
+}
+
+@keyframes xp-ring-fill {
+  from { stroke-dashoffset: var(--ring-full); }
+  to   { stroke-dashoffset: var(--ring-offset); }
+}
+
+@keyframes hps-flicker {
+  0%,100% { opacity: 1; }
+  92%     { opacity: 1; }
+  93%     { opacity: 0.82; }
+  94%     { opacity: 1; }
+  97%     { opacity: 0.88; }
+  98%     { opacity: 1; }
+}
+
+@keyframes hps-cone-pulse {
+  0%,100% { opacity: 0.72; }
+  50%     { opacity: 0.60; }
+}
+
 :root {
   --background:     oklch(1 0 0);
   --foreground:     oklch(0.145 0 0);

@@ -30,6 +30,8 @@
     "cloudinary": "^2.9.0",
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
+    "framer-motion": "^12.38.0",
+    "lottie-react": "^2.4.1",
     "lucide-react": "^1.7.0",
     "mongoose": "^9.3.2",
     "next": "16.2.1",

@@ -8,12 +8,14 @@ import { useLanguage } from '@/stores/languageStore'
 // ── Types ──────────────────────────────────────────────────────────────────────
 
 interface StrainOption {
-  slug:          string
-  name:          string
-  type:          'indica' | 'sativa' | 'hybrid'
-  floweringTime: number
-  difficulty:    'easy' | 'medium' | 'hard'
-  imageUrl:      string
+  slug:           string
+  name:           string
+  type:           'indica' | 'sativa' | 'hybrid'
+  floweringTime:  number
+  difficulty:     'easy' | 'medium' | 'hard'
+  imageUrl:       string
+  shopProductSlug?: string
+  shopImageUrl?:  string
 }
 
 interface CustomStrain {
@@ -39,6 +41,7 @@ interface Setup {
   hasPHMeter:        boolean
   hasECMeter:        boolean
   hasHygrometer:     boolean
+  plantCount:        1 | 2 | 3 | 4
 }
 
 const DEFAULT_SETUP: Setup = {
@@ -56,7 +59,8 @@ const DEFAULT_SETUP: Setup = {
   hasCarbonFilter:   false,
   hasPHMeter:        false,
   hasECMeter:        false,
-  hasHygrometer:     false,
+  hasHygrometer:     true,
+  plantCount:        1,
 }
 
 const MEDIUM_RULES: Record<Setup['medium'], {
@@ -87,6 +91,18 @@ const TYPE_EMOJI: Record<string, string> = {
   indica:  '🔵',
   sativa:  '🟢',
   hybrid:  '🟡',
+}
+
+// Local strain images — slug → path in /public/strains/
+// Used as primary source; falls back to shopImageUrl, then avatarLevels imageUrl
+const STRAIN_LOCAL_IMG: Record<string, string> = {
+  'cherrygasm':   '/strains/genetics/cherrygasm.jpg',
+  'jack-herer':   '/strains/genetics/jack-herer.jpg',
+  'odb':          '/strains/genetics/odb.jpg',
+  'dosidos':      '/strains/dosidos.jpg',
+  'milky-dreams': '/strains/genetics/milky-dreams.jpg',
+  'tarte-tarin':  '/strains/genetics/tarte-tarin.jpg',
+  'velvet-moon':  '/strains/genetics/velvet-moon.jpg',
 }
 
 const SPEED_PRESETS = [
@@ -170,32 +186,40 @@ function SetupWizardInner() {
     name: '', type: 'hybrid', floweringTime: 63, difficulty: 'medium',
   })
   const [nameError, setNameError]         = useState(false)
-  const [userCredits, setUserCredits]     = useState<number | null>(null)
 
   useEffect(() => {
-    fetch('/api/hub/strains')
-      .then(r => r.json())
-      .then(d => {
-        const list: StrainOption[] = (d.strains ?? []).map((s: {
+    // Fetch strains + shop products in parallel
+    Promise.all([
+      fetch('/api/hub/strains').then(r => r.json()),
+      fetch('/api/shop/products').then(r => r.json()).catch(() => ({ products: [] })),
+    ])
+      .then(([strainsData, productsData]) => {
+        // Build slug → first image map from all shop products
+        const shopImages: Record<string, string> = {}
+        for (const p of (productsData.products ?? []) as Array<{ slug: string; images?: string[] }>) {
+          if (p.images?.[0]) shopImages[p.slug] = p.images[0]
+        }
+
+        const raw: Array<{
           slug: string; name: string; type: string; floweringTime: number; difficulty: string
           visuals?: { avatarLevels?: Array<{ imageUrl: string }> }
-        }) => ({
-          slug:          s.slug,
-          name:          s.name,
-          type:          s.type as 'indica' | 'sativa' | 'hybrid',
-          floweringTime: s.floweringTime,
-          difficulty:    s.difficulty as 'easy' | 'medium' | 'hard',
-          imageUrl:      s.visuals?.avatarLevels?.[0]?.imageUrl ?? '',
+          shopProductSlug?: string
+        }> = strainsData.strains ?? []
+
+        const list: StrainOption[] = raw.map(s => ({
+          slug:            s.slug,
+          name:            s.name,
+          type:            s.type as 'indica' | 'sativa' | 'hybrid',
+          floweringTime:   s.floweringTime,
+          difficulty:      s.difficulty as 'easy' | 'medium' | 'hard',
+          imageUrl:        s.visuals?.avatarLevels?.[0]?.imageUrl ?? '',
+          shopProductSlug: s.shopProductSlug,
+          shopImageUrl:    s.shopProductSlug ? shopImages[s.shopProductSlug] : undefined,
         }))
         setStrains(list)
         setStrainsLoading(false)
       })
       .catch(() => setStrainsLoading(false))
-
-    fetch('/api/hub/grow')
-      .then(r => r.json())
-      .then(d => { if (typeof d.credits === 'number') setUserCredits(d.credits) })
-      .catch(() => null)
   }, [])
 
   const rules = MEDIUM_RULES[setup.medium]
@@ -321,7 +345,12 @@ function SetupWizardInner() {
       {/* ── Step 0: Speed ── */}
       {step === 0 && (
         <div style={S.card}>
-          <div style={S.label}>{g.speedLabel}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4a6066" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <div style={{ ...S.label, marginBottom: 0 }}>{g.speedLabel}</div>
+          </div>
 
           {/* Preset grid */}
           <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
@@ -434,10 +463,10 @@ function SetupWizardInner() {
                       transition: 'all 0.15s',
                     }}
                   >
-                    {/* Mini avatar */}
+                    {/* Strain image — local first, then shop product, then avatar, then emoji */}
                     <div style={{ height: '80px', background: 'rgba(5,5,8,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
-                      {s.imageUrl ? (
-                        <img src={s.imageUrl} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 }} />
+                      {(STRAIN_LOCAL_IMG[s.slug] || s.shopImageUrl || s.imageUrl) ? (
+                        <img src={STRAIN_LOCAL_IMG[s.slug] ?? s.shopImageUrl ?? s.imageUrl} alt={s.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.9 }} />
                       ) : (
                         <span style={{ fontSize: '28px' }}>{TYPE_EMOJI[s.type]}</span>
                       )}
@@ -478,7 +507,7 @@ function SetupWizardInner() {
                 >
                   <div style={{ height: '80px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '4px' }}>
                     <span style={{ fontSize: '22px' }}>✏️</span>
-                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#f0a830' }}>{g.ownStrainCost}</span>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8' }}>{g.ownStrainCost}</span>
                   </div>
                   <div style={{ padding: '8px 10px' }}>
                     <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: selectedSlug === '__custom__' ? '#f0a830' : '#e8f0ef', fontWeight: 500 }}>
@@ -500,13 +529,8 @@ function SetupWizardInner() {
                   padding: '16px',
                   marginTop: '4px',
                 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <div style={{ ...S.label, color: '#f0a830', marginBottom: 0 }}>{g.customFormTitle}</div>
-                    {userCredits !== null && (
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: userCredits >= 5 ? '#f0a830' : '#cc00aa' }}>
-                        {userCredits >= 5 ? `💎 ${userCredits} credits` : `⚠️ ${userCredits} / 5 credits`}
-                      </div>
-                    )}
                   </div>
 
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -611,42 +635,206 @@ function SetupWizardInner() {
       )}
 
       {/* ── Step 2: Tent ── */}
-      {step === 2 && (
-        <div style={S.card}>
-          <div style={S.label}>{g.tentSizeLabel}</div>
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '20px' }}>
-            {(['60x60', '80x80', '100x100', '120x120', '150x150'] as Setup['tentSize'][]).map(s => (
-              <button key={s} onClick={() => set('tentSize', s)} style={S.btn(setup.tentSize === s)}>
-                {s} cm
-              </button>
-            ))}
+      {step === 2 && (() => {
+        const TENT_DIMS: Record<Setup['tentSize'], string> = {
+          '60x60':   '60×60×160',
+          '80x80':   '80×80×180',
+          '100x100': '100×100×200',
+          '120x120': '120×120×200',
+          '150x150': '150×150×220',
+        }
+        const TENT_IMG: Record<Setup['tentSize'], string> = {
+          '60x60':   '/equip/growbox/homebox 1.png',
+          '80x80':   '/equip/growbox/homebox 1.png',
+          '100x100': '/equip/growbox/homebox 2.png',
+          '120x120': '/equip/growbox/homebox 2.png',
+          '150x150': '/equip/growbox/homebox 3.png',
+        }
+        // Height of tent image per size — shows full box, scales with tent size
+        const TENT_IMG_H: Record<Setup['tentSize'], number> = {
+          '60x60':   130,
+          '80x80':   160,
+          '100x100': 190,
+          '120x120': 210,
+          '150x150': 240,
+        }
+        return (
+          <div style={{
+            ...S.card,
+            minHeight: '300px',
+            position: 'relative',
+            overflow: 'hidden',
+          }}>
+            {/* Tent image — full box always visible */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={TENT_IMG[setup.tentSize]}
+              alt=""
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                height: `${TENT_IMG_H[setup.tentSize]}px`,
+                width: 'auto',
+                objectFit: 'contain',
+                opacity: 0.22,
+                pointerEvents: 'none',
+                transition: 'height 0.35s ease',
+                userSelect: 'none',
+              }}
+            />
+
+            {/* Content above image */}
+            <div style={{ position: 'relative', zIndex: 1 }}>
+            <div style={S.label}>{g.tentSizeLabel}</div>
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '16px' }}>
+              {(['60x60', '80x80', '100x100', '120x120', '150x150'] as Setup['tentSize'][]).map(s => (
+                <button key={s} onClick={() => set('tentSize', s)} style={{
+                  ...S.btn(setup.tentSize === s),
+                  backdropFilter: 'blur(3px)',
+                  background: setup.tentSize === s ? 'rgba(204,0,170,0.25)' : 'rgba(5,5,8,0.55)',
+                }}>
+                  {TENT_DIMS[s]}
+                </button>
+              ))}
+            </div>
+
+            {/* Dimensions badge */}
+            <div style={{
+              position: 'absolute', top: '20px', right: '20px',
+              fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
+              color: '#00d4c8', background: 'rgba(5,5,8,0.75)',
+              padding: '3px 8px', borderRadius: '3px', letterSpacing: '1px',
+            }}>
+              {TENT_DIMS[setup.tentSize]} cm
+            </div>
+
+            {/* Spacer so image shows through in the middle */}
+            <div style={{ height: '100px' }} />
+
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#a0b8bc', lineHeight: 1.6, marginBottom: '20px' }}>
+              {g.tentDescs[setup.tentSize]}
+            </div>
+
+            {/* ── Plant count ── */}
+            {(() => {
+              // Max comfortable plants per tent
+              const TENT_MAX: Record<Setup['tentSize'], number> = {
+                '60x60': 2, '80x80': 3, '100x100': 4, '120x120': 4, '150x150': 4,
+              }
+              const isCrowded = setup.plantCount > TENT_MAX[setup.tentSize]
+              return (
+                <>
+                  <div style={{ marginBottom: '14px' }}>
+                    <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', color: '#e8f0ef', letterSpacing: '1px', marginBottom: '4px' }}>
+                      {g.plantCountLabel}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
+                      {g.plantCountSub}
+                    </div>
+                  </div>
+                  <style>{`@media(max-width:480px){.plant-count-grid{grid-template-columns:repeat(2,1fr)!important}}`}</style>
+                  <div className="plant-count-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '10px' }}>
+                    {([1, 2, 3, 4] as const).map(n => {
+                      const active = setup.plantCount === n
+                      return (
+                        <button
+                          key={n}
+                          onClick={() => set('plantCount', n)}
+                          style={{
+                            ...S.btn(false),
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'flex-end',
+                            gap: '6px',
+                            padding: '10px 6px',
+                            width: '100%',
+                            border: active ? '1.5px solid #56c254' : '0.5px solid rgba(74,96,102,0.4)',
+                            background: active ? 'rgba(86,194,84,0.12)' : 'transparent',
+                            color: active ? '#56c254' : '#e8f0ef',
+                            boxShadow: active ? '0 0 10px rgba(86,194,84,0.2)' : 'none',
+                          }}
+                        >
+                          {/* Plant icons */}
+                          <div style={{ display: 'flex', gap: '1px', alignItems: 'flex-end', height: '32px' }}>
+                            {Array.from({ length: n }).map((_, i) => (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img
+                                key={i}
+                                src="/grow/plant/healthy/plant-late-flower.png"
+                                alt=""
+                                style={{
+                                  height: '32px',
+                                  width:  'auto',
+                                  maxWidth: `${Math.floor(56 / n)}px`,
+                                  objectFit: 'contain',
+                                  mixBlendMode: 'screen',
+                                  filter: 'none',
+                                }}
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px' }}>{n}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: isCrowded ? '#f0a830' : '#4a6066', lineHeight: 1.5 }}>
+                    {isCrowded
+                      ? g.plantCountWarn(setup.plantCount, setup.tentSize)
+                      : g.plantCountHint[setup.tentSize]}
+                  </div>
+                </>
+              )
+            })()}
+            </div>{/* end content wrapper */}
           </div>
-          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
-            {g.tentDescs[setup.tentSize]}
-          </div>
-        </div>
-      )}
+        )
+      })()}
 
       {/* ── Step 3: Light ── */}
-      {step === 3 && (
-        <div style={S.card}>
+      {step === 3 && (() => {
+        const LIGHT_IMG: Record<Setup['lightType'], string> = {
+          led: '/equip/lights/led.png',
+          hps: '/equip/lights/hps.png',
+          cmh: '/equip/lights/cmh.png',
+          cfl: '/equip/lights/cfl.png',
+        }
+        return (
+        <div style={{
+          ...S.card,
+          backgroundImage: `linear-gradient(rgba(13,0,20,0.70) 0%, rgba(13,0,20,0.55) 40%, rgba(13,0,20,0.85) 100%), url('${LIGHT_IMG[setup.lightType]}')`,
+          backgroundSize: 'contain',
+          backgroundPosition: 'center 30%',
+          backgroundRepeat: 'no-repeat',
+          minHeight: '240px',
+          transition: 'background-image 0.3s ease',
+          position: 'relative',
+        }}>
           <div style={S.label}>{g.lightTypeLabel}</div>
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '20px', flexWrap: 'wrap' }}>
             {(['led', 'hps', 'cmh', 'cfl'] as Setup['lightType'][]).map(l => (
-              <button key={l} onClick={() => set('lightType', l)} style={S.btn(setup.lightType === l)}>
+              <button key={l} onClick={() => set('lightType', l)} style={{
+                ...S.btn(setup.lightType === l),
+                backdropFilter: 'blur(4px)',
+                background: setup.lightType === l ? 'rgba(204,0,170,0.25)' : 'rgba(5,5,8,0.55)',
+              }}>
                 {l.toUpperCase()}
               </button>
             ))}
           </div>
 
           <div style={{
-            background: 'rgba(204,0,170,0.05)',
+            background: 'rgba(13,0,20,0.65)',
             border: '0.5px solid rgba(204,0,170,0.15)',
             borderRadius: '6px',
             padding: '12px 14px',
             marginBottom: '20px',
+            backdropFilter: 'blur(4px)',
           }}>
-            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#a0b8bc', lineHeight: 1.6 }}>
               {g.lightDescs[setup.lightType]}
             </div>
           </div>
@@ -675,7 +863,8 @@ function SetupWizardInner() {
             }}
           />
         </div>
-      )}
+        )
+      })()}
 
       {/* ── Step 4: Medium ── */}
       {step === 4 && (
@@ -772,13 +961,30 @@ function SetupWizardInner() {
               </div>
               {setup.hasExhaustFan && (
                 <div style={{ marginLeft: '28px' }}>
-                  <div style={S.label}>{g.cfmLabel}</div>
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                    {[100, 150, 200, 300, 400, 600].map(cfm => (
-                      <button key={cfm} onClick={() => set('exhaustCFM', cfm)} style={S.btn(setup.exhaustCFM === cfm)}>
-                        {cfm} CFM
-                      </button>
-                    ))}
+                  {/* CFM selection over fan bg */}
+                  <div style={{
+                    borderRadius: '6px',
+                    marginBottom: '12px',
+                    border: '0.5px solid rgba(74,96,102,0.2)',
+                    padding: '16px',
+                    backgroundImage: `linear-gradient(rgba(13,0,20,0.65) 0%, rgba(13,0,20,0.50) 50%, rgba(13,0,20,0.75) 100%), url('/equip/fan/exhaust fan.png')`,
+                    backgroundSize: 'contain',
+                    backgroundPosition: 'center right',
+                    backgroundRepeat: 'no-repeat',
+                    minHeight: '100px',
+                  }}>
+                    <div style={{ ...S.label, color: '#a0b8bc' }}>{g.cfmLabel}</div>
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {[100, 150, 200, 300, 400, 600].map(cfm => (
+                        <button key={cfm} onClick={() => set('exhaustCFM', cfm)} style={{
+                          ...S.btn(setup.exhaustCFM === cfm),
+                          backdropFilter: 'blur(3px)',
+                          background: setup.exhaustCFM === cfm ? 'rgba(204,0,170,0.25)' : 'rgba(5,5,8,0.55)',
+                        }}>
+                          {cfm} CFM
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 </div>
               )}
@@ -906,9 +1112,8 @@ function SetupWizardInner() {
       {/* Navigation */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
         <button
-          onClick={() => setStep(s => Math.max(0, s - 1))}
-          disabled={step === 0}
-          style={S.btn(false, step === 0)}
+          onClick={() => step === 0 ? router.push('/hub/grow') : setStep(s => s - 1)}
+          style={S.btn(false)}
         >
           {g.back}
         </button>

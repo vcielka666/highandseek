@@ -63,9 +63,16 @@ export interface PlantImageProps {
   health:         number
   strainType:     'indica' | 'sativa' | 'hybrid'
   potCount?:      number
+  potSize?:       'small' | 'medium' | 'large'
   techniques?:    PlantTechniques
   containerWidth?: number
   tentSize?:      string
+}
+
+const POT_IMGS: Record<'small' | 'medium' | 'large', string> = {
+  small:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046945/pot-small_lr05r7.png',
+  medium: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046946/pot-medium_cmrorl.png',
+  large:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046949/pot-large_upcfrg.png',
 }
 
 // ── Keyframe styles injected once ─────────────────────────────────────────────
@@ -168,6 +175,41 @@ function HarvestShimmer() {
   )
 }
 
+// ── Perspective layout definitions ────────────────────────────────────────────
+
+interface PlantSlot {
+  xFrac:       number   // center X as fraction of containerWidth
+  bottomFrac:  number   // CSS bottom as fraction of containerH (0 = at container bottom)
+  scale:       number   // size multiplier relative to base
+  brightness:  number   // depth dimming (1 = full, 0.6 = 40% darker)
+  zIndex:      number
+}
+
+const PERSPECTIVE_LAYOUTS: Record<1|2|3|4, PlantSlot[]> = {
+  1: [
+    { xFrac: 0.50, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 1 },
+  ],
+  2: [
+    { xFrac: 0.30, bottomFrac: 0.00, scale: 0.88, brightness: 1.0, zIndex: 1 },
+    { xFrac: 0.70, bottomFrac: 0.00, scale: 0.88, brightness: 1.0, zIndex: 1 },
+  ],
+  3: [
+    // back: centered, smaller + dimmed — tiny vertical offset so it sits just behind front row
+    { xFrac: 0.50, bottomFrac: 0.04, scale: 0.58, brightness: 0.62, zIndex: 1 },
+    // front: 2 plants
+    { xFrac: 0.27, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
+    { xFrac: 0.73, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
+  ],
+  4: [
+    // back row — same subtle offset
+    { xFrac: 0.34, bottomFrac: 0.04, scale: 0.56, brightness: 0.62, zIndex: 1 },
+    { xFrac: 0.66, bottomFrac: 0.04, scale: 0.56, brightness: 0.62, zIndex: 1 },
+    // front row
+    { xFrac: 0.27, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
+    { xFrac: 0.73, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
+  ],
+}
+
 // ── Single plant ──────────────────────────────────────────────────────────────
 
 interface SinglePlantProps {
@@ -257,19 +299,6 @@ function SinglePlant({ day, stage, health, strainType, techniques, width, height
         }}
       />
 
-      {/* Lollipop overlay — darkens bottom 35% */}
-      {techniques.lollipopApplied && (
-        <div
-          style={{
-            position:      'absolute',
-            inset:         0,
-            pointerEvents: 'none',
-            background:    'linear-gradient(to top, rgba(5,5,8,0.95) 0%, rgba(5,5,8,0.7) 20%, transparent 40%)',
-            transition:    'opacity 2s ease',
-          }}
-        />
-      )}
-
       {/* Harvest shimmer particles */}
       {isHarvest && <HarvestShimmer />}
     </div>
@@ -283,13 +312,8 @@ const DEFAULT_TECHNIQUES: PlantTechniques = {
   defoliationCount: 0, lollipopApplied: false,
 }
 
-// Per-pot layout configs: [widthFraction, heightScale]
-const POT_LAYOUTS: Record<number, Array<[number, number]>> = {
-  1: [[0.35, 1.00]],
-  2: [[0.26, 1.00], [0.26, 0.93]],
-  3: [[0.20, 1.00], [0.20, 0.90], [0.20, 0.95]],
-  4: [[0.17, 1.00], [0.17, 0.88], [0.17, 0.95], [0.17, 0.91]],
-}
+// Base plant width fraction per count (before slot.scale is applied)
+const BASE_FRACS: Record<1|2|3|4, number> = { 1: 0.35, 2: 0.28, 3: 0.26, 4: 0.26 }
 
 export default function PlantImage({
   day,
@@ -297,6 +321,7 @@ export default function PlantImage({
   health,
   strainType,
   potCount     = 1,
+  potSize      = 'medium',
   techniques   = DEFAULT_TECHNIQUES,
   containerWidth = 160,
   tentSize,
@@ -311,49 +336,84 @@ export default function PlantImage({
   if (!mounted) return null
 
   const clampedCount = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
-  const layout = POT_LAYOUTS[clampedCount]
+  const slots        = PERSPECTIVE_LAYOUTS[clampedCount]
+  const baseFrac     = BASE_FRACS[clampedCount]
 
-  // Tent size multiplier on base plant width
-  const tentMult = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
-
+  // Tent size multiplier
+  const tentMult     = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
   // Health-based overall scale
-  const healthScale = getHealthScale(health)
-
-  // Container height = roughly 1.6× container width (plant area)
-  const containerH = Math.round(containerWidth * 1.6)
-
-  // Gap between plants
-  const gap = Math.round(containerWidth * 0.04)
-
-  // Seedling scale — small plants look proportionally tiny
+  const healthScale  = getHealthScale(health)
+  // Seedling scale
   const seedlingScale = day <= 3 ? 0.45 : day <= 7 ? 0.65 : 1.0
 
+  // Container dimensions
+  const containerH = Math.round(containerWidth * 1.6)
+
+  // Base plant dimensions (before per-slot scale)
+  const basePlantW = containerWidth  * baseFrac * tentMult * healthScale * seedlingScale
+  const basePlantH = containerH * 0.88 * tentMult * healthScale * seedlingScale
+
+  const potImg = POT_IMGS[potSize]
+  // Base pot width — smaller fractions keep pots proportional and inside the tent
+  const basePotW = Math.round(containerWidth * (clampedCount === 1 ? 0.42 : 0.34))
+
   return (
-    <div style={{
-      position:       'relative',
-      width:          containerWidth,
-      height:         containerH,
-      display:        'flex',
-      alignItems:     'flex-end',
-      justifyContent: 'center',
-      gap,
-    }}>
-      {layout.map(([widthFrac, hScale], i) => {
-        const plantW = Math.round(containerWidth * widthFrac * tentMult * healthScale * seedlingScale)
-        const plantH = Math.round(containerH * 0.92 * tentMult * healthScale * seedlingScale)
+    <div style={{ position: 'relative', width: containerWidth, height: containerH }}>
+      {slots.map((slot, i) => {
+        const plantW     = Math.round(basePlantW * slot.scale)
+        const plantH     = Math.round(basePlantH * slot.scale)
+        const floorY     = Math.round(containerH * slot.bottomFrac)
+        const depthScale = slot.bottomFrac > 0 ? 0.88 : 1.0
+        const potW       = Math.round(basePotW * depthScale)
+        const potH       = Math.round(potW * 0.85)
+        // Plant raised so its stem base sits at pot's soil surface (~62% up the pot)
+        const plantBottom = floorY + Math.round(potH * 0.62)
+        const potCssLeft  = Math.round(containerWidth * slot.xFrac - potW / 2)
+        const plantCssLeft = Math.round(containerWidth * slot.xFrac - plantW / 2)
+        const depthFilter  = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined
 
         return (
-          <SinglePlant
-            key={i}
-            day={day}
-            stage={stage}
-            health={health}
-            strainType={strainType}
-            techniques={techniques}
-            width={plantW}
-            height={plantH}
-            heightScale={hScale}
-          />
+          <React.Fragment key={i}>
+            {/* Pot — rendered first so plant overlaps it */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={potImg}
+              alt="pot"
+              style={{
+                position:      'absolute',
+                bottom:        floorY,
+                left:          potCssLeft,
+                width:         potW,
+                height:        potH,
+                objectFit:     'contain',
+                pointerEvents: 'none',
+                zIndex:        slot.zIndex,
+                filter:        depthFilter,
+              }}
+            />
+            {/* Plant — raised above pot so stem grows from soil surface */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom:   plantBottom,
+                left:     plantCssLeft,
+                width:    plantW,
+                height:   plantH,
+                zIndex:   slot.zIndex + 1,
+                filter:   depthFilter,
+              }}
+            >
+              <SinglePlant
+                day={day}
+                stage={stage}
+                health={health}
+                strainType={strainType}
+                techniques={techniques}
+                width={plantW}
+                height={plantH}
+              />
+            </div>
+          </React.Fragment>
         )
       })}
     </div>

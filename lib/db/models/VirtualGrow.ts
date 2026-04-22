@@ -68,6 +68,7 @@ const VirtualGrowSchema = new mongoose.Schema({
     hasPHMeter:          { type: Boolean, default: false },
     hasECMeter:          { type: Boolean, default: false },
     hasHygrometer:       { type: Boolean, default: false },
+    plantCount:          { type: Number, default: 1, min: 1, max: 4 },
   },
 
   dayDurationSeconds:  { type: Number, default: 86400, min: 60, max: 86400 },

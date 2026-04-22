@@ -102,11 +102,6 @@ export default async function HarvestPage({ params }: PageProps) {
             +{grow.xpEarned} xp
           </div>
         </div>
-        {grow.isPerkEligible && (
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8' }}>
-            ✓ Realtime perk eligible
-          </div>
-        )}
       </div>
 
       {/* Techniques used */}
