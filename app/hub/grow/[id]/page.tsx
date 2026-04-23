@@ -10,6 +10,11 @@ import type PlantImageType from '@/lib/grow/PlantImage'
 import { useLanguage } from '@/stores/languageStore'
 import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attributes'
 import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
+import {
+  TENT_LAYOUT, EQUIP_IMGS, SVG_W, PLANT_FO_Y, PLANT_FO_H,
+  lampTopSVG, getLightImageUrl, getLampSVGWidth,
+  getPlantContainerWidth, getPlantFOX,
+} from '@/lib/grow/tentLayout'
 
 type PlantImageProps = Parameters<typeof PlantImageType>[0]
 const PlantImage = dynamic(() => import('@/lib/grow/PlantImage'), { ssr: false }) as React.ComponentType<PlantImageProps>
@@ -19,29 +24,7 @@ const ACTION_ANIMS: Partial<Record<string, string>> = {
   water: '/action animations/water.json',
 }
 
-// ── Asset URLs ─────────────────────────────────────────────────────────────────
-
-const ASSETS = {
-  tentBg:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046694/tent-bg_tqvklk.png',
-  tentBgDark:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775213761/tent-bg-dark_tdybst.png',
-  lights: {
-    led:    'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-led_o3w4p6.png',
-    hps:    '/equip/lights/tent/hps.png',
-    hpsOn:  '/equip/lights/tent/hps on.png',
-    cflOff: '/equip/lights/tent/cfl.png',
-    cflOn:  '/equip/lights/tent/cfl on.png',
-    cmh:    '/equip/lights/cmh.png',
-    cfl:    '/equip/lights/cfl.png',
-  } as Record<string, string>,
-  exhaust:     'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046842/fan-exhaust_d6cc5c.png',
-  circulation: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046841/fan-circulation_q6zbyi.png',
-  filter:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046888/carbon-filter_zk4axj.png',
-  pots: {
-    small:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046945/pot-small_lr05r7.png',
-    medium: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046946/pot-medium_cmrorl.png',
-    large:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046949/pot-large_upcfrg.png',
-  } as Record<string, string>,
-}
+// Equipment URLs and positions are in lib/grow/tentLayout.ts (EQUIP_IMGS + TENT_LAYOUT)
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -108,14 +91,6 @@ function statusColor(s: string) {
   if (s === 'optimal')  return '#56c254'  // natural plant green
   if (s === 'warning')  return '#f0a830'
   return '#ff4040'   // critical → red
-}
-
-// ── Lamp top position based on height (20cm=close=lower, 100cm=far=higher) ────
-
-function lampTopPx(heightCm: number): number {
-  // height 100 (far) → top 8px   (lamp high in tent)
-  // height 20  (close) → top 110px (lamp near plant top)
-  return Math.round(8 + ((100 - heightCm) / 80) * 102)
 }
 
 // ── Attribute bar ──────────────────────────────────────────────────────────────
@@ -533,18 +508,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const fanDragSpeedRef = useRef(100)
   const isFanDragging   = useRef(false)
 
-  // Tent width measurement for responsive plant sizing
-  const tentRef = useRef<HTMLDivElement>(null)
-  const [tentW, setTentW] = useState(0)
-  useEffect(() => {
-    if (!tentRef.current) return
-    const update = () => setTentW(tentRef.current!.clientWidth)
-    update()
-    const ro = new ResizeObserver(update)
-    ro.observe(tentRef.current)
-    return () => ro.disconnect()
-  }, [])
-
   useEffect(() => {
     fetch(`/api/hub/grow?id=${id}`)
       .then(r => r.json())
@@ -912,13 +875,9 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     return !attr || attr.status !== 'optimal'
   })
   const criticalCount  = activeWarnings.filter(w => w.severity === 'critical').length
-  const lightImg = grow.setup.lightType === 'hps'
-    ? (isLight ? ASSETS.lights.hpsOn  : ASSETS.lights.hps)
-    : grow.setup.lightType === 'cfl'
-    ? (isLight ? ASSETS.lights.cflOn  : ASSETS.lights.cflOff)
-    : (ASSETS.lights[grow.setup.lightType] ?? '')
-const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 60)
-  const lampTop        = lampTopPx(currentHeight)
+  const lightImg       = getLightImageUrl(grow.setup.lightType, isLight)
+  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 60)
+  const lampTop        = lampTopSVG(currentHeight)  // SVG Y coordinate
   const currentFanSpeed = fanSliderActive ? dragFanSpeed : (committedFanSpeed ?? grow.environment.exhaustFanSpeed ?? 100)
 
   const stageTips = (g.stageGuide as Record<string, readonly string[]>)[grow.stage]
@@ -1159,250 +1118,253 @@ const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.
 
         {/* ── Tent ── */}
         <div>
-        <div ref={tentRef} style={{
-          position: 'relative', borderRadius: '8px', overflow: 'hidden',
-          background: '#0a1a1c', minHeight: '380px',
-        }}>
-          {/* Day tent */}
-          <img src={ASSETS.tentBg} alt="Grow tent" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: isLight ? 0.7 : 0, transition: 'opacity 2s ease' }} />
-          {/* Night tent */}
-          <img src={ASSETS.tentBgDark} alt="Grow tent night" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: isLight ? 0 : 0.85, transition: 'opacity 2s ease' }} />
+        {/* ── SVG Tent — viewBox 0 0 1000 750, all positions in TENT_LAYOUT ── */}
+        <div style={{ borderRadius: '8px', overflow: 'hidden' }}>
+        <svg
+          viewBox="0 0 1000 750"
+          xmlns="http://www.w3.org/2000/svg"
+          style={{ display: 'block', width: '100%', height: 'auto' }}
+        >
+          <defs>
+            {/* Light cone gradients (LED / CFL / HPS-CMH) */}
+            <radialGradient id="cone-led" cx="50%" cy="0%" r="80%" fx="50%" fy="0%">
+              <stop offset="0%"  stopColor="#b4ffb4" stopOpacity="0.22" />
+              <stop offset="40%" stopColor="#64ff78" stopOpacity="0.08" />
+              <stop offset="75%" stopColor="#64ff78" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="cone-cfl" cx="50%" cy="0%" r="80%" fx="50%" fy="0%">
+              <stop offset="0%"  stopColor="#f0f5ff" stopOpacity="0.26" />
+              <stop offset="40%" stopColor="#c8dcff" stopOpacity="0.08" />
+              <stop offset="75%" stopColor="#c8dcff" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="cone-hps" cx="50%" cy="0%" r="80%" fx="50%" fy="0%">
+              <stop offset="0%"  stopColor="#ffdc3c" stopOpacity="0.30" />
+              <stop offset="40%" stopColor="#ffb40a" stopOpacity="0.10" />
+              <stop offset="75%" stopColor="#ffb40a" stopOpacity="0" />
+            </radialGradient>
+            {/* Lamp glow drop-shadows */}
+            <filter id="glow-led" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="0" stdDeviation={lampSliderActive ? 14 : 8} floodColor="#a0ffa0" floodOpacity={lampSliderActive ? 0.9 : 0.6} />
+            </filter>
+            <filter id="glow-cfl" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="0" stdDeviation={lampSliderActive ? 14 : 8} floodColor="#dce8ff" floodOpacity={lampSliderActive ? 0.95 : 0.7} />
+            </filter>
+            <filter id="glow-hps" x="-60%" y="-60%" width="220%" height="220%">
+              <feDropShadow dx="0" dy="0" stdDeviation={lampSliderActive ? 16 : 10} floodColor="#ffd228" floodOpacity={lampSliderActive ? 0.95 : 0.75} />
+            </filter>
+          </defs>
 
-          {/* Lamp — moves up/down based on height; drag initiates only from the img */}
-          {lightImg && (<>
-            {/* Light cone — behind the lamp, spreads downward */}
-            {(() => {
-              const lt = grow.setup.lightType
-              const [c1, c2] = lt === 'led'
-                ? ['rgba(180,255,180,0.22)', 'rgba(100,255,120,0.08)']
-                : lt === 'cfl'
-                ? ['rgba(240,245,255,0.26)', 'rgba(200,220,255,0.08)']
-                : ['rgba(255,220,60,0.30)',  'rgba(255,180,10,0.10)']
-              return (
-                <div style={{
-                  position: 'absolute',
-                  top: `${lampTop + 55}px`,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: '340px',
-                  height: '420px',
-                  background: `radial-gradient(ellipse 55% 100% at 50% 0%, ${c1} 0%, ${c2} 40%, transparent 75%)`,
-                  pointerEvents: 'none',
-                  zIndex: 5,
+          {/* ── Layer 1: Tent backgrounds (day / night crossfade) ── */}
+          <image href={EQUIP_IMGS.tentBg}     x="0" y="0" width="1000" height="750" preserveAspectRatio="xMidYMid slice"
+            style={{ opacity: isLight ? 0.7 : 0, transition: 'opacity 2s ease' }} />
+          <image href={EQUIP_IMGS.tentBgDark} x="0" y="0" width="1000" height="750" preserveAspectRatio="xMidYMid slice"
+            style={{ opacity: isLight ? 0 : 0.85, transition: 'opacity 2s ease' }} />
+
+          {/* ── Layer 2: Equipment ── */}
+
+          {/* Carbon filter — rotated */}
+          {grow.setup.hasCarbonFilter && (
+            <image
+              href={EQUIP_IMGS.filter}
+              x={TENT_LAYOUT.filter.x} y={TENT_LAYOUT.filter.y}
+              width={TENT_LAYOUT.filter.w} height={TENT_LAYOUT.filter.h}
+              transform={`rotate(55,${TENT_LAYOUT.filter.x + TENT_LAYOUT.filter.w / 2},${TENT_LAYOUT.filter.y + TENT_LAYOUT.filter.h / 2})`}
+              style={{ filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.5))' }}
+            />
+          )}
+
+          {/* Circulation fan — left wall */}
+          {grow.setup.hasCirculationFan && (
+            <image
+              href={EQUIP_IMGS.circulation}
+              x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
+              width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
+              style={{ opacity: 0.85, filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
+            />
+          )}
+
+          {/* Medium bag — bottom left */}
+          <image
+            href={EQUIP_IMGS.mediumSoil}
+            x={TENT_LAYOUT.medium.x} y={TENT_LAYOUT.medium.y}
+            width={TENT_LAYOUT.medium.w} height={TENT_LAYOUT.medium.h}
+            style={{ opacity: 0.82 }}
+          />
+
+          {/* Exhaust fan — top right, draggable fan-speed slider */}
+          {grow.setup.hasExhaustFan && (
+            <image
+              href={EQUIP_IMGS.exhaust}
+              x={TENT_LAYOUT.exhaust.x} y={TENT_LAYOUT.exhaust.y}
+              width={TENT_LAYOUT.exhaust.w} height={TENT_LAYOUT.exhaust.h}
+              style={{
+                opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
+                touchAction: 'none',
+                filter: fanSliderActive
+                  ? 'drop-shadow(-2px 0 12px rgba(0,212,200,0.7))'
+                  : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
+                transition: 'filter 0.15s',
+              }}
+              onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
+              onTouchStart={(e) => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
+            />
+          )}
+
+          {/* Fan speed badge — left of exhaust, only when dragging */}
+          {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (
+            <g transform={`translate(${TENT_LAYOUT.exhaust.x - 76},${TENT_LAYOUT.exhaust.y + 50})`}>
+              <rect x={0} y={0} width={62} height={40} rx={4}
+                fill="rgba(0,212,200,0.2)" stroke="rgba(0,212,200,0.6)" strokeWidth={0.5} />
+              <text x={8} y={22} fontFamily="var(--font-orbitron), monospace" fontSize={13} fontWeight={700} fill="#00d4c8">
+                {currentFanSpeed}%
+              </text>
+              <text x={8} y={35} fontFamily="DM Mono, monospace" fontSize={7} fill="#4a6066">
+                {fanSpeedLabel}
+              </text>
+            </g>
+          )}
+
+          {/* ── Layer 3: Light cone + Lamp ── */}
+
+          {/* Light cone — radiates downward from lamp bottom */}
+          {(() => {
+            const lt = grow.setup.lightType
+            const coneId = lt === 'led' ? 'cone-led' : lt === 'cfl' ? 'cone-cfl' : 'cone-hps'
+            return (
+              <ellipse
+                cx={500} cy={lampTop + 70} rx={190} ry={310}
+                fill={`url(#${coneId})`}
+                style={{
                   opacity: isLight ? 1 : 0,
                   transition: 'opacity 2.5s ease',
                   animation: isLight ? 'hps-cone-pulse 4s ease-in-out infinite' : 'none',
-                }} />
-              )
-            })()}
-
-            {/* Lamp — always perfectly centered; badge is a separate absolutely-placed element */}
-            <div style={{
-              position: 'absolute',
-              top: `${lampTop}px`,
-              left: '50%',
-              transform: 'translateX(-50%)',
-              zIndex: 10, userSelect: 'none',
-              transition: lampSliderActive ? 'none' : 'top 0.3s ease',
-              opacity: (grow.setup.lightType === 'hps' || grow.setup.lightType === 'cfl') ? 1 : (isLight ? 1 : 0.25),
-            }}>
-              <img
-                src={lightImg}
-                alt={`${grow.setup.lightType} light`}
-                draggable={false}
-                onMouseDown={e => { e.preventDefault(); startLampDrag(e.clientY) }}
-                onTouchStart={e => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
-                style={{
-                  width: grow.setup.lightType === 'cfl' ? '90px' : '120px',
-                  height: 'auto', cursor: lampSliderActive ? 'grabbing' : 'grab',
-                  touchAction: 'none', display: 'block',
-                  filter: (() => {
-                    const lt = grow.setup.lightType
-                    if (!isLight) return 'none'
-                    if (lt === 'led') return lampSliderActive
-                      ? 'drop-shadow(0 0 20px rgba(160,255,160,0.9)) drop-shadow(0 0 6px rgba(100,255,120,0.7))'
-                      : 'drop-shadow(0 0 12px rgba(160,255,160,0.6)) drop-shadow(0 0 4px rgba(100,255,120,0.4))'
-                    if (lt === 'cfl') return lampSliderActive
-                      ? 'drop-shadow(0 0 20px rgba(220,235,255,0.95)) drop-shadow(0 0 6px rgba(200,220,255,0.8))'
-                      : 'drop-shadow(0 0 12px rgba(220,235,255,0.7)) drop-shadow(0 0 4px rgba(200,220,255,0.5))'
-                    return lampSliderActive
-                      ? 'drop-shadow(0 0 22px rgba(255,210,40,0.95)) drop-shadow(0 0 8px rgba(255,180,10,0.8))'
-                      : 'drop-shadow(0 0 14px rgba(255,210,40,0.75)) drop-shadow(0 0 4px rgba(255,180,10,0.5))'
-                  })(),
-                  animation: grow.setup.lightType !== 'led' && isLight ? 'hps-flicker 8s ease-in-out infinite' : 'none',
-                  transition: 'filter 0.15s',
+                  pointerEvents: 'none',
                 }}
               />
-            </div>
-            {/* Height badge — floats left of lamp, completely independent of lamp centering */}
-            {(lampSliderActive || committedHeight !== null) && (
-              <div style={{
-                position: 'absolute',
-                top: `${lampTop + 4}px`,
-                left: 'calc(50% - 120px)',
-                width: '52px',
-                background: 'rgba(240,168,48,0.2)',
-                border: '0.5px solid rgba(240,168,48,0.6)',
-                borderRadius: '4px', padding: '4px 8px',
-                display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
-                zIndex: 10, userSelect: 'none',
-                opacity: isLight ? 1 : 0.35,
-                transition: lampSliderActive ? 'none' : 'top 0.3s ease',
-              }}>
-                <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#f0a830', fontWeight: 700 }}>
-                  {currentHeight}cm
-                </span>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', whiteSpace: 'nowrap' }}>
-                  {lampLabel}
-                </span>
-              </div>
-            )}
-          </>)}
-
-          {/* Exhaust fan — draggable speed slider */}
-          {grow.setup.hasExhaustFan && (
-            <div style={{
-              position: 'absolute', top: '32px', right: '-12px',
-              display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '6px',
-              zIndex: 10, userSelect: 'none',
-            }}>
-              {/* Speed badge left — only while dragging or in flight */}
-              {(fanSliderActive || committedFanSpeed !== null) ? (
-                <div style={{
-                  background: 'rgba(0,212,200,0.2)', border: '0.5px solid rgba(0,212,200,0.6)',
-                  borderRadius: '4px', padding: '3px 8px',
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1px',
-                  minWidth: '46px',
-                }}>
-                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', fontWeight: 700 }}>
-                    {currentFanSpeed}%
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', whiteSpace: 'nowrap' }}>
-                    {fanSpeedLabel}
-                  </span>
-                </div>
-              ) : (
-                /* Quiet hint when idle */
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '6px', color: 'rgba(74,96,102,0.4)', writingMode: 'vertical-rl', transform: 'rotate(180deg)' }}>
-                  {g.fanHint}
-                </span>
-              )}
-              <img
-                src={ASSETS.exhaust}
-                alt="exhaust fan"
-                draggable={false}
-                onMouseDown={e => { e.preventDefault(); startFanDrag(e.clientY) }}
-                onTouchStart={e => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
-                style={{
-                  width: '74px', height: 'auto', opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
-                  touchAction: 'none',
-                  filter: fanSliderActive
-                    ? `drop-shadow(-2px 0 12px rgba(0,212,200,0.7)) drop-shadow(0 0 4px rgba(0,212,200,0.4))`
-                    : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
-                  transition: 'filter 0.15s',
-                }}
-              />
-            </div>
-          )}
-
-          {/* Carbon filter */}
-          {grow.setup.hasCarbonFilter && (
-            <img src={ASSETS.filter} alt="carbon filter" style={{
-              position: 'absolute', top: '35px', right: '134px',
-              width: '74px', height: 'auto', opacity: 1,
-              filter: 'drop-shadow(-2px 0px 6px rgba(0,0,0,0.5))',
-              rotate: '55deg',
-            }} />
-          )}
-
-          {/* Circulation fan */}
-          {grow.setup.hasCirculationFan && (
-            <img src={ASSETS.circulation} alt="circulation fan" style={{
-              position: 'absolute', top: '45%', left: '124px',
-              width: '42px', height: 'auto', opacity: 0.85,
-              filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))',
-            }} />
-          )}
-
-          {/* Plant */}
-          {(() => {
-            const pc = grow.setup.plantCount ?? 1
-            const cMult = pc === 1 ? 0.50 : pc === 2 ? 0.70 : 0.78
-            const cCap  = pc === 1 ? 250  : pc === 2 ? 320  : 360
-            const plantContainerW = tentW ? Math.min(Math.round(tentW * cMult), cCap) : (pc === 1 ? 170 : pc === 2 ? 230 : 270)
-            const plantBottom     = tentW ? `${Math.max(40, Math.round(90 - tentW * 0.065))}px` : '40px'
-            return (
-              <div style={{
-                position: 'absolute', bottom: plantBottom, left: '50%', transform: 'translateX(-50%)',
-                filter: isLight ? 'none' : 'brightness(0.12)',
-                transition: 'filter 2s ease',
-              }}>
-                <PlantImage
-                  stage={grow.stage}
-                  strainType={grow.strainType}
-                  health={grow.health}
-                  day={grow.currentDay}
-                  techniques={{
-                    lstApplied:       grow.actions.some(a => a.type === 'lst'),
-                    toppingApplied:   grow.actions.some(a => a.type === 'top'),
-                    defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
-                    lollipopApplied:  grow.hasLollipoped ?? false,
-                  }}
-                  potCount={grow.setup.plantCount ?? 1}
-                  potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
-                  containerWidth={plantContainerW}
-                  tentSize={grow.setup.tentSize}
-                />
-              </div>
             )
           })()}
 
-          {/* Action animation overlay */}
+          {/* Lamp image — draggable to adjust height */}
+          {lightImg && (() => {
+            const lt      = grow.setup.lightType
+            const lampW   = getLampSVGWidth(lt)
+            const lampX   = SVG_W / 2 - lampW / 2
+            const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
+            const opacity = (lt === 'hps' || lt === 'cfl') ? 1 : (isLight ? 1 : 0.25)
+            return (
+              <>
+                <image
+                  href={lightImg}
+                  x={lampX} y={lampTop}
+                  width={lampW} height={200}
+                  style={{
+                    cursor: lampSliderActive ? 'grabbing' : 'grab',
+                    touchAction: 'none',
+                    filter: isLight ? `url(#${glowId})` : 'none',
+                    opacity,
+                    animation: lt !== 'led' && isLight ? 'hps-flicker 8s ease-in-out infinite' : 'none',
+                    transition: 'filter 0.15s, opacity 0.15s',
+                    userSelect: 'none',
+                  }}
+                  onMouseDown={(e) => { e.preventDefault(); startLampDrag(e.clientY) }}
+                  onTouchStart={(e) => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
+                />
+                {/* Height badge — left of lamp, visible only while dragging */}
+                {(lampSliderActive || committedHeight !== null) && (
+                  <g transform={`translate(${lampX - 74},${lampTop + 4})`}
+                    style={{ opacity: isLight ? 1 : 0.35 }}>
+                    <rect x={0} y={0} width={62} height={40} rx={4}
+                      fill="rgba(240,168,48,0.2)" stroke="rgba(240,168,48,0.6)" strokeWidth={0.5} />
+                    <text x={8} y={22} fontFamily="var(--font-orbitron), monospace" fontSize={13} fontWeight={700} fill="#f0a830">
+                      {currentHeight}cm
+                    </text>
+                    <text x={8} y={35} fontFamily="DM Mono, monospace" fontSize={7} fill="#4a6066">
+                      {lampLabel}
+                    </text>
+                  </g>
+                )}
+              </>
+            )
+          })()}
+
+          {/* ── Layer 4: Plant (foreignObject, bottom-anchored) ── */}
+          {(() => {
+            const pc         = grow.setup.plantCount ?? 1
+            const containerW = getPlantContainerWidth(pc, grow.setup.tentSize)
+            const foX        = getPlantFOX(containerW)
+            return (
+              <foreignObject
+                x={foX} y={PLANT_FO_Y}
+                width={containerW} height={PLANT_FO_H}
+                style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease' }}
+              >
+                <div style={{ width: containerW, height: PLANT_FO_H }}>
+                  <PlantImage
+                    stage={grow.stage}
+                    strainType={grow.strainType}
+                    health={grow.health}
+                    day={grow.currentDay}
+                    techniques={{
+                      lstApplied:       grow.actions.some(a => a.type === 'lst'),
+                      toppingApplied:   grow.actions.some(a => a.type === 'top'),
+                      defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
+                      lollipopApplied:  grow.hasLollipoped ?? false,
+                    }}
+                    potCount={pc}
+                    potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
+                    containerWidth={containerW}
+                    tentSize={grow.setup.tentSize}
+                  />
+                </div>
+              </foreignObject>
+            )
+          })()}
+
+          {/* ── Layer 5: Lottie action animation (center) ── */}
           {actionAnim && (
-            <div style={{
-              position: 'absolute', inset: 0, zIndex: 20,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              pointerEvents: 'none',
-            }}>
-              <Lottie
-                animationData={actionAnim.animData}
-                loop={false}
-                onComplete={() => setActionAnim(null)}
-                style={{ width: '30%', maxWidth: '140px', height: 'auto' }}
-              />
-            </div>
+            <foreignObject x={350} y={200} width={300} height={300}>
+              <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                <Lottie
+                  animationData={actionAnim.animData}
+                  loop={false}
+                  onComplete={() => setActionAnim(null)}
+                  style={{ width: '140px', height: '140px' }}
+                />
+              </div>
+            </foreignObject>
           )}
 
-          {/* Health badge */}
-          <div style={{ position: 'absolute', top: '12px', left: '12px', background: 'rgba(5,5,8,0.88)', borderRadius: '5px', padding: '7px 10px', minWidth: '90px' }}>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginBottom: '3px', letterSpacing: '0.5px' }}>{g.healthLabel}</div>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '14px', color: grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535', fontWeight: 700, marginBottom: '5px' }}>
-              {grow.health}%
-              {(grow.maxHealth ?? 100) < 100 && (
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginLeft: '5px' }}>
-                  / {grow.maxHealth ?? 100}
-                </span>
-              )}
-            </div>
-            {/* Health bar with cap marker */}
-            <div style={{ position: 'relative', height: '4px', background: 'rgba(74,96,102,0.25)', borderRadius: '2px', width: '72px' }}>
-              <div style={{
-                position: 'absolute', left: 0, top: 0, height: '100%',
-                width: `${grow.health}%`,
-                background: grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535',
-                borderRadius: '2px', transition: 'width 0.5s',
-              }} />
-              {(grow.maxHealth ?? 100) < 100 && (
-                <div style={{
-                  position: 'absolute', top: '-2px', bottom: '-2px',
-                  left: `${grow.maxHealth ?? 100}%`,
-                  width: '2px', background: 'rgba(255,80,80,0.7)', borderRadius: '1px',
-                }} />
-              )}
-            </div>
-          </div>
+          {/* ── Layer 6: HUD ── */}
 
-        </div>
+          {/* Health badge — top left */}
+          {(() => {
+            const hCol = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
+            const barW  = Math.round(grow.health * 0.74)
+            const capX  = (grow.maxHealth ?? 100) < 100 ? Math.round((grow.maxHealth ?? 100) * 0.74) : null
+            return (
+              <g>
+                <rect x={12} y={12} width={106} height={62} rx={5} fill="rgba(5,5,8,0.88)" />
+                <text x={20} y={27} fontFamily="DM Mono,monospace" fontSize={8} letterSpacing={0.5} fill="#4a6066">
+                  {g.healthLabel as string}
+                </text>
+                <text x={20} y={47} fontFamily="var(--font-orbitron),monospace" fontSize={14} fontWeight={700} fill={hCol}>
+                  {grow.health}%
+                  {(grow.maxHealth ?? 100) < 100 && (
+                    <tspan fontSize={8} fill="#4a6066"> / {grow.maxHealth ?? 100}</tspan>
+                  )}
+                </text>
+                <rect x={20} y={54} width={74} height={4} rx={2} fill="rgba(74,96,102,0.25)" />
+                <rect x={20} y={54} width={barW} height={4} rx={2} fill={hCol}
+                  style={{ transition: 'width 0.5s' }} />
+                {capX !== null && (
+                  <rect x={20 + capX} y={52} width={2} height={8} rx={1} fill="rgba(255,80,80,0.7)" />
+                )}
+              </g>
+            )
+          })()}
+
+        </svg>
+        </div>{/* /SVG border-radius wrapper */}
 
         {/* ── Actions ── */}
         <div style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px' }}>
