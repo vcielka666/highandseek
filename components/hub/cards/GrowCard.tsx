@@ -296,6 +296,7 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
   const [history, setHistory] = useState<HistoryGrow[]>([])
   const [historyLoading, setHistoryLoading] = useState(false)
   const [acknowledged, setAcknowledged] = useState(false)
+  const [showAll, setShowAll] = useState(false)
 
   async function handleOk() {
     setSliding(true)
@@ -434,7 +435,7 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {history.map(h => {
+              {(showAll ? history : history.slice(0, 3)).map(h => {
                 const statusColor = STATUS_COLORS[h.status] ?? '#4a6066'
                 const statusLabel = (labels.growHistoryStatus ?? {})[h.status] ?? h.status
                 return (
@@ -463,6 +464,26 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
                   </div>
                 )
               })}
+
+              {/* Show more / collapse */}
+              {history.length > 3 && (
+                <button
+                  onClick={() => setShowAll(v => !v)}
+                  style={{
+                    fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
+                    color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)',
+                    borderRadius: '4px', padding: '8px 0', cursor: 'pointer', width: '100%',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                    transition: 'color 0.15s, border-color 0.15s',
+                  }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#e8f0ef'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.6)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#4a6066'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.3)' }}
+                >
+                  {showAll
+                    ? '▲ show less'
+                    : `··· ${history.length - 3} more`}
+                </button>
+              )}
             </div>
           )}
 
