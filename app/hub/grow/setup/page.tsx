@@ -105,6 +105,70 @@ const STRAIN_LOCAL_IMG: Record<string, string> = {
   'velvet-moon':  '/strains/genetics/velvet-moon.jpg',
 }
 
+// ── Quick setup presets ────────────────────────────────────────────────────────
+
+const PRESET_BEGINNER: Setup = {
+  tentSize:          '100x100',
+  lightType:         'led',
+  lightWatts:        240,
+  lightBrand:        '',
+  medium:            'living_soil',
+  potSize:           'medium',
+  watering:          'manual',
+  nutrients:         'organic',
+  hasExhaustFan:     true,
+  exhaustCFM:        200,
+  hasCirculationFan: true,
+  hasCarbonFilter:   false,
+  hasPHMeter:        false,
+  hasECMeter:        false,
+  hasHygrometer:     true,
+  plantCount:        1,
+}
+
+const PRESET_PRO: Setup = {
+  tentSize:          '120x120',
+  lightType:         'led',
+  lightWatts:        400,
+  lightBrand:        '',
+  medium:            'coco',
+  potSize:           'medium',
+  watering:          'drip',
+  nutrients:         'mineral',
+  hasExhaustFan:     true,
+  exhaustCFM:        300,
+  hasCirculationFan: true,
+  hasCarbonFilter:   true,
+  hasPHMeter:        true,
+  hasECMeter:        true,
+  hasHygrometer:     true,
+  plantCount:        2,
+}
+
+function randomSetup(): Setup {
+  const pick = <T,>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+  const medium = pick<Setup['medium']>(['living_soil', 'coco', 'hydro'])
+  const rules  = MEDIUM_RULES[medium]
+  return {
+    tentSize:          pick<Setup['tentSize']>(['60x60', '80x80', '100x100', '120x120', '150x150']),
+    lightType:         pick<Setup['lightType']>(['led', 'hps', 'cmh', 'cfl']),
+    lightWatts:        pick([100, 150, 200, 240, 300, 400, 600]),
+    lightBrand:        '',
+    medium,
+    potSize:           pick<Setup['potSize']>(['small', 'medium', 'large']),
+    watering:          pick(rules.allowedWatering),
+    nutrients:         pick(rules.allowedNutrients),
+    hasExhaustFan:     Math.random() > 0.2,
+    exhaustCFM:        pick([100, 150, 200, 300, 400]),
+    hasCirculationFan: Math.random() > 0.25,
+    hasCarbonFilter:   Math.random() > 0.5,
+    hasPHMeter:        Math.random() > 0.5,
+    hasECMeter:        medium !== 'living_soil' ? Math.random() > 0.4 : false,
+    hasHygrometer:     Math.random() > 0.15,
+    plantCount:        pick<Setup['plantCount']>([1, 2, 3, 4]),
+  }
+}
+
 const SPEED_PRESETS = [
   { label: '1 min',  seconds: 60,    tier: 'practice' as const },
   { label: '5 min',  seconds: 300,   tier: 'practice' as const },
@@ -175,6 +239,7 @@ function SetupWizardInner() {
   const [step, setStep]           = useState(0)
   const [dayDurationSeconds, setDds] = useState<number>(initDDS)
   const [setup, setSetup]         = useState<Setup>(DEFAULT_SETUP)
+  const [activePreset, setActivePreset] = useState<'beginner' | 'pro' | 'random' | null>(null)
   const [pending, start]          = useTransition()
 
   // Strain state
@@ -402,9 +467,70 @@ function SetupWizardInner() {
             )
           })()}
 
+          {/* ── Quick Setup Presets ── */}
+          <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '0.5px solid rgba(74,96,102,0.2)' }}>
+            <div style={{ marginBottom: '12px' }}>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '11px', color: '#e8f0ef', marginBottom: '4px' }}>
+                {g.quickSetupTitle}
+              </div>
+              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+                {g.quickSetupSub}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
+              {([ 'beginner', 'pro', 'random' ] as const).map(key => {
+                const info    = g.presets[key]
+                const isActive = activePreset === key
+                const colors: Record<string, { border: string; bg: string; text: string }> = {
+                  beginner: { border: 'rgba(0,212,200,0.5)',   bg: 'rgba(0,212,200,0.08)',   text: '#00d4c8' },
+                  pro:      { border: 'rgba(204,0,170,0.5)',   bg: 'rgba(204,0,170,0.08)',   text: '#cc00aa' },
+                  random:   { border: 'rgba(240,168,48,0.5)',  bg: 'rgba(240,168,48,0.08)',  text: '#f0a830' },
+                }
+                const c = colors[key]
+                return (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      const next = key === 'random' ? randomSetup() : key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO
+                      setSetup(next)
+                      setActivePreset(key)
+                    }}
+                    style={{
+                      background:   isActive ? c.bg : 'rgba(10,36,40,0.5)',
+                      border:       isActive ? `1px solid ${c.border}` : '0.5px solid rgba(74,96,102,0.3)',
+                      borderRadius: '6px',
+                      padding:      '12px 10px',
+                      cursor:       'pointer',
+                      textAlign:    'left',
+                      transition:   'all 0.2s',
+                      boxShadow:    isActive ? `0 0 12px ${c.bg}` : 'none',
+                    }}
+                  >
+                    <div style={{ fontSize: '20px', marginBottom: '6px' }}>{info.icon}</div>
+                    <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: isActive ? c.text : '#e8f0ef', marginBottom: '4px' }}>
+                      {info.label}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', lineHeight: 1.5, marginBottom: '6px' }}>
+                      {info.desc}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '9px', color: isActive ? c.text : '#4a6066', fontStyle: 'italic' }}>
+                      {info.hint}
+                    </div>
+                    {isActive && (
+                      <div style={{ marginTop: '8px', fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: c.text, letterSpacing: '0.5px' }}>
+                        ✓ applied
+                      </div>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
           {/* Cycle estimate (if strain already selected) */}
           {strainReady && (
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginTop: '16px' }}>
               {cycleEstimate(
                 isCustom ? customStrain.floweringTime : (selectedStrain?.floweringTime ?? 63),
                 dayDurationSeconds,

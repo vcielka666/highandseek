@@ -770,6 +770,30 @@ export const translations = {
       reviewWatering:  'Watering', reviewNutrients: 'Nutrients',
       reviewExhaust:   'Exhaust',  reviewCircFan:   'Circ. fan',
       valNone: 'None', valYes: 'Yes', valNo: 'No',
+      // Quick setup presets (in Speed step)
+      quickSetupTitle:   'Quick Setup',
+      quickSetupSub:     'One click fills your entire setup — you can still tweak each step.',
+      presetApplied:     (name: string) => `✓ ${name} applied — speed still yours to choose`,
+      presets: {
+        beginner: {
+          label: 'Beginner',
+          icon:  '🌱',
+          desc:  'Living soil · LED 240W · 100×100 · manual',
+          hint:  'Forgiving. No pH meter needed.',
+        },
+        pro: {
+          label: 'Coco Pro',
+          icon:  '⚡',
+          desc:  'Coco coir · LED 400W · 120×120 · drip',
+          hint:  'Max yield. Needs daily attention.',
+        },
+        random: {
+          label: 'Random',
+          icon:  '🎲',
+          desc:  'Surprise setup — randomised valid config',
+          hint:  'You never know what you get.',
+        },
+      },
       // Nav + submit
       back:        '← Back',
       next:        'Next →',
@@ -1551,6 +1575,30 @@ export const translations = {
       reviewWatering:  'Zalévání',  reviewNutrients: 'Živiny',
       reviewExhaust:   'Výfuk',     reviewCircFan:   'Cirk. vent.',
       valNone: 'Žádný', valYes: 'Ano', valNo: 'Ne',
+      // Quick setup presets (in Speed step)
+      quickSetupTitle:   'Rychlé nastavení',
+      quickSetupSub:     'Jeden klik vyplní celé nastavení — každý krok pak můžeš upravit.',
+      presetApplied:     (name: string) => `✓ ${name} použito — rychlost si zvol sám`,
+      presets: {
+        beginner: {
+          label: 'Začátečník',
+          icon:  '🌱',
+          desc:  'Living soil · LED 240W · 100×100 · ruční',
+          hint:  'Odpouštívý setup. pH metr nepotřebuješ.',
+        },
+        pro: {
+          label: 'Coco Pro',
+          icon:  '⚡',
+          desc:  'Coco coir · LED 400W · 120×120 · kapičky',
+          hint:  'Max výnos. Vyžaduje každodenní péči.',
+        },
+        random: {
+          label: 'Náhoda',
+          icon:  '🎲',
+          desc:  'Překvapivý setup — náhodná validní konfigurace',
+          hint:  'Nikdy nevíš, co dostaneš.',
+        },
+      },
       // Nav + submit
       back:        '← Zpět',
       next:        'Dále →',
