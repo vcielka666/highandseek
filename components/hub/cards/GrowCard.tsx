@@ -283,6 +283,43 @@ interface HistoryGrow {
   createdAt: string
 }
 
+// ── History row ───────────────────────────────────────────────────────────────
+
+const STATUS_COLORS: Record<string, string> = {
+  completed: '#00d4c8',
+  failed:    '#e03535',
+  abandoned: '#4a6066',
+}
+
+function HistoryRow({ h, labels }: { h: HistoryGrow; labels: Props['labels'] }) {
+  const statusColor = STATUS_COLORS[h.status] ?? '#4a6066'
+  const statusLabel = (labels.growHistoryStatus ?? {})[h.status] ?? h.status
+  return (
+    <div style={{ background: 'rgba(255,255,255,0.02)', border: `0.5px solid ${statusColor}22`, borderRadius: '8px', padding: '14px 16px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+        <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '15px', color: '#e8f0ef', letterSpacing: '0.5px' }}>{h.strainName}</div>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: statusColor, background: `${statusColor}18`, padding: '2px 8px', borderRadius: '3px', letterSpacing: '0.5px' }}>
+          {statusLabel}
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+        {[
+          { label: labels.growHistoryDay ?? 'Day', value: String(h.currentDay) },
+          { label: labels.growHistoryXp ?? 'XP', value: `${h.xpEarned ?? 0}` },
+          ...(h.status === 'completed' && h.harvestData?.gramsYield
+            ? [{ label: labels.growHistoryYield ?? 'Yield', value: `${h.harvestData.gramsYield}g` }]
+            : []),
+        ].map(({ label, value }) => (
+          <div key={label}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#e8f0ef' }}>{value}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ── Expanded failed state (with history slide) ────────────────────────────────
 
 function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
@@ -324,12 +361,6 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
 
     // refresh server data so hub home is clean when overlay closes
     router.refresh()
-  }
-
-  const STATUS_COLORS: Record<string, string> = {
-    completed: '#00d4c8',
-    failed:    '#e03535',
-    abandoned: '#4a6066',
   }
 
   return (
@@ -435,54 +466,36 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {(showAll ? history : history.slice(0, 3)).map(h => {
-                const statusColor = STATUS_COLORS[h.status] ?? '#4a6066'
-                const statusLabel = (labels.growHistoryStatus ?? {})[h.status] ?? h.status
-                return (
-                  <div key={String(h._id)} style={{ background: 'rgba(255,255,255,0.02)', border: `0.5px solid ${statusColor}22`, borderRadius: '8px', padding: '14px 16px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                      <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '15px', color: '#e8f0ef', letterSpacing: '0.5px' }}>{h.strainName}</div>
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: statusColor, background: `${statusColor}18`, padding: '2px 8px', borderRadius: '3px', letterSpacing: '0.5px' }}>
-                        {statusLabel}
-                      </div>
-                    </div>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                      {[
-                        { label: labels.growHistoryDay ?? 'Day', value: String(h.currentDay) },
-                        { label: labels.growHistoryXp ?? 'XP', value: `${h.xpEarned ?? 0}` },
-                        ...(h.status === 'completed' && h.harvestData?.gramsYield
-                          ? [{ label: labels.growHistoryYield ?? 'Yield', value: `${h.harvestData.gramsYield}g` }]
-                          : []
-                        ),
-                      ].map(({ label, value }) => (
-                        <div key={label}>
-                          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '2px' }}>{label}</div>
-                          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#e8f0ef' }}>{value}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )
-              })}
+              {/* First 3 — always visible */}
+              {history.slice(0, 3).map(h => <HistoryRow key={String(h._id)} h={h} labels={labels} />)}
 
-              {/* Show more / collapse */}
+              {/* Remaining items — max-height animated */}
               {history.length > 3 && (
-                <button
-                  onClick={() => setShowAll(v => !v)}
-                  style={{
-                    fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
-                    color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)',
-                    borderRadius: '4px', padding: '8px 0', cursor: 'pointer', width: '100%',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
-                    transition: 'color 0.15s, border-color 0.15s',
-                  }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#e8f0ef'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.6)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#4a6066'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.3)' }}
-                >
-                  {showAll
-                    ? '▲ show less'
-                    : `··· ${history.length - 3} more`}
-                </button>
+                <>
+                  <div style={{
+                    overflow: 'hidden',
+                    maxHeight: showAll ? `${(history.length - 3) * 100}px` : '0px',
+                    transition: 'max-height 0.55s cubic-bezier(0.4,0,0.2,1)',
+                    display: 'flex', flexDirection: 'column', gap: '10px',
+                  }}>
+                    {history.slice(3).map(h => <HistoryRow key={String(h._id)} h={h} labels={labels} />)}
+                  </div>
+
+                  <button
+                    onClick={() => setShowAll(v => !v)}
+                    style={{
+                      fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
+                      color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)',
+                      borderRadius: '4px', padding: '8px 0', cursor: 'pointer', width: '100%',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+                      transition: 'color 0.2s, border-color 0.2s',
+                    }}
+                    onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.color = '#e8f0ef'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.6)' }}
+                    onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.color = '#4a6066'; (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(74,96,102,0.3)' }}
+                  >
+                    {showAll ? '▲ show less' : `··· ${history.length - 3} more`}
+                  </button>
+                </>
               )}
             </div>
           )}
