@@ -61,13 +61,13 @@ const CARDS: CardMeta[] = [
 
 // ── Preview renderer ──────────────────────────────────────────────────────────
 
-function CardPreview({ id, data, t }: { id: CardId; data: BentoData; t: ReturnType<typeof useLanguage>['t'] }) {
+function CardPreview({ id, data, t, growAcknowledged }: { id: CardId; data: BentoData; t: ReturnType<typeof useLanguage>['t']; growAcknowledged: boolean }) {
   const d = t.hubDash
   const b = t.hubBento
 
   switch (id) {
     case 'grow':
-      return <GrowCard grow={data.activeGrow} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp }} />
+      return <GrowCard grow={growAcknowledged ? null : data.activeGrow} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp }} />
     case 'strain':
       return <StrainCard strains={data.strains} totalCount={data.strainCount} labels={{ title: b.strainTitle, explore: b.strainExplore, strainCount: b.strainCount }} />
     case 'forum':
@@ -85,14 +85,14 @@ function CardPreview({ id, data, t }: { id: CardId; data: BentoData; t: ReturnTy
   }
 }
 
-function CardExpanded({ id, data, t }: { id: CardId; data: BentoData; t: ReturnType<typeof useLanguage>['t'] }) {
+function CardExpanded({ id, data, t, onGrowAcknowledge }: { id: CardId; data: BentoData; t: ReturnType<typeof useLanguage>['t']; onGrowAcknowledge: () => void }) {
   const d = t.hubDash
   const b = t.hubBento
 
   switch (id) {
     case 'grow': {
       const growStrains: StrainPickerItem[] = data.strains.map(s => ({ slug: s.slug, name: s.name, type: s.type, floweringTime: s.floweringTime, difficulty: s.difficulty }))
-      return <GrowCard grow={data.activeGrow} strains={growStrains} expanded growsCompleted={data.growsCompleted} userXP={data.xp} userCredits={data.credits} cloneBank={data.cloneBank} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp }} />
+      return <GrowCard grow={data.activeGrow} strains={growStrains} expanded growsCompleted={data.growsCompleted} userXP={data.xp} userCredits={data.credits} cloneBank={data.cloneBank} onAcknowledge={onGrowAcknowledge} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp }} />
     }
     case 'strain':
       return <StrainCard strains={data.strains} totalCount={data.strainCount} expanded labels={{ title: b.strainTitle, explore: b.strainExplore, strainCount: b.strainCount }} />
@@ -115,7 +115,13 @@ function CardExpanded({ id, data, t }: { id: CardId; data: BentoData; t: ReturnT
 
 export default function HubBentoGrid({ data }: { data: BentoData }) {
   const [selected, setSelected] = useState<CardId | null>(null)
+  const [growAcknowledged, setGrowAcknowledged] = useState(false)
   const { t } = useLanguage()
+
+  function handleGrowAcknowledge() {
+    setGrowAcknowledged(true)
+    setSelected(null)
+  }
 
   return (
     <>
@@ -158,7 +164,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
               animation:     `bento-border-glow 4s ease-in-out ${index * 0.5}s infinite`,
             } as React.CSSProperties}
           >
-            <CardPreview id={card.id} data={data} t={t} />
+            <CardPreview id={card.id} data={data} t={t} growAcknowledged={growAcknowledged} />
           </motion.div>
         ))}
       </div>
@@ -205,7 +211,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
                   ✕
                 </button>
                 <div style={{ flex: 1, overflowY: 'auto' }}>
-                  <CardExpanded id={selected} data={data} t={t} />
+                  <CardExpanded id={selected} data={data} t={t} onGrowAcknowledge={handleGrowAcknowledge} />
                 </div>
               </motion.div>
             </>

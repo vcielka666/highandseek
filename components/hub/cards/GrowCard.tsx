@@ -85,6 +85,7 @@ interface Props {
     growHistoryYield?:    string
     growHistoryXp?:       string
   }
+  onAcknowledge?: () => void
 }
 
 const STAGE_FRAMES: Record<string, string> = {
@@ -322,7 +323,7 @@ function HistoryRow({ h, labels }: { h: HistoryGrow; labels: Props['labels'] }) 
 
 // ── Expanded failed state (with history slide) ────────────────────────────────
 
-function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
+function ExpandedFailed({ grow, labels, onAcknowledge }: { grow: GrowCardData; labels: Props['labels']; onAcknowledge?: () => void }) {
   const router = useRouter()
   const isFailed = grow.status === 'failed'
   const unresolvedWarnings = (grow.warnings ?? []).filter(w => !w.resolvedAt)
@@ -353,13 +354,13 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
     setHistoryLoading(false)
     setAcknowledged(true)
 
-    // switch view mid-slide
+    // switch view mid-slide, then notify parent so overlay closes to clean card
     setTimeout(() => {
       setView('history')
       setSliding(false)
+      onAcknowledge?.()
     }, 320)
 
-    // refresh server data so hub home is clean when overlay closes
     router.refresh()
   }
 
@@ -515,7 +516,7 @@ function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['l
 
 // ── Main component ────────────────────────────────────────────────────────────
 
-export default function GrowCard({ grow, strains = [], expanded = false, growsCompleted = 0, userXP = 0, userCredits = 0, cloneBank = [], labels }: Props) {
+export default function GrowCard({ grow, strains = [], expanded = false, growsCompleted = 0, userXP = 0, userCredits = 0, cloneBank = [], labels, onAcknowledge }: Props) {
   const typeLabel: Record<string, string> = { indica: labels.indica, sativa: labels.sativa, hybrid: labels.hybrid }
   const isFailed = grow?.status === 'failed' || grow?.status === 'abandoned'
 
@@ -528,7 +529,7 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
 
   // ── Expanded: failed ─────────────────────────────────────────────────────────
   if (isFailed) {
-    return <ExpandedFailed grow={grow} labels={labels} />
+    return <ExpandedFailed grow={grow} labels={labels} onAcknowledge={onAcknowledge} />
   }
 
   // ── Expanded: no grow ────────────────────────────────────────────────────────
