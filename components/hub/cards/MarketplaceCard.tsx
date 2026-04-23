@@ -39,22 +39,51 @@ export default function MarketplaceCard({ listings, totalActive, expanded = fals
 
       {!expanded ? (
         <>
-          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '28px', fontWeight: 700, color: '#f0a830', lineHeight: 1 }}>
-            {totalActive}
-          </div>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>
-            {labels.activeListings}
-          </div>
-          {listings.slice(0, 1).map(l => (
-            <div key={l._id} style={{ background: 'rgba(255,255,255,0.03)', borderRadius: '6px', padding: '8px', marginTop: '4px' }}>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: CAT_COLORS[l.category] ?? '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '2px' }}>
-                {l.category}
-              </div>
-              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#e8f0ef', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-                {l.title}
-              </div>
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px' }}>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '28px', fontWeight: 700, color: '#f0a830', lineHeight: 1 }}>
+              {totalActive}
             </div>
-          ))}
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px' }}>
+              {labels.activeListings}
+            </div>
+          </div>
+
+          {/* Featured listing — prefer paid (price > 0) with image, fall back to latest */}
+          {(() => {
+            const featured = listings.find(l => l.price > 0 && l.images?.[0])
+              ?? listings.find(l => l.images?.[0])
+              ?? listings[0]
+            if (!featured) return null
+            const color = CAT_COLORS[featured.category] ?? '#4a6066'
+            return (
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: `0.5px solid ${color}22`, borderRadius: '6px', overflow: 'hidden', marginTop: '4px' }}>
+                <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
+                  {/* Thumbnail */}
+                  <div style={{ width: '52px', flexShrink: 0 }}>
+                    {featured.images?.[0]
+                      ? /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={featured.images[0]} alt="" style={{ width: '52px', height: '100%', minHeight: '52px', objectFit: 'cover', display: 'block' }} />
+                      : <div style={{ width: '52px', minHeight: '52px', height: '100%', background: `${color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', opacity: 0.5 }}>
+                          {CAT_EMOJI[featured.category] ?? '📦'}
+                        </div>
+                    }
+                  </div>
+                  {/* Info */}
+                  <div style={{ padding: '8px 10px', flex: 1, minWidth: 0 }}>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color, textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '3px' }}>
+                      {featured.category}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#e8f0ef', overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis', marginBottom: '4px' }}>
+                      {featured.title}
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: featured.price === 0 ? '#00b450' : '#f0a830' }}>
+                      {featured.price === 0 ? labels.free : `${featured.price} €`}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </>
       ) : (
         <>
