@@ -176,6 +176,13 @@ body::after {
   to   { stroke-dashoffset: var(--ring-offset); }
 }
 
+@keyframes dropIn {
+  0%   { transform: translateY(-110%) scale(0.95); opacity: 0; }
+  60%  { transform: translateY(6px) scale(1); opacity: 1; }
+  80%  { transform: translateY(-3px); }
+  100% { transform: translateY(0); }
+}
+
 @keyframes hps-flicker {
   0%,100% { opacity: 1; }
   92%     { opacity: 1; }

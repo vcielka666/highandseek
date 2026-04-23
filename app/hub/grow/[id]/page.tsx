@@ -362,6 +362,130 @@ function StatusBar({
   )
 }
 
+// ── Grow end overlay (failed / abandoned) ─────────────────────────────────────
+
+function GrowEndOverlay({ grow, g, onStartNew }: {
+  grow: VirtualGrow
+  g: Record<string, unknown>
+  onStartNew: () => void
+}) {
+  const router = useRouter()
+  const isFailed = grow.status === 'failed'
+  const accentColor = isFailed ? '#cc00aa' : '#4a6066'
+  const title = isFailed
+    ? (g.growFailedTitle as string)
+    : (g.growAbandonedTitle as string)
+  const sub = isFailed
+    ? (g.growFailedSub as string)
+    : (g.growAbandonedSub as string)
+
+  const lastWarnings = grow.warnings
+    .filter(w => !w.resolvedAt && w.severity === 'critical')
+    .slice(0, 3)
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 70,
+      background: 'rgba(5,5,8,0.93)', backdropFilter: 'blur(10px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+    }}>
+      <div style={{
+        background: 'rgba(10,0,16,0.98)',
+        border: `0.5px solid ${accentColor}40`,
+        borderRadius: '12px', padding: '36px 28px', maxWidth: '420px', width: '100%',
+        animation: 'dropIn 0.55s cubic-bezier(0.22,1,0.36,1) forwards',
+        boxShadow: `0 0 60px ${accentColor}18, 0 24px 60px rgba(0,0,0,0.7)`,
+      }}>
+
+        {/* Icon + title */}
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '14px', lineHeight: 1 }}>
+            {isFailed ? '💀' : '🚪'}
+          </div>
+          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(22px,5vw,32px)', color: '#e8f0ef', letterSpacing: '2px', marginBottom: '8px' }}>
+            {title}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#4a6066' }}>
+            {grow.strainName} · {sub}
+          </div>
+        </div>
+
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '24px' }}>
+          {[
+            { label: g.growEndDayLabel as string, value: `${grow.currentDay}`, sub: g.growEndDaySuffix as string },
+            { label: g.growEndXpLabel as string,  value: `+${grow.xpEarned}`, sub: 'xp' },
+            { label: g.growEndHealthLabel as string, value: `${Math.round(grow.health)}%`, sub: '' },
+          ].map(({ label, value, sub: s }) => (
+            <div key={label} style={{
+              background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(74,96,102,0.15)',
+              borderRadius: '8px', padding: '14px 10px', textAlign: 'center',
+            }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '6px' }}>
+                {label}
+              </div>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '20px', fontWeight: 700, color: '#e8f0ef' }}>
+                {value}
+              </div>
+              {s && <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '2px' }}>{s}</div>}
+            </div>
+          ))}
+        </div>
+
+        {/* What went wrong */}
+        {isFailed && (
+          <div style={{
+            background: 'rgba(204,0,170,0.05)', border: '0.5px solid rgba(204,0,170,0.15)',
+            borderRadius: '6px', padding: '14px 16px', marginBottom: '24px',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '10px' }}>
+              {g.growEndWhyTitle as string}
+            </div>
+            {lastWarnings.length > 0 ? lastWarnings.map((w, i) => (
+              <div key={i} style={{
+                fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.7)',
+                paddingLeft: '8px', borderLeft: '2px solid rgba(204,0,170,0.35)',
+                marginBottom: i < lastWarnings.length - 1 ? '8px' : 0, lineHeight: 1.5,
+              }}>
+                {w.message}
+              </div>
+            )) : (
+              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066' }}>
+                {g.growEndNoWarnings as string}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <button
+            onClick={onStartNew}
+            style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', textTransform: 'uppercase',
+              color: '#050508', background: '#cc00aa', border: 'none', borderRadius: '4px',
+              padding: '12px 20px', cursor: 'pointer', width: '100%',
+            }}
+          >
+            {g.growEndStartNew as string}
+          </button>
+          <button
+            onClick={() => router.push('/hub')}
+            style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px',
+              color: '#4a6066', background: 'transparent',
+              border: '0.5px solid rgba(74,96,102,0.25)', borderRadius: '4px',
+              padding: '11px 20px', cursor: 'pointer', width: '100%',
+            }}
+          >
+            {g.growEndBackHub as string}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 export default function ActiveGrowPage({ params }: { params: Promise<{ id: string }> }) {
@@ -422,10 +546,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   }, [])
 
   useEffect(() => {
-    fetch('/api/hub/grow')
+    fetch(`/api/hub/grow?id=${id}`)
       .then(r => r.json())
       .then(d => { if (d.grow) setGrow(d.grow); setLoading(false) })
-  }, [])
+  }, [id])
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !localStorage.getItem('hs-grow-tutorial-seen')) {
@@ -736,7 +860,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     </div>
   )
 
-  if (!grow || grow._id !== id) return (
+  if (!grow) return (
     <div style={{ padding: '40px', textAlign: 'center' }}>
       <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', marginBottom: '16px' }}>
         {g.growNotFound}
@@ -744,6 +868,29 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       <Link href="/hub/grow" style={{ color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '11px' }}>{g.backLink}</Link>
     </div>
   )
+
+  // Completed grow → redirect to harvest report
+  if (grow.status === 'completed') {
+    router.replace(`/hub/grow/${id}/harvest`)
+    return (
+      <div style={{ padding: '40px', textAlign: 'center', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
+        {g.loadingGrow}
+      </div>
+    )
+  }
+
+  // Failed / abandoned → show end overlay over a minimal dark background
+  if (grow.status === 'failed' || grow.status === 'abandoned') {
+    return (
+      <div style={{ minHeight: '100vh', background: '#050508' }}>
+        <GrowEndOverlay
+          grow={grow}
+          g={g as unknown as Record<string, unknown>}
+          onStartNew={() => router.push('/hub/grow')}
+        />
+      </div>
+    )
+  }
 
   // hasMeter — hygrometer either in original setup or purchased as upgrade
   const hasMeter = grow.setup.hasHygrometer || (grow.purchasedUpgrades?.some(u => u.type === 'thermohygrometer') ?? false)
