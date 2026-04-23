@@ -160,7 +160,7 @@ function PreviewNoGrow({ labels }: { labels: Props['labels'] }) {
 
 function PreviewFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
   const isFailed = grow.status === 'failed'
-  const lastWarning = [...grow.warnings]
+  const lastWarning = [...(grow.warnings ?? [])]
     .filter(w => !w.resolvedAt)
     .slice(-1)[0]
 
@@ -262,7 +262,7 @@ function PreviewActive({ grow, labels }: { grow: GrowCardData; labels: Props['la
 
 function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
   const isFailed = grow.status === 'failed'
-  const unresolvedWarnings = grow.warnings.filter(w => !w.resolvedAt)
+  const unresolvedWarnings = (grow.warnings ?? []).filter(w => !w.resolvedAt)
   const displayWarnings = unresolvedWarnings.slice(-3)
 
   return (
