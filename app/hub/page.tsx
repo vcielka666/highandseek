@@ -23,7 +23,7 @@ export default async function HubPage() {
     XPEvent.find({ userId: session.user.id })
       .sort({ createdAt: -1 }).limit(6)
       .lean<{ event: string; amount: number; createdAt: Date }[]>(),
-    VirtualGrow.findOne({ userId: session.user.id, status: { $in: ['active', 'failed', 'completed'] } })
+    VirtualGrow.findOne({ userId: session.user.id, status: { $in: ['active', 'failed', 'completed'] }, isAcknowledged: { $ne: true } })
       .sort({ updatedAt: -1 })
       .select('_id strainName strainType stage currentDay health yieldProjection setup dayDurationSeconds status xpEarned warnings')
       .lean<{

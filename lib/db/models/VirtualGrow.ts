@@ -131,7 +131,8 @@ const VirtualGrowSchema = new mongoose.Schema({
     completedAt:   { type: Date, default: null },
   },
 
-  status: { type: String, enum: ['active', 'completed', 'failed', 'abandoned'], default: 'active' },
+  status:         { type: String, enum: ['active', 'completed', 'failed', 'abandoned'], default: 'active' },
+  isAcknowledged: { type: Boolean, default: false },
 }, { timestamps: true })
 
 VirtualGrowSchema.index({ userId: 1, status: 1 })

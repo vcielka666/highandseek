@@ -618,6 +618,7 @@ Medium choice → filter `compatibleMedia`:
 | File | Purpose |
 |------|---------|
 | `lib/db/models/VirtualGrow.ts` | MongoDB model |
+| `lib/grow/tentLayout.ts` | SVG coordinate system — TENT_LAYOUT, EQUIP_IMGS, helpers (single source of truth) |
 | `lib/grow/attributes.ts` | RPG attribute calculation (pure functions) |
 | `lib/grow/simulation.ts` | Day advancement, stage transitions, action effects |
 | `lib/grow/PlantSVG.tsx` | Procedural SVG plant component |
@@ -663,11 +664,69 @@ status: 'active' | 'completed' | 'failed' | 'abandoned'
 - Medium dependency rules enforced in setup wizard: living_soil→organic only, coco→mineral required, hydro→mineral+drip only
 - Stage transitions: seedling (d1-7) → veg (d8-35) → flower (d36-35+floweringTime) → harvest
 
+### Tent View — SVG Coordinate System
+
+File: `lib/grow/tentLayout.ts` — **single source of truth for all tent element positions.**
+
+The entire tent is rendered as one `<svg viewBox="0 0 1000 750">` — no div/px layering. All positions are in SVG coordinate space, not pixels. This ensures exact layout on any screen size.
+
+```
+SVG_W = 1000, SVG_H = 750, TENT_FLOOR_Y = 640
+```
+
+**TENT_LAYOUT** (all x/y/w/h in SVG units):
+```typescript
+light:    { x: 330, y: 15,  w: 340, h: 200 }   // lamp image area
+exhaust:  { x: 830, y: 25,  w: 140, h: 170 }   // exhaust fan (draggable)
+sonoflex: { x: 760, y: 90,  w: 90,  h: 280 }   // ducting (no image yet)
+filter:   { x: 840, y: 340, w: 120, h: 210 }   // carbon filter (rotated 90°)
+circ:     { x: 20,  y: 330, w: 130, h: 130 }   // circulation fan
+hygro:    { x: 770, y: 210, w: 90,  h: 90  }   // thermohygrometer (no image yet)
+medium:   { x: 30,  y: 560, w: 160, h: 170 }   // soil bag
+ph:       { x: 790, y: 590, w: 85,  h: 150 }   // pH meter (no image yet)
+tray:     { x: 100, y: 685, w: 800, h: 55  }   // drip tray
+```
+
+**EQUIP_IMGS** — all Cloudinary image URLs live in `tentLayout.ts`:
+```
+tentBg, tentBgDark, exhaust, circulation, filter, mediumSoil
+Light images: /equip/lights/tent/hps.png, hps on.png, cfl.png, cfl on.png
+LED: Cloudinary v1775046794/light-led_o3w4p6.png
+```
+
+**Helper functions:**
+- `lampTopSVG(heightCm)` — maps 20–100 cm height to SVG Y coordinate (10–110)
+- `getLampSVGWidth(lightType)` — CFL: 120, others: 160
+- `getLightImageUrl(lightType, isOn)` — returns correct on/off image URL
+- `getPlantContainerWidth(potCount, tentSize)` — capped at 400 (= floor(640/1.6))
+- `getPlantFOX(containerWidth)` — centers foreignObject at SVG_W/2
+- `getTempColor(temp)`, `getHumidityColor(humidity, stage)` — badge color helpers
+
+**SVG Layers (render order):**
+1. Day/night tent backgrounds — `<image>` with CSS `opacity` crossfade (2s ease)
+2. Carbon filter (SVG `transform="rotate(-90,...)"`) + circ fan + medium bag + exhaust fan (draggable)
+3. Light cone (`<ellipse fill="url(#cone-{type})">` from `<radialGradient>` in `<defs>`) + lamp `<image>` (draggable) + height badge
+4. PlantImage in `<foreignObject x={foX} y={0} width={containerW} height={640}>` — bottom-anchored
+5. Lottie action animation in `<foreignObject x={350} y={200} width={300} height={300}>`
+6. Health badge as native SVG `<g>` (rect + text + progress bar)
+
+**Light cone SVG `<radialGradient>` — use `stopColor` + `stopOpacity` (NOT CSS rgba):**
+- LED: teal `#00d4c8`, CFL: warm `#fff5cc`, HPS/CMH: orange `#ff9900`
+- `gradientUnits="userSpaceOnUse"`, `cx/cy` at lamp center, `r` = 350
+
+**Drag interactions:** Mouse/touch `clientY` delta used directly; mapped to cm-change, then `lampTopSVG()` converts to SVG Y. No SVG coordinate transform needed.
+
+**Grow end states (failed/abandoned/completed):**
+- `GET /api/hub/grow?id={id}` — supports fetching by ID for any status
+- `completed` → `router.replace(/hub/grow/{id}/harvest)` immediately
+- `failed` / `abandoned` → `<GrowEndOverlay>` on plain `#050508` background (no active grow UI)
+- Overlay uses `@keyframes dropIn` CSS animation (falls from top, bounces into center)
+
 ### Cloudinary Assets Used
 ```
 tent-bg:      v1775046694/tent-bg_tqvklk.png
+tent-bg-dark: v1775213761/tent-bg-dark_tdybst.png
 light-led:    v1775046794/light-led_o3w4p6.png
-light-hps:    v1775046794/light-hps_atpeyj.png
 fan-exhaust:  v1775046842/fan-exhaust_d6cc5c.png
 fan-circ:     v1775046841/fan-circulation_q6zbyi.png
 carbon-filter:v1775046888/carbon-filter_zk4axj.png
@@ -675,6 +734,7 @@ pot-small:    v1775046945/pot-small_lr05r7.png
 pot-medium:   v1775046946/pot-medium_cmrorl.png
 pot-large:    v1775046949/pot-large_upcfrg.png
 medium-soil:  v1775046962/medium-soil_zbyoum.png
+HPS/CFL lights: /equip/lights/tent/ (local /public)
 ```
 
 ---
