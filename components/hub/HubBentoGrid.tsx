@@ -120,7 +120,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
 
   function handleGrowAcknowledge() {
     setGrowAcknowledged(true)
-    setSelected(null)
+    // overlay stays open so user can read history — they close it themselves
   }
 
   return (
