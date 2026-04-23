@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { auth } from '@/lib/auth/config'
 import { connectDB } from '@/lib/db/connect'
 import VirtualGrow from '@/lib/db/models/VirtualGrow'
@@ -21,6 +22,8 @@ export async function POST(req: Request) {
 
   grow.isAcknowledged = true
   await grow.save()
+
+  revalidatePath('/hub')
 
   return NextResponse.json({ ok: true })
 }
