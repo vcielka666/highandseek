@@ -12,7 +12,9 @@ export interface GrowCardData {
   yieldProjection:    number
   dayDurationSeconds: number
   status:             string
+  xpEarned?:          number
   setup:              { tentSize: string; lightType: string; lightWatts: number; medium: string }
+  warnings:           Array<{ attribute: string; message: string; severity: string; resolvedAt?: string | null }>
 }
 
 export interface StrainPickerItem {
@@ -61,6 +63,18 @@ interface Props {
     cloneBankTitle?:      string
     cloneFreeLabel?:      string
     cloneSkipVegLabel?:   string
+    // failed state labels (from t.growUI)
+    growFailedTitle?:     string
+    growAbandonedTitle?:  string
+    growFailedSub?:       string
+    growAbandonedSub?:    string
+    growEndDayLabel?:     string
+    growEndDaySuffix?:    string
+    growEndXpLabel?:      string
+    growEndHealthLabel?:  string
+    growEndWhyTitle?:     string
+    growEndNoWarnings?:   string
+    growEndStartNew?:     string
   }
 }
 
@@ -71,8 +85,10 @@ const STAGE_FRAMES: Record<string, string> = {
   late_flower:  '/grow/plant/healthy/plant-late-flower.png',
   harvest:      '/grow/plant/healthy/plant-harvest.png',
   complete:     '/grow/plant/healthy/plant-harvest.png',
-  failed:       '/grow/plant/healthy/plant-day3-seedling.png',
+  failed:       '/grow/plant/healthy/plant-day7-seedling.png',
 }
+
+// ── Story block ───────────────────────────────────────────────────────────────
 
 function StoryBlock({ originLabel, story1, story2, story3 }: { originLabel: string; story1: string; story2: string; story3: string }) {
   const [open, setOpen] = useState(false)
@@ -94,52 +110,354 @@ function StoryBlock({ originLabel, story1, story2, story3 }: { originLabel: stri
   )
 }
 
-export default function GrowCard({ grow, strains = [], expanded = false, growsCompleted = 0, userXP = 0, userCredits = 0, cloneBank = [], labels }: Props) {
-  const healthColor = !grow || grow.status === 'failed'
-    ? '#e03535'
-    : grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
+// ── Preview states ────────────────────────────────────────────────────────────
 
-  const frame = STAGE_FRAMES[grow?.stage ?? 'veg'] ?? STAGE_FRAMES.veg
+function PreviewNoGrow({ labels }: { labels: Props['labels'] }) {
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+      {/* Background plant silhouette */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/grow/plant/healthy/plant-mid-veg.png"
+        alt=""
+        aria-hidden
+        style={{
+          position: 'absolute', bottom: 0, right: '-10px',
+          height: '85%', width: 'auto', objectFit: 'contain',
+          objectPosition: 'bottom right',
+          mixBlendMode: 'screen',
+          opacity: 0.12,
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      />
 
-  const typeLabel: Record<string, string> = { indica: labels.indica, sativa: labels.sativa, hybrid: labels.hybrid }
+      {/* Header */}
+      <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)', marginBottom: '10px' }}>
+        {labels.growSim}
+      </div>
 
-  if (!expanded) {
-    if (!grow) {
-      return (
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', padding: '24px', textAlign: 'center' }}>
-          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(0,212,200,0.08)', border: '1.5px dashed rgba(0,212,200,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px', color: '#00d4c8' }}>+</div>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>{labels.noActiveGrow}</div>
+      {/* Title */}
+      <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '1px', marginBottom: '6px', lineHeight: 1.1 }}>
+        Sadam&apos;s Farm
+      </div>
+
+      {/* Story teaser */}
+      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.45)', lineHeight: 1.65, flex: 1 }}>
+        {labels.story1.length > 100 ? labels.story1.slice(0, 100) + '…' : labels.story1}
+      </div>
+
+      {/* CTA */}
+      <div style={{ marginTop: '14px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00d4c8', boxShadow: '0 0 6px #00d4c8' }} />
+        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#00d4c8', letterSpacing: '1px' }}>
+          {labels.startSetup}
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function PreviewFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
+  const isFailed = grow.status === 'failed'
+  const lastWarning = [...grow.warnings]
+    .filter(w => !w.resolvedAt)
+    .slice(-1)[0]
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '20px', position: 'relative', overflow: 'hidden' }}>
+      {/* Background dead plant */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={STAGE_FRAMES[grow.stage] ?? STAGE_FRAMES.failed}
+        alt=""
+        aria-hidden
+        style={{
+          position: 'absolute', bottom: 0, right: '-4px',
+          height: '80%', width: 'auto', objectFit: 'contain',
+          objectPosition: 'bottom right',
+          mixBlendMode: 'screen',
+          opacity: 0.15,
+          filter: 'saturate(0)',
+          pointerEvents: 'none',
+          userSelect: 'none',
+        }}
+      />
+
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.4)' }}>
+          {labels.growSim}
         </div>
-      )
-    }
-    return (
-      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '20px', gap: '12px' }}>
-        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)' }}>{labels.growSim}</div>
-        <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-end', flex: 1 }}>
-          <div style={{ flexShrink: 0, width: '64px', height: '80px' }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={frame} alt={grow.strainName} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', mixBlendMode: 'screen', animation: grow.status === 'active' ? 'pi-breathe 4s ease-in-out infinite' : 'none', filter: grow.status === 'failed' ? 'saturate(0) brightness(0.5)' : 'none' }} />
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', color: isFailed ? '#e03535' : '#4a6066', background: isFailed ? 'rgba(224,53,53,0.1)' : 'rgba(74,96,102,0.1)', padding: '2px 7px', borderRadius: '3px' }}>
+          {isFailed ? (labels.growFailedTitle ?? 'FAILED') : (labels.growAbandonedTitle ?? 'ABANDONED')}
+        </div>
+      </div>
+
+      {/* Strain name */}
+      <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '18px', color: 'rgba(232,240,239,0.6)', letterSpacing: '1px', marginBottom: '4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+        {grow.strainName}
+      </div>
+      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '12px' }}>
+        {labels.day} {grow.currentDay} · {grow.stage.replace('_', ' ')}
+      </div>
+
+      {/* Last warning */}
+      {lastWarning && (
+        <div style={{ background: 'rgba(224,53,53,0.06)', border: '0.5px solid rgba(224,53,53,0.2)', borderRadius: '4px', padding: '8px 10px', marginBottom: '10px' }}>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#e03535', marginBottom: '2px', letterSpacing: '0.5px' }}>
+            ⚠ {lastWarning.attribute}
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', color: '#e8f0ef', letterSpacing: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{grow.strainName}</div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '3px' }}>{labels.day} {grow.currentDay} · {grow.stage.replace('_', ' ')}</div>
-            <div style={{ marginTop: '8px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
-                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{labels.health}</span>
-                <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: healthColor, fontWeight: 700 }}>{grow.health}%</span>
-              </div>
-              <div style={{ height: '3px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
-                <div style={{ height: '100%', width: `${grow.health}%`, background: healthColor, borderRadius: '2px' }} />
-              </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.4 }}>
+            {lastWarning.message.length > 70 ? lastWarning.message.slice(0, 70) + '…' : lastWarning.message}
+          </div>
+        </div>
+      )}
+
+      {/* Health bar */}
+      <div style={{ marginTop: 'auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{labels.health}</span>
+          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: '#e03535', fontWeight: 700 }}>{grow.health}%</span>
+        </div>
+        <div style={{ height: '3px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
+          <div style={{ height: '100%', width: `${grow.health}%`, background: '#e03535', borderRadius: '2px' }} />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function PreviewActive({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
+  const healthColor = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
+  const frame = STAGE_FRAMES[grow.stage] ?? STAGE_FRAMES.veg
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '20px', gap: '12px' }}>
+      <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)' }}>{labels.growSim}</div>
+      <div style={{ display: 'flex', gap: '14px', alignItems: 'flex-end', flex: 1 }}>
+        <div style={{ flexShrink: 0, width: '64px', height: '80px' }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={frame} alt={grow.strainName} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', mixBlendMode: 'screen', animation: 'pi-breathe 4s ease-in-out infinite' }} />
+        </div>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', color: '#e8f0ef', letterSpacing: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{grow.strainName}</div>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginTop: '3px' }}>{labels.day} {grow.currentDay} · {grow.stage.replace('_', ' ')}</div>
+          <div style={{ marginTop: '8px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{labels.health}</span>
+              <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: healthColor, fontWeight: 700 }}>{grow.health}%</span>
+            </div>
+            <div style={{ height: '3px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
+              <div style={{ height: '100%', width: `${grow.health}%`, background: healthColor, borderRadius: '2px' }} />
             </div>
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// ── Expanded failed state ─────────────────────────────────────────────────────
+
+function ExpandedFailed({ grow, labels }: { grow: GrowCardData; labels: Props['labels'] }) {
+  const isFailed = grow.status === 'failed'
+  const unresolvedWarnings = grow.warnings.filter(w => !w.resolvedAt)
+  const displayWarnings = unresolvedWarnings.slice(-3)
+
+  return (
+    <div style={{ padding: '28px 28px 48px' }}>
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+        <div style={{ fontSize: '32px' }}>{isFailed ? '💀' : '🚪'}</div>
+        <div>
+          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '24px', color: isFailed ? '#e03535' : '#4a6066', letterSpacing: '1px', marginBottom: '2px' }}>
+            {isFailed ? (labels.growFailedTitle ?? 'Grow Failed') : (labels.growAbandonedTitle ?? 'Grow Abandoned')}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
+            {grow.strainName} · {isFailed ? (labels.growFailedSub ?? 'Plant didn\'t make it.') : (labels.growAbandonedSub ?? 'Grow was abandoned.')}
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '24px' }}>
+        {[
+          { label: labels.growEndDayLabel ?? 'Survived', value: `${grow.currentDay}`, suffix: labels.growEndDaySuffix ?? 'days' },
+          { label: labels.growEndXpLabel ?? 'XP Earned', value: `${grow.xpEarned ?? 0}`, suffix: 'xp' },
+          { label: labels.growEndHealthLabel ?? 'Final Health', value: `${grow.health}`, suffix: '%' },
+        ].map(({ label, value, suffix }) => (
+          <div key={label} style={{ background: 'rgba(224,53,53,0.05)', border: '0.5px solid rgba(224,53,53,0.15)', borderRadius: '8px', padding: '14px', textAlign: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '3px', marginBottom: '4px' }}>
+              <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '20px', fontWeight: 700, color: '#e8f0ef' }}>{value}</span>
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>{suffix}</span>
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* What went wrong */}
+      <div style={{ marginBottom: '24px' }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(224,53,53,0.5)', marginBottom: '12px' }}>
+          {labels.growEndWhyTitle ?? 'What went wrong'}
+        </div>
+        {displayWarnings.length > 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {displayWarnings.map((w, i) => (
+              <div key={i} style={{ background: 'rgba(224,53,53,0.06)', border: '0.5px solid rgba(224,53,53,0.2)', borderRadius: '6px', padding: '12px 14px' }}>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#e03535', marginBottom: '4px', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                  {w.attribute}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.65)', lineHeight: 1.5 }}>
+                  {w.message}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6 }}>
+            {labels.growEndNoWarnings ?? 'Multiple critical issues led to plant death.'}
+          </div>
+        )}
+      </div>
+
+      {/* Setup recap */}
+      <div style={{ background: 'rgba(74,96,102,0.06)', border: '0.5px solid rgba(74,96,102,0.2)', borderRadius: '6px', padding: '12px 14px', marginBottom: '24px' }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>Setup</div>
+        <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.5)' }}>
+          {grow.setup.tentSize} · {grow.setup.lightWatts}W {grow.setup.lightType.toUpperCase()} · {grow.setup.medium.replace('_', ' ')} · Day {grow.currentDay} · {grow.stage.replace('_', ' ')}
+        </div>
+      </div>
+
+      {/* CTA */}
+      <a
+        href="/hub/grow/setup"
+        style={{ display: 'inline-block', fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '1px', textTransform: 'uppercase', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '12px 24px', textDecoration: 'none' }}
+      >
+        {labels.growEndStartNew ?? '↺ Start New Grow'}
+      </a>
+    </div>
+  )
+}
+
+// ── Main component ────────────────────────────────────────────────────────────
+
+export default function GrowCard({ grow, strains = [], expanded = false, growsCompleted = 0, userXP = 0, userCredits = 0, cloneBank = [], labels }: Props) {
+  const typeLabel: Record<string, string> = { indica: labels.indica, sativa: labels.sativa, hybrid: labels.hybrid }
+  const isFailed = grow?.status === 'failed' || grow?.status === 'abandoned'
+
+  // ── Preview ──────────────────────────────────────────────────────────────────
+  if (!expanded) {
+    if (!grow) return <PreviewNoGrow labels={labels} />
+    if (isFailed) return <PreviewFailed grow={grow} labels={labels} />
+    return <PreviewActive grow={grow} labels={labels} />
+  }
+
+  // ── Expanded: failed ─────────────────────────────────────────────────────────
+  if (isFailed) {
+    return (
+      <div style={{ overflowY: 'auto', height: '100%' }}>
+        {/* Story block still visible above the failed report */}
+        <div style={{ padding: '28px 28px 0' }}>
+          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)', marginBottom: '10px' }}>{labels.growSim}</div>
+          <StoryBlock originLabel={labels.originLabel} story1={labels.story1} story2={labels.story2} story3={labels.story3} />
+        </div>
+        <div style={{ borderTop: '0.5px solid rgba(224,53,53,0.15)', marginTop: '4px' }} />
+        <ExpandedFailed grow={grow} labels={labels} />
+      </div>
     )
   }
 
-  // ── Expanded: mirrors /hub/grow layout ──────────────────────────────────────
+  // ── Expanded: no grow ────────────────────────────────────────────────────────
   const l = labels
+  if (!grow) {
+    return (
+      <div style={{ padding: '28px 28px 48px', overflowY: 'auto', height: '100%' }}>
+        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)', marginBottom: '10px' }}>{l.growSim}</div>
+
+        <StoryBlock originLabel={l.originLabel} story1={l.story1} story2={l.story2} story3={l.story3} />
+
+        {/* Stats row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
+          {[
+            { label: l.growsCompletedLabel ?? 'Grows', value: String(growsCompleted) },
+            { label: l.xpFromGrowsLabel   ?? 'XP',     value: `${userXP} xp` },
+            { label: l.creditsEarnedLabel ?? 'Credits', value: `${userCredits} 💎` },
+          ].map(({ label: statLabel, value }) => (
+            <div key={statLabel} style={{ background: 'rgba(204,0,170,0.05)', border: '0.5px solid rgba(204,0,170,0.12)', borderRadius: '6px', padding: '14px', textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#cc00aa', marginBottom: '3px' }}>{value}</div>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{statLabel}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '8px', padding: '20px', marginBottom: '28px' }}>
+          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', marginBottom: '6px' }}>
+            {l.realtimeTitle ?? '🌱 Virtual Grow Simulator'}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6, marginBottom: '10px' }}>
+            {l.realtimeDesc ?? l.noActiveDesc}
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8', marginBottom: '12px' }}>
+            {l.realtimeFree ?? '✓ Always free'}
+          </div>
+          <a href="/hub/grow/setup" style={{ fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '8px 16px', textDecoration: 'none', display: 'inline-block' }}>
+            {l.startSetup}
+          </a>
+        </div>
+
+        {/* Clone bank */}
+        {cloneBank.length > 0 && (
+          <div style={{ marginBottom: '28px' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4c8', marginBottom: '12px' }}>
+              {l.cloneBankTitle ?? 'Clone Bank'}
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
+              {cloneBank.map((clone, idx) => (
+                <a key={`${clone.strainSlug}-${idx}`} href={`/hub/grow/setup?clone=${clone.strainSlug}`} style={{ display: 'block', background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.3)', borderRadius: '8px', padding: '14px', textDecoration: 'none' }}>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8', letterSpacing: '1px', marginBottom: '4px' }}>
+                    🌿 CLONE · {clone.strainType.toUpperCase()}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '15px', color: '#e8f0ef', marginBottom: '6px' }}>
+                    {clone.strainName}
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>
+                    {clone.floweringTime}d flower · {l.cloneFreeLabel ?? 'Free'}
+                  </div>
+                  <div style={{ marginTop: '8px', fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(0,212,200,0.5)', background: 'rgba(0,212,200,0.06)', borderRadius: '3px', padding: '4px 7px', display: 'inline-block' }}>
+                    {l.cloneSkipVegLabel ?? 'Skip veg'}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Strain picker */}
+        {strains.length > 0 && (
+          <div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '12px' }}>{l.availableStrains}</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '8px' }}>
+              {strains.map(s => (
+                <a key={s.slug} href={`/hub/grow/setup?strain=${s.slug}`} style={{ background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(204,0,170,0.12)', borderRadius: '8px', padding: '12px', textDecoration: 'none', display: 'block' }}>
+                  <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef', marginBottom: '4px' }}>{s.name}</div>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+                    {typeLabel[s.type] ?? s.type}{s.floweringTime ? ` · ${s.floweringTime}d` : ''}
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    )
+  }
+
+  // ── Expanded: active grow ────────────────────────────────────────────────────
+  const healthColor = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
+  const frame = STAGE_FRAMES[grow.stage] ?? STAGE_FRAMES.veg
+
   return (
     <div style={{ padding: '28px 28px 48px', overflowY: 'auto', height: '100%' }}>
       <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)', marginBottom: '10px' }}>{l.growSim}</div>
@@ -160,110 +478,44 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
         ))}
       </div>
 
-      {/* Active grow */}
-      {grow ? (
-        <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.5)', marginBottom: '14px' }}>
-            Active Grow
+      {/* Active grow panel */}
+      <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.5)', marginBottom: '14px' }}>
+          Active Grow
+        </div>
+        <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginBottom: '16px' }}>
+          <div style={{ width: '80px', height: '100px', flexShrink: 0 }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={frame} alt={grow.strainName} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', mixBlendMode: 'screen' }} />
           </div>
-          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-end', marginBottom: '16px' }}>
-            <div style={{ width: '80px', height: '100px', flexShrink: 0 }}>
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={frame} alt={grow.strainName} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom', mixBlendMode: 'screen', filter: grow.status === 'failed' ? 'saturate(0) brightness(0.5)' : 'none' }} />
+          <div style={{ flex: 1 }}>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '1px', marginBottom: '4px' }}>{grow.strainName}</div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>
+              {l.day} {grow.currentDay} · {grow.stage.replace('_', ' ')}
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '1px', marginBottom: '4px' }}>{grow.strainName}</div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px' }}>
-                {l.day} {grow.currentDay} · {grow.stage.replace('_', ' ')}
+            <div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>{l.health}</span>
+                <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', color: healthColor, fontWeight: 700 }}>{grow.health}%</span>
               </div>
-              <div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>{l.health}</span>
-                  <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', color: healthColor, fontWeight: 700 }}>{grow.health}%</span>
-                </div>
-                <div style={{ height: '4px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${grow.health}%`, background: healthColor, borderRadius: '2px' }} />
-                </div>
-              </div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '8px' }}>
-                {grow.setup.tentSize} · {grow.setup.lightWatts}W {grow.setup.lightType.toUpperCase()} · {grow.setup.medium.replace('_', ' ')}
+              <div style={{ height: '4px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', overflow: 'hidden' }}>
+                <div style={{ height: '100%', width: `${grow.health}%`, background: healthColor, borderRadius: '2px' }} />
               </div>
             </div>
-          </div>
-          <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-            <a href={grow.status === 'active' ? `/hub/grow/${grow._id}` : '/hub/grow/setup'} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
-              {grow.status === 'active' ? l.viewGrow : l.startGrow}
-            </a>
-            {grow.status === 'active' && (
-              <a href={`/hub/grow/${grow._id}/journal/new`} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.4)', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
-                {l.addJournal ?? '+ Journal Entry'}
-              </a>
-            )}
-          </div>
-        </div>
-      ) : (
-        /* No active grow — start new */
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '8px', padding: '20px', marginBottom: '16px' }}>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', marginBottom: '6px' }}>
-              {l.realtimeTitle ?? '🌱 Virtual Grow Simulator'}
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '8px' }}>
+              {grow.setup.tentSize} · {grow.setup.lightWatts}W {grow.setup.lightType.toUpperCase()} · {grow.setup.medium.replace('_', ' ')}
             </div>
-            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', lineHeight: 1.6, marginBottom: '10px' }}>
-              {l.realtimeDesc ?? l.noActiveDesc}
-            </div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8', marginBottom: '12px' }}>
-              {l.realtimeFree ?? '✓ Always free'}
-            </div>
-            <a href="/hub/grow/setup" style={{ fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '1px', textTransform: 'uppercase', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '8px 16px', textDecoration: 'none', display: 'inline-block' }}>
-              {l.startSetup}
-            </a>
           </div>
         </div>
-      )}
-
-      {/* Clone bank */}
-      {!grow && cloneBank.length > 0 && (
-        <div style={{ marginBottom: '28px' }}>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4c8', marginBottom: '12px' }}>
-            {l.cloneBankTitle ?? 'Clone Bank'}
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: '10px' }}>
-            {cloneBank.map((clone, idx) => (
-              <a key={`${clone.strainSlug}-${idx}`} href={`/hub/grow/setup?clone=${clone.strainSlug}`} style={{ display: 'block', background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.3)', borderRadius: '8px', padding: '14px', textDecoration: 'none' }}>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8', letterSpacing: '1px', marginBottom: '4px' }}>
-                  🌿 CLONE · {clone.strainType.toUpperCase()}
-                </div>
-                <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '15px', color: '#e8f0ef', marginBottom: '6px' }}>
-                  {clone.strainName}
-                </div>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>
-                  {clone.floweringTime}d flower · {l.cloneFreeLabel ?? 'Free'}
-                </div>
-                <div style={{ marginTop: '8px', fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: 'rgba(0,212,200,0.5)', background: 'rgba(0,212,200,0.06)', borderRadius: '3px', padding: '4px 7px', display: 'inline-block' }}>
-                  {l.cloneSkipVegLabel ?? 'Skip veg'}
-                </div>
-              </a>
-            ))}
-          </div>
+        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+          <a href={`/hub/grow/${grow._id}`} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
+            {l.viewGrow}
+          </a>
+          <a href={`/hub/grow/${grow._id}/journal/new`} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.4)', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
+            {l.addJournal ?? '+ Journal Entry'}
+          </a>
         </div>
-      )}
-
-      {/* Strain picker */}
-      {!grow && strains.length > 0 && (
-        <div>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '12px' }}>{l.availableStrains}</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '8px' }}>
-            {strains.map(s => (
-              <a key={s.slug} href={`/hub/grow/setup?strain=${s.slug}`} style={{ background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(204,0,170,0.12)', borderRadius: '8px', padding: '12px', textDecoration: 'none', display: 'block' }}>
-                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef', marginBottom: '4px' }}>{s.name}</div>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
-                  {typeLabel[s.type] ?? s.type}{s.floweringTime ? ` · ${s.floweringTime}d` : ''}
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </div>
   )
 }

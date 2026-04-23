@@ -25,12 +25,13 @@ export default async function HubPage() {
       .lean<{ event: string; amount: number; createdAt: Date }[]>(),
     VirtualGrow.findOne({ userId: session.user.id, status: { $in: ['active', 'failed', 'completed'] } })
       .sort({ updatedAt: -1 })
-      .select('_id strainName strainType stage currentDay health yieldProjection setup dayDurationSeconds status')
+      .select('_id strainName strainType stage currentDay health yieldProjection setup dayDurationSeconds status xpEarned warnings')
       .lean<{
         _id: { toString(): string }; strainName: string; strainType: string; stage: string
         currentDay: number; health: number; yieldProjection: number
-        dayDurationSeconds: number; status: string
+        dayDurationSeconds: number; status: string; xpEarned: number
         setup: { tentSize: string; lightType: string; lightWatts: number; medium: string }
+        warnings: Array<{ attribute: string; message: string; severity: string; resolvedAt?: string | null }>
       }>(),
     Listing.find({ status: 'active' }).sort({ createdAt: -1 }).limit(4)
       .select('title category price images')
@@ -65,7 +66,7 @@ export default async function HubPage() {
     nextLevelXP:   next?.xpRequired ?? null,
 
     activeGrow: activeGrow
-      ? { ...activeGrow, _id: activeGrow._id.toString() }
+      ? { ...activeGrow, _id: activeGrow._id.toString(), warnings: activeGrow.warnings ?? [] }
       : null,
 
     strains: strains.map(s => ({
