@@ -910,8 +910,19 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
 
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
-        <div>
+      <style>{`
+        .gh { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px; gap:12px; }
+        .gh-left { flex:1; min-width:0; }
+        .gh-right { display:flex; gap:8px; align-items:stretch; flex-shrink:0; }
+        .gh-img { width:80px; height:80px; object-fit:contain; flex-shrink:0; }
+        .gh-journal { width:80px; height:80px; flex-shrink:0; }
+        @media (max-width:768px) {
+          .gh-img { width:56px; height:56px; }
+          .gh-journal { width:56px; height:56px; }
+        }
+      `}</style>
+      <div className="gh">
+        <div className="gh-left">
           <Link href="/hub/grow" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textDecoration: 'none' }}>
             {g.backLink}
           </Link>
@@ -953,21 +964,21 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* Right side: strain photo + journal + harvest */}
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
-          {/* Genetics photo card */}
+        <div className="gh-right">
+          {/* Genetics photo */}
           {STRAIN_LOCAL_IMG[grow.strainSlug] && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={STRAIN_LOCAL_IMG[grow.strainSlug]}
               alt={grow.strainName}
-              style={{ width: '80px', height: '80px', objectFit: 'contain', flexShrink: 0 }}
+              className="gh-img"
+              style={{ objectFit: 'contain' }}
             />
           )}
 
-          {/* Journal card button */}
-          <Link href={`/hub/grow/${id}/journal/new`} style={{
+          {/* Journal button */}
+          <Link href={`/hub/grow/${id}/journal/new`} className="gh-journal" style={{
             display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            width: '80px', height: '80px', flexShrink: 0,
             background: 'rgba(0,212,200,0.06)',
             border: '0.5px solid rgba(0,212,200,0.25)',
             borderRadius: '8px',
