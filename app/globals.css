@@ -105,6 +105,11 @@ body::after {
   z-index: 999;
 }
 
+/* ── Hub mobile bottom bar padding ── */
+@media (max-width: 768px) {
+  .hub-main { padding-bottom: calc(72px + env(safe-area-inset-bottom)) !important; }
+}
+
 /* ── Animations ── */
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(16px); }
