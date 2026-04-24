@@ -31,13 +31,16 @@ function Avatar({ username, avatar, size = 36 }: { username: string; avatar: str
 
 export default function HubNavbar({ username, avatar, xp, level, credits }: Props) {
   const [dropOpen, setDropOpen] = useState(false)
+  const [pill, setPill] = useState<'xp' | 'credits' | null>(null)
   const dropRef = useRef<HTMLDivElement>(null)
+  const pillRef = useRef<HTMLDivElement>(null)
   const { t } = useLanguage()
   const d = t.hubNavbar
 
   useEffect(() => {
     function onClickOut(e: MouseEvent) {
       if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
+      if (pillRef.current && !pillRef.current.contains(e.target as Node)) setPill(null)
     }
     document.addEventListener('mousedown', onClickOut)
     return () => document.removeEventListener('mousedown', onClickOut)
@@ -93,15 +96,45 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
           </span>
         </Link>
 
-        {/* Right — XP pill + avatar */}
+        {/* Right — pills + avatar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* Credits */}
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#8844cc', background: 'rgba(136,68,204,0.1)', border: '0.5px solid rgba(136,68,204,0.25)', borderRadius: '20px', padding: '3px 10px' }}>
-            💎 {credits}
-          </div>
-          {/* XP pill */}
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#f0a830', background: 'rgba(240,168,48,0.1)', border: '0.5px solid rgba(240,168,48,0.25)', borderRadius: '20px', padding: '3px 10px' }}>
-            ⚡ {xp.toLocaleString('en-US')} XP
+          {/* Clickable pills */}
+          <div ref={pillRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {/* Credits pill */}
+            <button
+              onClick={() => setPill(v => v === 'credits' ? null : 'credits')}
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#8844cc', background: 'rgba(136,68,204,0.1)', border: '0.5px solid rgba(136,68,204,0.25)', borderRadius: '20px', padding: '3px 10px', cursor: 'pointer' }}
+            >
+              💎 {credits}
+            </button>
+            {/* XP pill */}
+            <button
+              onClick={() => setPill(v => v === 'xp' ? null : 'xp')}
+              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#f0a830', background: 'rgba(240,168,48,0.1)', border: '0.5px solid rgba(240,168,48,0.25)', borderRadius: '20px', padding: '3px 10px', cursor: 'pointer' }}
+            >
+              {xp.toLocaleString('en-US')} XP
+            </button>
+
+            {/* Info popup */}
+            {pill && (
+              <div style={{
+                position: 'absolute', right: 0, top: 'calc(100% + 10px)',
+                background: 'rgba(13,13,18,0.97)', border: `0.5px solid ${pill === 'xp' ? 'rgba(240,168,48,0.25)' : 'rgba(136,68,204,0.25)'}`,
+                borderRadius: '10px', padding: '14px 16px', minWidth: '220px', maxWidth: '260px',
+                backdropFilter: 'blur(20px)', zIndex: 50,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              }}>
+                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '1.5px', textTransform: 'uppercase', color: pill === 'xp' ? '#f0a830' : '#8844cc', marginBottom: '8px' }}>
+                  {pill === 'xp' ? d.xpTitle : d.creditsTitle}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.55)', lineHeight: 1.6 }}>
+                  {pill === 'xp' ? d.xpDesc : d.creditsDesc}
+                </div>
+                <div style={{ marginTop: '10px', fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: pill === 'xp' ? '#f0a830' : '#8844cc' }}>
+                  {pill === 'xp' ? `${xp.toLocaleString('en-US')} XP` : `💎 ${credits}`}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Avatar + dropdown */}

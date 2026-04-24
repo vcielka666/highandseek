@@ -103,6 +103,10 @@ export const translations = {
       profile:    'View Profile',
       settings:   'Settings',
       logout:     'Logout',
+      xpTitle:    'Experience Points',
+      xpDesc:     'XP is earned by growing plants, chatting with strain avatars, journaling, and completing events. It levels up your grower rank.',
+      creditsTitle: 'H&S Credits',
+      creditsDesc:  'Credits are earned at harvest based on yield quality. Use them to post marketplace listings, start new grows, or unlock perks.',
     },
     hubBento: {
       openFull:    'Open full simulator →',
@@ -918,6 +922,10 @@ export const translations = {
       profile:    'Zobrazit profil',
       settings:   'Nastavení',
       logout:     'Odhlásit se',
+      xpTitle:    'Zkušenostní body',
+      xpDesc:     'XP získáváš pěstováním rostlin, chatováním s avatary odrůd, zápisky a dokončováním událostí. Zvyšují tvůj pěstitelský rank.',
+      creditsTitle: 'H&S Kredity',
+      creditsDesc:  'Kredity získáváš při sklizni podle kvality výnosu. Použij je na inzerci, nové pěstování nebo odemknutí výhod.',
     },
     hubBento: {
       openFull:    'Otevřít simulátor →',
