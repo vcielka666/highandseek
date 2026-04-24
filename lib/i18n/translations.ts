@@ -104,9 +104,9 @@ export const translations = {
       settings:   'Settings',
       logout:     'Logout',
       xpTitle:    'Experience Points',
-      xpDesc:     'XP is earned by growing plants, chatting with strain avatars, journaling, and completing events. It levels up your grower rank.',
+      xpDesc:     'Earned by growing, journaling, chatting with strain avatars, and completing events. XP raises your grower rank — unlocking perks, trust, and status across the High & Seek ecosystem. Your rank carries over to Seekers, where experienced growers get priority access to hunts and rare drops.',
       creditsTitle: 'H&S Credits',
-      creditsDesc:  'Credits are earned at harvest based on yield quality. Use them to post marketplace listings, start new grows, or unlock perks.',
+      creditsDesc:  'Earned at harvest based on yield quality. Credits are real value inside the ecosystem — spend them in the shop on seeds, clones, and equipment, post marketplace listings, or use them to start new grows. Think of them as your farming income.',
     },
     hubBento: {
       openFull:    'Open full simulator →',
@@ -923,9 +923,9 @@ export const translations = {
       settings:   'Nastavení',
       logout:     'Odhlásit se',
       xpTitle:    'Zkušenostní body',
-      xpDesc:     'XP získáváš pěstováním rostlin, chatováním s avatary odrůd, zápisky a dokončováním událostí. Zvyšují tvůj pěstitelský rank.',
+      xpDesc:     'Získáváš je pěstováním, zápisky, chatováním s avatary odrůd a dokončováním událostí. XP zvyšuje tvůj pěstitelský rank — odemyká výhody, důvěru a status v celém ekosystému High & Seek. Rank funguje i v Seekers, kde zkušení pěstitelé mají prioritní přístup k huntům a vzácným odměnám.',
       creditsTitle: 'H&S Kredity',
-      creditsDesc:  'Kredity získáváš při sklizni podle kvality výnosu. Použij je na inzerci, nové pěstování nebo odemknutí výhod.',
+      creditsDesc:  'Získáváš je při sklizni podle kvality výnosu. Kredity jsou reálná hodnota uvnitř ekosystému — utrácej je v e-shopu za semínka, klony a vybavení, inzeruj na marketplace nebo je použij na nové pěstování. Ber je jako svůj farmářský příjem.',
     },
     hubBento: {
       openFull:    'Otevřít simulátor →',
