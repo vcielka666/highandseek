@@ -29,7 +29,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         level={level}
         credits={credits}
       />
-      <main style={{ paddingBottom: 'calc(40px + env(safe-area-inset-bottom))' }} className="hub-main">
+      <main style={{ paddingBottom: '40px' }}>
         {children}
       </main>
     </div>

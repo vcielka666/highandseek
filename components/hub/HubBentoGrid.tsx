@@ -137,6 +137,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
         <style>{`
           @media (max-width: 768px) {
             .bento-grid { grid-template-columns: repeat(2, 1fr) !important; padding: 12px !important; gap: 10px !important; }
+            .hub-home-card { display: flex !important; }
           }
         `}</style>
 
@@ -167,6 +168,43 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             <CardPreview id={card.id} data={data} t={t} growAcknowledged={growAcknowledged} />
           </motion.div>
         ))}
+
+        {/* Mobile-only: landing page card (last card, full width) */}
+        <motion.a
+          href="/"
+          className="hub-home-card"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: CARDS.length * 0.06, duration: 0.4, ease: 'easeOut' }}
+          whileTap={{ scale: 0.97 }}
+          style={{
+            display:       'none',
+            gridColumn:    'span 2',
+            borderRadius:  '20px',
+            background:    'rgba(204,0,170,0.06)',
+            border:        '1px solid rgba(204,0,170,0.2)',
+            backdropFilter: 'blur(10px)',
+            overflow:      'hidden',
+            cursor:        'pointer',
+            minHeight:     '80px',
+            textDecoration: 'none',
+            alignItems:    'center',
+            justifyContent: 'space-between',
+            padding:       '0 24px',
+            animation:     `bento-border-glow 4s ease-in-out ${CARDS.length * 0.5}s infinite`,
+            '--glow-rgb':  '204,0,170',
+          } as React.CSSProperties}
+        >
+          <div>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '4px' }}>
+              {t.hubNavbar.brand}
+            </div>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', color: '#cc00aa', letterSpacing: '0.5px' }}>
+              {t.hubNavbar.home}
+            </div>
+          </div>
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '20px', color: 'rgba(204,0,170,0.4)' }}>←</span>
+        </motion.a>
       </div>
 
       {/* Expanded overlay */}

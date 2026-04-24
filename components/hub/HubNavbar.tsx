@@ -47,11 +47,7 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
     <>
       <style>{`
         .hub-breadcrumb { display: flex; align-items: center; gap: 6px; }
-        .hub-mobile-bar { display: none; }
-        @media (max-width: 768px) {
-          .hub-breadcrumb { display: none; }
-          .hub-mobile-bar { display: flex; }
-        }
+        @media (max-width: 768px) { .hub-breadcrumb { display: none; } }
       `}</style>
 
       <nav style={{
@@ -151,31 +147,6 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
         </div>
       </nav>
 
-      {/* Mobile bottom bar */}
-      <div className="hub-mobile-bar" style={{
-        position:        'fixed',
-        bottom:          0,
-        left:            0,
-        right:           0,
-        zIndex:          30,
-        alignItems:      'stretch',
-        background:      'rgba(5,5,8,0.92)',
-        backdropFilter:  'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        borderTop:       '0.5px solid rgba(255,255,255,0.08)',
-        paddingBottom:   'env(safe-area-inset-bottom)',
-      }}>
-        {[
-          { href: '/',     icon: '⌂', label: d.home,  color: '#cc00aa', glow: 'rgba(204,0,170,0.15)' },
-          { href: '/hub',  icon: '◈', label: d.brand, color: 'rgba(232,240,239,0.4)', glow: 'transparent' },
-          { href: '/shop', icon: '◉', label: d.shop,  color: '#00d4c8', glow: 'rgba(0,212,200,0.12)' },
-        ].map(({ href, icon, label, color, glow }) => (
-          <Link key={href} href={href} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '3px', padding: '10px 0 8px', textDecoration: 'none', background: glow }}>
-            <span style={{ fontSize: '18px', color, lineHeight: 1 }}>{icon}</span>
-            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1.5px', textTransform: 'uppercase', color }}>{label}</span>
-          </Link>
-        ))}
-      </div>
     </>
   )
 }
