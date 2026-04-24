@@ -97,41 +97,6 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
           {d.shop} ↗
         </button>
 
-        {/* Shop alert modal */}
-        {shopAlert && (
-          <>
-            <div
-              onClick={() => setShopAlert(false)}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 60, backdropFilter: 'blur(4px)' }}
-            />
-            <div style={{
-              position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              zIndex: 70, background: 'rgba(13,13,18,0.98)',
-              border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '16px',
-              padding: '28px 24px', maxWidth: '280px', width: 'calc(100vw - 40px)',
-              boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
-            }}>
-              <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '0.5px', marginBottom: '20px' }}>
-                {d.shopAlertTitle}
-              </div>
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <button
-                  onClick={() => setShopAlert(false)}
-                  style={{ flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '6px', padding: '10px', cursor: 'pointer' }}
-                >
-                  {d.shopAlertCancel}
-                </button>
-                <a
-                  href="/shop"
-                  style={{ flex: 1, fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '0.5px', color: '#050508', background: '#00d4c8', borderRadius: '6px', padding: '10px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                >
-                  {d.shopAlertConfirm}
-                </a>
-              </div>
-            </div>
-          </>
-        )}
-
         {/* Right — pills + avatar */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Clickable pills */}
@@ -216,6 +181,40 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
         </div>
       </nav>
 
+      {/* Shop alert modal — outside nav to avoid sticky stacking context */}
+      {shopAlert && (
+        <>
+          <div
+            onClick={() => setShopAlert(false)}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)', zIndex: 60, backdropFilter: 'blur(4px)' }}
+          />
+          <div style={{
+            position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
+            zIndex: 70, background: 'rgba(13,13,18,0.98)',
+            border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '16px',
+            padding: '28px 24px', maxWidth: '280px', width: 'calc(100vw - 40px)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
+          }}>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '0.5px', marginBottom: '20px' }}>
+              {d.shopAlertTitle}
+            </div>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={() => setShopAlert(false)}
+                style={{ flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '6px', padding: '10px', cursor: 'pointer' }}
+              >
+                {d.shopAlertCancel}
+              </button>
+              <a
+                href="/shop"
+                style={{ flex: 1, fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '0.5px', color: '#050508', background: '#00d4c8', borderRadius: '6px', padding: '10px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                {d.shopAlertConfirm}
+              </a>
+            </div>
+          </div>
+        </>
+      )}
     </>
   )
 }
