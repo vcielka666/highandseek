@@ -58,12 +58,24 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
       WebkitBackdropFilter: 'blur(20px)',
       borderBottom:    '1px solid rgba(255,255,255,0.06)',
     }}>
-      {/* Left — HUB brand */}
-      <Link href="/hub" style={{ textDecoration: 'none' }}>
-        <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '11px', letterSpacing: '3px', color: 'rgba(232,240,239,0.35)', textTransform: 'uppercase' }}>
-          {d.brand}
-        </span>
-      </Link>
+      {/* Left — breadcrumb: landing → hub */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+        <Link href="/" style={{ textDecoration: 'none' }}>
+          <span
+            style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '0.5px', color: 'rgba(204,0,170,0.75)', transition: 'color 0.15s' }}
+            onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#cc00aa')}
+            onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(204,0,170,0.75)')}
+          >
+            {d.home}
+          </span>
+        </Link>
+        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>›</span>
+        <Link href="/hub" style={{ textDecoration: 'none' }}>
+          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', letterSpacing: '2.5px', color: 'rgba(232,240,239,0.3)', textTransform: 'uppercase' }}>
+            {d.brand}
+          </span>
+        </Link>
+      </div>
 
       {/* Center — Shop link */}
       <Link href="/shop" style={{ textDecoration: 'none' }}>

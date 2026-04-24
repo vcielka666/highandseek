@@ -97,6 +97,7 @@ export const translations = {
     },
     hubNavbar: {
       brand:    'HUB',
+      home:     'High & Seek',
       shop:     'Shop',
       profile:  'View Profile',
       settings: 'Settings',
@@ -910,6 +911,7 @@ export const translations = {
     },
     hubNavbar: {
       brand:    'HUB',
+      home:     'High & Seek',
       shop:     'Shop',
       profile:  'Zobrazit profil',
       settings: 'Nastavení',
