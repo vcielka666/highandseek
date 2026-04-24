@@ -108,15 +108,11 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
               position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
               zIndex: 70, background: 'rgba(13,13,18,0.98)',
               border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '16px',
-              padding: '32px 28px', maxWidth: '340px', width: 'calc(100vw - 40px)',
+              padding: '28px 24px', maxWidth: '280px', width: 'calc(100vw - 40px)',
               boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
             }}>
-              <div style={{ fontSize: '28px', marginBottom: '14px' }}>🛒</div>
-              <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', color: '#e8f0ef', letterSpacing: '0.5px', marginBottom: '10px' }}>
+              <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '0.5px', marginBottom: '20px' }}>
                 {d.shopAlertTitle}
-              </div>
-              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.65, marginBottom: '24px' }}>
-                {d.shopAlertDesc}
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 <button
