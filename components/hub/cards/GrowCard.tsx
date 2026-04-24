@@ -449,7 +449,7 @@ function ExpandedFailed({ grow, labels, onAcknowledge }: { grow: GrowCardData; l
         {/* ── Panel 2: History ── */}
         <div style={{ width: '50%', flexShrink: 0, overflowY: 'auto', padding: '28px 28px 48px' }}>
           {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px' }}>
             <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)' }}>
               {labels.growSim}
             </div>
@@ -457,6 +457,20 @@ function ExpandedFailed({ grow, labels, onAcknowledge }: { grow: GrowCardData; l
             <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '18px', color: '#e8f0ef', letterSpacing: '1px' }}>
               {labels.growHistoryTitle ?? 'Grow History'}
             </div>
+          </div>
+
+          {/* Stats row */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '20px' }}>
+            {[
+              { label: labels.growsCompletedLabel ?? 'Grows', value: String(history.length) },
+              { label: labels.xpFromGrowsLabel ?? 'Total XP', value: `${history.reduce((s, h) => s + (h.xpEarned ?? 0), 0)}` },
+              { label: labels.creditsEarnedLabel ?? 'Credits', value: `${history.filter(h => h.status === 'completed').reduce((s, h) => s + (h.harvestData?.creditsEarned ?? 0), 0)} 💎` },
+            ].map(({ label: statLabel, value }) => (
+              <div key={statLabel} style={{ background: 'rgba(0,212,200,0.04)', border: '0.5px solid rgba(0,212,200,0.1)', borderRadius: '6px', padding: '12px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#00d4c8', marginBottom: '3px' }}>{value}</div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{statLabel}</div>
+              </div>
+            ))}
           </div>
 
           {historyLoading ? (
@@ -541,20 +555,6 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
 
         <StoryBlock originLabel={l.originLabel} story1={l.story1} story2={l.story2} story3={l.story3} />
 
-        {/* Stats row */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
-          {[
-            { label: l.growsCompletedLabel ?? 'Grows', value: String(growsCompleted) },
-            { label: l.xpFromGrowsLabel   ?? 'XP',     value: `${userXP} xp` },
-            { label: l.creditsEarnedLabel ?? 'Credits', value: `${userCredits} 💎` },
-          ].map(({ label: statLabel, value }) => (
-            <div key={statLabel} style={{ background: 'rgba(204,0,170,0.05)', border: '0.5px solid rgba(204,0,170,0.12)', borderRadius: '6px', padding: '14px', textAlign: 'center' }}>
-              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#cc00aa', marginBottom: '3px' }}>{value}</div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{statLabel}</div>
-            </div>
-          ))}
-        </div>
-
         <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '8px', padding: '20px', marginBottom: '28px' }}>
           <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#00d4c8', marginBottom: '6px' }}>
             {l.realtimeTitle ?? '🌱 Virtual Grow Simulator'}
@@ -627,20 +627,6 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
 
       <StoryBlock originLabel={l.originLabel} story1={l.story1} story2={l.story2} story3={l.story3} />
 
-      {/* Stats row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', marginBottom: '28px' }}>
-        {[
-          { label: l.growsCompletedLabel ?? 'Grows', value: String(growsCompleted) },
-          { label: l.xpFromGrowsLabel   ?? 'XP',     value: `${userXP} xp` },
-          { label: l.creditsEarnedLabel ?? 'Credits', value: `${userCredits} 💎` },
-        ].map(({ label: statLabel, value }) => (
-          <div key={statLabel} style={{ background: 'rgba(204,0,170,0.05)', border: '0.5px solid rgba(204,0,170,0.12)', borderRadius: '6px', padding: '14px', textAlign: 'center' }}>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: '#cc00aa', marginBottom: '3px' }}>{value}</div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{statLabel}</div>
-          </div>
-        ))}
-      </div>
-
       {/* Active grow panel */}
       <div style={{ background: 'rgba(0,212,200,0.05)', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.5)', marginBottom: '14px' }}>
@@ -670,12 +656,12 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
             </div>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
-          <a href={`/hub/grow/${grow._id}`} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <a href={`/hub/grow/${grow._id}`} style={{ flex: 1, fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '0.5px', color: '#050508', background: '#00d4c8', borderRadius: '4px', padding: '9px 12px', textDecoration: 'none', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {l.viewGrow}
           </a>
-          <a href={`/hub/grow/${grow._id}/journal/new`} style={{ fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px', color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.4)', borderRadius: '4px', padding: '9px 20px', textDecoration: 'none' }}>
-            {l.addJournal ?? '+ Journal Entry'}
+          <a href={`/hub/grow/${grow._id}/journal/new`} style={{ flex: 1, fontFamily: 'var(--font-cacha)', fontSize: '11px', letterSpacing: '0.5px', color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.4)', borderRadius: '4px', padding: '9px 12px', textDecoration: 'none', textAlign: 'center', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {l.addJournal ?? '+ Journal'}
           </a>
         </div>
       </div>
