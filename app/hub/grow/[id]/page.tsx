@@ -910,21 +910,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
 
       {/* Header */}
-      <style>{`
-        .grow-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; gap: 12px; }
-        .grow-header-right { display: flex; gap: 8px; align-items: stretch; }
-        .grow-header-img { width: 80px; height: 80px; object-fit: contain; flex-shrink: 0; }
-        .grow-header-journal { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 80px; flex-shrink: 0; background: rgba(0,212,200,0.06); border: 0.5px solid rgba(0,212,200,0.25); border-radius: 8px; text-decoration: none; gap: 5px; }
-        @media (max-width: 900px) {
-          .grow-header { align-items: stretch; }
-          .grow-header-left { flex: 1; min-width: 0; }
-          .grow-header-right { align-items: stretch; }
-          .grow-header-img { width: auto; height: 100%; max-width: 64px; object-fit: cover; border-radius: 6px; }
-          .grow-header-journal { width: 52px; height: 100%; }
-        }
-      `}</style>
-      <div className="grow-header">
-        <div className="grow-header-left">
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
+        <div>
           <Link href="/hub/grow" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textDecoration: 'none' }}>
             {g.backLink}
           </Link>
@@ -966,19 +953,26 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         </div>
 
         {/* Right side: strain photo + journal + harvest */}
-        <div className="grow-header-right">
-          {/* Genetics photo */}
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'stretch' }}>
+          {/* Genetics photo card */}
           {STRAIN_LOCAL_IMG[grow.strainSlug] && (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={STRAIN_LOCAL_IMG[grow.strainSlug]}
               alt={grow.strainName}
-              className="grow-header-img"
+              style={{ width: '80px', height: '80px', objectFit: 'contain', flexShrink: 0 }}
             />
           )}
 
-          {/* Journal button */}
-          <Link href={`/hub/grow/${id}/journal/new`} className="grow-header-journal">
+          {/* Journal card button */}
+          <Link href={`/hub/grow/${id}/journal/new`} style={{
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            width: '80px', height: '80px', flexShrink: 0,
+            background: 'rgba(0,212,200,0.06)',
+            border: '0.5px solid rgba(0,212,200,0.25)',
+            borderRadius: '8px',
+            textDecoration: 'none', gap: '5px',
+          }}>
             <span style={{ fontSize: '24px', lineHeight: 1 }}>📓</span>
             <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#00d4c8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
               {g.journalBtn}
