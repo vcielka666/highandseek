@@ -472,6 +472,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [grow, setGrow]       = useState<VirtualGrow | null>(null)
   const [loading, setLoading] = useState(true)
   const [pending, start]      = useTransition()
+  const [titleExpanded, setTitleExpanded] = useState(false)
   const [activeWarning, setActiveWarning] = useState<VirtualGrow['warnings'][0] | null>(null)
   const [activeTab, setActiveTab]         = useState<'attributes' | 'environment' | 'setup' | 'stats'>('attributes')
   const [countdown, setCountdown]         = useState('')
@@ -926,7 +927,17 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           <Link href="/hub/grow" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textDecoration: 'none' }}>
             {g.backLink}
           </Link>
-          <h1 style={{ fontFamily: 'var(--font-cacha)', fontSize: '26px', color: '#e8f0ef', margin: '4px 0 0', letterSpacing: '1px' }}>
+          <h1
+            onClick={() => setTitleExpanded(v => !v)}
+            title={grow.strainName}
+            style={{
+              fontFamily: 'var(--font-cacha)', fontSize: '26px', color: '#e8f0ef',
+              margin: '4px 0 0', letterSpacing: '1px', cursor: 'pointer',
+              overflow: 'hidden', textOverflow: 'ellipsis',
+              whiteSpace: titleExpanded ? 'normal' : 'nowrap',
+              transition: 'white-space 0s',
+            }}
+          >
             {grow.strainName}
           </h1>
           <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066', marginTop: '3px' }}>
