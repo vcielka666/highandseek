@@ -101,29 +101,14 @@ const STAGE_FRAMES: Record<string, string> = {
 // ── Story block ───────────────────────────────────────────────────────────────
 
 function StoryBlock({ originLabel, story1, story2, story3 }: { originLabel: string; story1: string; story2: string; story3: string }) {
-  const [open, setOpen] = useState(false)
   return (
     <div style={{ marginBottom: '20px' }}>
-      <style>{`
-        .story-body { overflow: hidden; transition: max-height 0.5s ease; }
-        .story-toggle { display: inline-flex; }
-        @media (min-width: 769px) {
-          .story-body { max-height: none !important; overflow: visible; }
-          .story-toggle { display: none; }
-        }
-      `}</style>
       <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.4)', marginBottom: '6px' }}>
         {originLabel}
       </div>
-      <div className="story-body" style={{ maxHeight: open ? '400px' : '60px' }}>
-        {[story1, story2, story3].map((s, i) => (
-          <p key={i} style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', lineHeight: 1.75, color: i === 2 ? 'rgba(232,240,239,0.7)' : 'rgba(232,240,239,0.45)', margin: '0 0 10px' }}>{s}</p>
-        ))}
-      </div>
-      <button type="button" onClick={() => setOpen(v => !v)} className="story-toggle" style={{ alignItems: 'center', gap: '5px', padding: '4px 10px', borderRadius: '4px', marginTop: '4px', background: 'rgba(204,0,170,0.1)', border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', cursor: 'pointer' }}>
-        <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px' }}>{open ? 'read less' : 'read more'}</span>
-        <span style={{ fontSize: '11px', display: 'inline-block', transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'none' }}>▾</span>
-      </button>
+      {[story1, story2, story3].map((s, i) => (
+        <p key={i} style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', lineHeight: 1.75, color: i === 2 ? 'rgba(232,240,239,0.7)' : 'rgba(232,240,239,0.45)', margin: '0 0 10px' }}>{s}</p>
+      ))}
     </div>
   )
 }
