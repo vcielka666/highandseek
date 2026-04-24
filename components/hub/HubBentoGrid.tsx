@@ -196,14 +196,16 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
           } as React.CSSProperties}
         >
           <div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.5)', marginBottom: '4px' }}>
-              {t.hubNavbar.brand}
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.45)', marginBottom: '4px' }}>
+              ← {t.hubNavbar.backToHome}
             </div>
             <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', color: '#cc00aa', letterSpacing: '0.5px' }}>
               {t.hubNavbar.home}
             </div>
           </div>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '20px', color: 'rgba(204,0,170,0.4)' }}>←</span>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(204,0,170,0.12)', border: '0.5px solid rgba(204,0,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '16px', color: '#cc00aa' }}>←</span>
+          </div>
         </motion.a>
       </div>
 
