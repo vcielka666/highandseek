@@ -157,8 +157,7 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
                   <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '1px' }}>Lv.{level}</div>
                 </div>
                 {[
-                  { label: d.profile,  href: `/hub/profile/${username}` },
-                  { label: d.settings, href: '/hub/settings' },
+                  { label: d.profile, href: `/hub/profile/${username}` },
                 ].map(item => (
                   <Link key={item.href} href={item.href} onClick={() => setDropOpen(false)} style={{ display: 'block', padding: '8px 10px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#e8f0ef', textDecoration: 'none', borderRadius: '6px', transition: 'background 0.15s' }}
                     onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
