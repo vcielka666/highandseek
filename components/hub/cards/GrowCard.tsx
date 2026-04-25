@@ -84,6 +84,8 @@ interface Props {
     growHistoryDay?:      string
     growHistoryYield?:    string
     growHistoryXp?:       string
+    startNewGrow?:        string
+    creditsPerGrow?:      string
   }
   onAcknowledge?: () => void
 }
@@ -657,6 +659,16 @@ export default function GrowCard({ grow, strains = [], expanded = false, growsCo
             {l.addJournal ?? '+ Journal'}
           </a>
         </div>
+      </div>
+
+      {/* Start another grow */}
+      <div style={{ background: 'rgba(0,212,200,0.03)', border: '0.5px solid rgba(0,212,200,0.12)', borderRadius: '8px', padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px' }}>
+        <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#f0a830' }}>
+          💎 2 {l.creditsPerGrow ?? 'credits per grow'}
+        </div>
+        <a href="/hub/grow/setup" style={{ fontFamily: 'var(--font-cacha)', fontSize: '10px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8', background: 'transparent', border: '0.5px solid rgba(0,212,200,0.35)', borderRadius: '4px', padding: '6px 14px', textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          {l.startNewGrow ?? '+ New Grow'}
+        </a>
       </div>
     </div>
   )
