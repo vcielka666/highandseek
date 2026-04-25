@@ -72,11 +72,11 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
         <div className="hub-breadcrumb">
           <Link href="/" style={{ textDecoration: 'none' }}>
             <span
-              style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '0.5px', color: 'rgba(204,0,170,0.75)', transition: 'color 0.15s' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.color = '#cc00aa')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.color = 'rgba(204,0,170,0.75)')}
+              style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '2px', color: '#e8f0ef', transition: 'opacity 0.15s', opacity: 0.85 }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.opacity = '0.85')}
             >
-              {d.home}
+              HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
             </span>
           </Link>
           <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: 'rgba(255,255,255,0.15)' }}>›</span>

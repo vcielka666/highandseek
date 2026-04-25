@@ -5,6 +5,10 @@ export const translations = {
     nav: {
       login: 'Login',
       signup: 'Sign up',
+      hub: 'Hub',
+      profile: 'Profile',
+      orders: 'Order History',
+      logout: 'Logout',
     },
     hero: {
       eyebrow: '· Original Cannabis Boutique ·',
@@ -828,6 +832,10 @@ export const translations = {
     nav: {
       login: 'Přihlásit',
       signup: 'Registrovat',
+      hub: 'Hub',
+      profile: 'Profil',
+      orders: 'Historie objednávek',
+      logout: 'Odhlásit',
     },
     hero: {
       eyebrow: '· Original Cannabis Boutique ·',

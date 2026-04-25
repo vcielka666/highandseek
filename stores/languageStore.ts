@@ -20,8 +20,8 @@ interface LanguageStore {
 const useLanguageStore = create<LanguageStore>()(
   persist(
     (set) => ({
-      locale: 'en',
-      t: translations['en'],
+      locale: 'cs',
+      t: translations['cs'],
       hydrated: false,
       setLocale: (locale) => {
         setLocaleCookie(locale)
@@ -47,8 +47,8 @@ const useLanguageStore = create<LanguageStore>()(
 export function useLanguage() {
   const { locale, t, hydrated, setLocale } = useLanguageStore()
   return {
-    locale: hydrated ? locale : 'en' as Locale,
-    t: hydrated ? t : translations['en'],
+    locale: hydrated ? locale : 'cs' as Locale,
+    t: hydrated ? t : translations['cs'],
     setLocale,
   }
 }
