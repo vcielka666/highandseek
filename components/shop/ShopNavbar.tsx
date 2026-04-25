@@ -76,12 +76,7 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
         HIGH<span style={{ color: '#00d4c8' }}>&</span>SEEK
       </Link>
 
-      {/* Shop label — desktop */}
-      <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', color: '#007a74', textTransform: 'uppercase', flexShrink: 0 }} className="hidden lg:inline">
-        · Shop
-      </span>
-
-      {/* Hub button */}
+      {/* Hub button — right next to logo */}
       <Link
         href="/hub"
         style={{
@@ -98,10 +93,16 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
           flexShrink: 0,
           transition: 'background 0.15s',
         }}
-        className="hidden lg:inline-flex items-center hover:bg-[rgba(204,0,170,0.08)]"
+        onMouseEnter={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.08)')}
+        onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
       >
         Hub ↗
       </Link>
+
+      {/* Shop label — desktop only */}
+      <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', color: '#007a74', textTransform: 'uppercase', flexShrink: 0 }} className="hidden lg:inline">
+        · Shop
+      </span>
 
       <div style={{ flex: 1 }} />
 

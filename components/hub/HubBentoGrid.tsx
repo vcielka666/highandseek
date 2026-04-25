@@ -181,8 +181,8 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             display:       'none',
             gridColumn:    'span 2',
             borderRadius:  '20px',
-            background:    'rgba(204,0,170,0.06)',
-            border:        '1px solid rgba(204,0,170,0.2)',
+            background:    'rgba(0,212,200,0.04)',
+            border:        '0.5px solid rgba(0,212,200,0.18)',
             backdropFilter: 'blur(10px)',
             overflow:      'hidden',
             cursor:        'pointer',
@@ -192,19 +192,19 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             justifyContent: 'space-between',
             padding:       '0 24px',
             animation:     `bento-border-glow 4s ease-in-out ${CARDS.length * 0.5}s infinite`,
-            '--glow-rgb':  '204,0,170',
+            '--glow-rgb':  '0,212,200',
           } as React.CSSProperties}
         >
-          <div>
-            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(204,0,170,0.45)', marginBottom: '4px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.4)', marginBottom: '2px' }}>
               ← {t.hubNavbar.backToHome}
             </div>
-            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', color: '#cc00aa', letterSpacing: '0.5px' }}>
-              {t.hubNavbar.home}
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', letterSpacing: '2px', color: '#e8f0ef' }}>
+              HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
             </div>
           </div>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(204,0,170,0.12)', border: '0.5px solid rgba(204,0,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '16px', color: '#cc00aa' }}>←</span>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,212,200,0.08)', border: '0.5px solid rgba(0,212,200,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '16px', color: '#00d4c8' }}>←</span>
           </div>
         </motion.a>
       </div>
