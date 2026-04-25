@@ -1138,7 +1138,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         <div>
         {/* ── SVG Tent — viewBox 0 0 1000 750, all positions in TENT_LAYOUT ── */}
         {/* On mobile: bleed edge-to-edge (override 16px page padding) */}
-        <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } }`}</style>
+        <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } .hb { transform: scale(2.2); transform-origin: 12px 12px; } }`}</style>
         <div className="grow-tent-wrap">
         <svg
           viewBox="0 0 1000 750"
@@ -1362,7 +1362,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const barW  = Math.round(grow.health * 0.74)
             const capX  = (grow.maxHealth ?? 100) < 100 ? Math.round((grow.maxHealth ?? 100) * 0.74) : null
             return (
-              <g>
+              <g className="hb">
                 <rect x={12} y={12} width={106} height={62} rx={5} fill="rgba(5,5,8,0.88)" />
                 <text x={20} y={27} fontFamily="DM Mono,monospace" fontSize={8} letterSpacing={0.5} fill="#4a6066">
                   {g.healthLabel as string}
@@ -1385,51 +1385,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         </svg>
         </div>{/* /SVG border-radius wrapper */}
-
-        {/* ── Mobile health + attribute strip (hidden on md+) ── */}
-        {(() => {
-          const hCol = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
-          const attrs = [
-            { key: 'temperature' as const, label: g.attrTemp,      unit: '°C' },
-            { key: 'humidity'    as const, label: g.attrHumidity,  unit: '%'  },
-            { key: 'light'       as const, label: g.attrLight,     unit: ''   },
-            { key: 'ventilation' as const, label: g.attrVentilation, unit: '' },
-          ]
-          return (
-            <div className="md:hidden" style={{ marginTop: '8px', display: 'flex', gap: '0', background: 'rgba(13,0,20,0.85)', border: '0.5px solid rgba(74,96,102,0.2)', borderRadius: '8px', overflow: 'hidden' }}>
-              {/* Health */}
-              <div style={{ padding: '12px 14px', borderRight: '0.5px solid rgba(74,96,102,0.2)', flexShrink: 0, textAlign: 'center', minWidth: '72px' }}>
-                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '20px', fontWeight: 700, color: hCol, lineHeight: 1 }}>
-                  {grow.health}%
-                </div>
-                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', marginTop: '4px', letterSpacing: '0.5px' }}>
-                  {g.healthLabel as string}
-                </div>
-                <div style={{ height: '3px', background: 'rgba(74,96,102,0.2)', borderRadius: '2px', marginTop: '6px', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${grow.health}%`, background: hCol, borderRadius: '2px', transition: 'width 0.5s' }} />
-                </div>
-              </div>
-              {/* Attributes */}
-              <div style={{ flex: 1, display: 'flex', overflowX: 'auto' }}>
-                {attrs.map(({ key, label, unit }) => {
-                  const attr = grow.attributes[key]
-                  const sc = attr.status === 'optimal' ? '#56c254' : attr.status === 'warning' ? '#f0a830' : '#e03535'
-                  return (
-                    <div key={key} style={{ flex: '0 0 auto', padding: '10px 10px', borderRight: '0.5px solid rgba(74,96,102,0.12)', textAlign: 'center', minWidth: '60px' }}>
-                      <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: sc, margin: '0 auto 4px', boxShadow: `0 0 5px ${sc}` }} />
-                      <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '12px', fontWeight: 700, color: sc, lineHeight: 1 }}>
-                        {Math.round(attr.value)}{unit}
-                      </div>
-                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', color: '#4a6066', marginTop: '3px', letterSpacing: '0.5px', whiteSpace: 'nowrap' }}>
-                        {label}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )
-        })()}
 
         {/* ── Actions ── */}
         <div style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px' }}>
