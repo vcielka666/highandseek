@@ -3,6 +3,7 @@ import { z } from 'zod'
 import bcrypt from 'bcryptjs'
 import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
+import { QRScan } from '@/lib/db/models/QRRedirect'
 
 const schema = z.object({
   email:    z.string().email('Invalid email'),
@@ -43,6 +44,15 @@ export async function POST(req: NextRequest) {
       passwordHash,
       username: parsed.data.username,
     })
+
+    // QR conversion tracking — mark any scan with this session as converted
+    const qrSession = req.cookies.get('hs_qr_session')?.value
+    if (qrSession) {
+      await QRScan.updateMany(
+        { sessionId: qrSession, convertedToRegistration: false },
+        { $set: { convertedToRegistration: true, convertedAt: new Date() } }
+      ).catch(() => {}) // never block registration on tracking failure
+    }
 
     return NextResponse.json({ success: true }, { status: 201 })
   } catch (err) {
