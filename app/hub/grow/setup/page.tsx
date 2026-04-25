@@ -495,6 +495,7 @@ function SetupWizardInner() {
                       const next = key === 'random' ? randomSetup() : key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO
                       setSetup(next)
                       setActivePreset(key)
+                      setStep(STEPS.length - 1)
                     }}
                     style={{
                       background:   isActive ? c.bg : 'rgba(10,36,40,0.5)',
