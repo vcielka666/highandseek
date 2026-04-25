@@ -203,9 +203,6 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
               HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
             </div>
           </div>
-          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'rgba(0,212,200,0.08)', border: '0.5px solid rgba(0,212,200,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '16px', color: '#00d4c8' }}>←</span>
-          </div>
         </motion.a>
       </div>
 
