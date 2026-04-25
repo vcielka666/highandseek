@@ -8,6 +8,7 @@ export const translations = {
       hub: 'Hub',
       profile: 'Profile',
       orders: 'Order History',
+      buyCredits: 'Buy Credits',
       logout: 'Logout',
     },
     hero: {
@@ -115,6 +116,7 @@ export const translations = {
       xpDesc:     'Earned by growing, journaling, chatting with strain avatars, and completing events. XP raises your grower rank — unlocking perks, trust, and status across the High & Seek ecosystem. Your rank carries over to Seekers, where experienced growers get priority access to hunts and rare drops.',
       creditsTitle: 'H&S Credits',
       creditsDesc:  'Earned at harvest based on yield quality. Credits are real value inside the ecosystem — spend them in the shop on seeds, clones, and equipment, post marketplace listings, or use them to start new grows. Think of them as your farming income.',
+      buyCredits:   'Buy Credits',
     },
     hubBento: {
       openFull:    'Open full simulator →',
@@ -835,6 +837,7 @@ export const translations = {
       hub: 'Hub',
       profile: 'Profil',
       orders: 'Historie objednávek',
+      buyCredits: 'Koupit kredity',
       logout: 'Odhlásit',
     },
     hero: {
@@ -942,6 +945,7 @@ export const translations = {
       xpDesc:     'Získáváš je pěstováním, zápisky, chatováním s avatary odrůd a dokončováním událostí. XP zvyšuje tvůj pěstitelský rank — odemyká výhody, důvěru a status v celém ekosystému High & Seek. Rank funguje i v Seekers, kde zkušení pěstitelé mají prioritní přístup k huntům a vzácným odměnám.',
       creditsTitle: 'H&S Kredity',
       creditsDesc:  'Získáváš je při sklizni podle kvality výnosu. Kredity jsou reálná hodnota uvnitř ekosystému — utrácej je v e-shopu za semínka, klony a vybavení, inzeruj na marketplace nebo je použij na nové pěstování. Ber je jako svůj farmářský příjem.',
+      buyCredits:   'Koupit kredity',
     },
     hubBento: {
       openFull:    'Otevřít simulátor →',
@@ -1176,7 +1180,7 @@ export const translations = {
       activeGrowLabel: 'Aktivní grow',
       healthLabel: 'Zdraví',
       viewGrow: 'Zobrazit Grow →',
-      addJournal: '+ Záznam do deníku',
+      addJournal: '+ Grow deník',
       startNewGrow: 'Spustit nový grow',
       realtimeTitle: '🌱 Virtuální Grow Simulátor',
       realtimeDesc: 'Vyber délku grow dne — od 1 minuty (trénink) až po 24 hodin (realtime). Čas plyne i offline.',

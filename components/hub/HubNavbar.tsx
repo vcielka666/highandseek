@@ -71,11 +71,7 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
         {/* Left — breadcrumb (desktop only) */}
         <div className="hub-breadcrumb">
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <span
-              style={{ fontFamily: 'var(--font-cacha)', fontSize: '16px', letterSpacing: '2px', color: '#e8f0ef', transition: 'opacity 0.15s', opacity: 0.85 }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.opacity = '1')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.opacity = '0.85')}
-            >
+            <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '18px', letterSpacing: '2px', color: '#e8f0ef' }}>
               HIGH<span style={{ color: '#00d4c8' }}>&amp;</span>SEEK
             </span>
           </Link>
@@ -134,6 +130,24 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
                 <div style={{ marginTop: '10px', fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: pill === 'xp' ? '#f0a830' : '#8844cc' }}>
                   {pill === 'xp' ? `${xp.toLocaleString('en-US')} XP` : `💎 ${credits}`}
                 </div>
+                {pill === 'credits' && (
+                  <Link
+                    href="/hub/credits"
+                    onClick={() => setPill(null)}
+                    style={{
+                      display: 'block', marginTop: '12px',
+                      fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
+                      textTransform: 'uppercase', textAlign: 'center', textDecoration: 'none',
+                      color: '#050508', background: '#8844cc',
+                      borderRadius: '6px', padding: '8px 12px',
+                      transition: 'background 0.15s',
+                    }}
+                    onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#9955dd')}
+                    onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#8844cc')}
+                  >
+                    {d.buyCredits}
+                  </Link>
+                )}
               </div>
             )}
           </div>

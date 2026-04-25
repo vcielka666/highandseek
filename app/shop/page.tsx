@@ -6,13 +6,9 @@ import ProductCard from '@/components/shop/ProductCard'
 import Link from 'next/link'
 import CategorySwitcher from '@/components/shop/CategorySwitcher'
 import FlowerGate from '@/components/shop/FlowerGate'
+import SortBar from '@/components/shop/SortBar'
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>
-
-const SORT_OPTIONS = [
-  { value: 'price_asc',  label: 'Price ↑' },
-  { value: 'price_desc', label: 'Price ↓' },
-]
 
 const CATEGORY_LABELS: Record<string, string> = {
   seed: 'Genetics',
@@ -91,36 +87,7 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
           </span>
         </div>
 
-        <div style={{ display: 'flex', gap: '4px' }}>
-          {SORT_OPTIONS.map((opt) => {
-            const isActive = sort === opt.value
-            const currentParams = new URLSearchParams()
-            if (category) currentParams.set('category', category)
-            types.forEach((t) => currentParams.append('type', t))
-            if (q) currentParams.set('q', q)
-            currentParams.set('sort', opt.value)
-            return (
-              <Link
-                key={opt.value}
-                href={`/shop?${currentParams.toString()}`}
-                style={{
-                  fontFamily: 'var(--font-dm-mono)',
-                  fontSize: '10px',
-                  letterSpacing: '0.5px',
-                  padding: '5px 10px',
-                  borderRadius: '3px',
-                  textDecoration: 'none',
-                  border: `0.5px solid ${isActive ? 'rgba(0,212,200,0.4)' : 'rgba(255,255,255,0.06)'}`,
-                  color: isActive ? '#00d4c8' : '#4a6066',
-                  background: isActive ? 'rgba(0,212,200,0.08)' : 'transparent',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {opt.label}
-              </Link>
-            )
-          })}
-        </div>
+        <SortBar />
       </div>
 
       {/* Product grid */}

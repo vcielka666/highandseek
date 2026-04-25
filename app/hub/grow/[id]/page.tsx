@@ -906,7 +906,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   )
 
   return (
-    <div style={{ maxWidth: '960px', padding: '16px 16px 60px' }} className="md:px-7 md:pt-6">
+    <div style={{ maxWidth: '1280px', padding: '16px 16px 60px' }} className="md:px-7 md:pt-6">
 
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
 
@@ -1132,7 +1132,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       )}
 
       {/* ── Main grid ── */}
-      <div className="grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-4 items-start">
 
         {/* ── Tent ── */}
         <div>

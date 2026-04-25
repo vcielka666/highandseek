@@ -160,6 +160,24 @@ export default function Navbar() {
                     <div style={{ marginTop: '10px', fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: pill === 'xp' ? '#f0a830' : '#8844cc' }}>
                       {pill === 'xp' ? `${session.user.xp.toLocaleString('en-US')} XP` : `💎 ${credits ?? '…'}`}
                     </div>
+                    {pill === 'credits' && (
+                      <Link
+                        href="/hub/credits"
+                        onClick={() => { setPill(null); setDropOpen(false) }}
+                        style={{
+                          display: 'block', marginTop: '12px',
+                          fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
+                          textTransform: 'uppercase', textAlign: 'center', textDecoration: 'none',
+                          color: '#050508', background: '#8844cc',
+                          borderRadius: '6px', padding: '8px 12px',
+                          transition: 'background 0.15s',
+                        }}
+                        onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#9955dd')}
+                        onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#8844cc')}
+                      >
+                        {t.nav.buyCredits}
+                      </Link>
+                    )}
                   </div>
                 )}
 

@@ -1,8 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { useRouter, usePathname, useSearchParams } from 'next/navigation'
-import { useState, useCallback, useEffect, Suspense } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useCart } from '@/stores/cartStore'
 
 interface ShopNavbarProps {
@@ -10,24 +9,9 @@ interface ShopNavbarProps {
 }
 
 function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
-  const router = useRouter()
-  const pathname = usePathname()
-  const searchParams = useSearchParams()
   const { openCart, totalItems } = useCart()
-  const [search, setSearch] = useState(searchParams.get('q') ?? '')
   const [mounted, setMounted] = useState(false)
   useEffect(() => setMounted(true), [])
-
-  const handleSearch = useCallback((e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams(searchParams.toString())
-    if (search.trim()) {
-      params.set('q', search.trim())
-    } else {
-      params.delete('q')
-    }
-    router.push(`${pathname}?${params.toString()}`)
-  }, [search, searchParams, router, pathname])
 
   const cartCount = totalItems()
 
@@ -97,59 +81,29 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
         · Shop
       </span>
 
-      {/* Hub cross-link — magenta accent */}
+      {/* Hub button */}
       <Link
         href="/hub"
         style={{
           fontFamily: 'var(--font-dm-mono)',
-          fontSize: '10px',
-          letterSpacing: '1px',
+          fontSize: '11px',
+          letterSpacing: '2px',
           textTransform: 'uppercase',
-          color: '#4a6066',
+          color: '#cc00aa',
+          border: '0.5px solid rgba(204,0,170,0.3)',
+          borderRadius: '4px',
+          padding: '4px 12px',
+          background: 'transparent',
           textDecoration: 'none',
           flexShrink: 0,
-          transition: 'color 0.2s',
+          transition: 'background 0.15s',
         }}
-        className="hidden lg:inline hover:text-[#cc00aa]"
+        className="hidden lg:inline-flex items-center hover:bg-[rgba(204,0,170,0.08)]"
       >
-        ⚡ Hub
+        Hub ↗
       </Link>
 
-      {/* Search bar */}
-      <form onSubmit={handleSearch} style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
-        <div style={{ position: 'relative', width: '100%', maxWidth: '400px' }}>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search strains..."
-            style={{
-              width: '100%',
-              background: 'rgba(255,255,255,0.04)',
-              border: '0.5px solid rgba(0,212,200,0.15)',
-              borderRadius: '4px',
-              color: '#e8f0ef',
-              padding: '7px 36px 7px 14px',
-              fontFamily: 'var(--font-dm-sans)',
-              fontSize: '13px',
-              outline: 'none',
-              boxSizing: 'border-box',
-              transition: 'border-color 0.2s',
-            }}
-            onFocus={(e) => { e.target.style.borderColor = '#00d4c8' }}
-            onBlur={(e) => { e.target.style.borderColor = 'rgba(0,212,200,0.15)' }}
-          />
-          <button
-            type="submit"
-            style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: '#4a6066', display: 'flex', padding: 0 }}
-            className="hover:text-[#00d4c8] transition-colors"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-          </button>
-        </div>
-      </form>
+      <div style={{ flex: 1 }} />
 
       {/* Cart icon */}
       <button

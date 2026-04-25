@@ -570,35 +570,6 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
         </div>
       </div>
 
-      {/* Hub cross-link — pinned at bottom */}
-      <Link
-        href="/hub"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '12px',
-          padding: '14px 20px',
-          textDecoration: 'none',
-          background: 'rgba(204,0,170,0.1)',
-          borderTop: '0.5px solid rgba(204,0,170,0.25)',
-          transition: 'background 0.15s',
-          flexShrink: 0,
-        }}
-        className="hover:bg-[rgba(204,0,170,0.18)]"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#cc00aa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-          <line x1="19" y1="12" x2="5" y2="12" />
-          <polyline points="12 19 5 12 12 5" />
-        </svg>
-        <div>
-          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '0.5px', color: '#cc00aa' }}>
-            ⚡ Enter Hub
-          </div>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: 'rgba(204,0,170,0.45)', marginTop: '2px' }}>
-            Community · XP · Forum
-          </div>
-        </div>
-      </Link>
     </>
   )
 
