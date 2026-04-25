@@ -12,12 +12,23 @@ function SortBarInner() {
 
   const [searchOpen, setSearchOpen] = useState(!!q)
   const [searchVal, setSearchVal]   = useState(q)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef     = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const debounceRef  = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     if (searchOpen && inputRef.current) inputRef.current.focus()
   }, [searchOpen])
+
+  // Real-time filtering — debounced 300ms
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => {
+      navigate({ q: searchVal.trim() || null })
+    }, 300)
+    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchVal])
 
   useEffect(() => {
     function onClickOut(e: MouseEvent) {
@@ -41,14 +52,14 @@ function SortBarInner() {
 
   const submitSearch = (e: React.FormEvent) => {
     e.preventDefault()
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     navigate({ q: searchVal.trim() || null })
-    setSearchOpen(false)
   }
 
   const clearSearch = () => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
     setSearchVal('')
     navigate({ q: null })
-    setSearchOpen(false)
   }
 
   const priceActive = sort !== 'price_asc'
