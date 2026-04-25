@@ -466,14 +466,18 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
         />
 
         {isFlower && (
-          <FlowerFilters
-            types={types}
-            cbdLevels={cbdLevels}
-            origins={origins}
-            onToggleType={(v) => toggleMulti('type', v, types)}
-            onToggleCbd={(v) => toggleMulti('cbdLevel', v, cbdLevels)}
-            onToggleOrigin={(v) => toggleMulti('origin', v, origins)}
-          />
+          <div style={{ position: 'relative' }}>
+            <div style={{ filter: flowerUnlocked === false ? 'blur(4px)' : 'none', pointerEvents: flowerUnlocked === false ? 'none' : 'auto', userSelect: flowerUnlocked === false ? 'none' : 'auto', transition: 'filter 0.3s' }}>
+              <FlowerFilters
+                types={types}
+                cbdLevels={cbdLevels}
+                origins={origins}
+                onToggleType={(v) => toggleMulti('type', v, types)}
+                onToggleCbd={(v) => toggleMulti('cbdLevel', v, cbdLevels)}
+                onToggleOrigin={(v) => toggleMulti('origin', v, origins)}
+              />
+            </div>
+          </div>
         )}
 
         {isSeed && (
