@@ -815,3 +815,63 @@ eslint: { ignoreDuringBuilds: true },
 - `AUTH_URL=http://138.68.74.105` (update to `https://highandseek.com` once domain + SSL configured)
 - `AUTH_SECRET=<32-byte base64>` — must match exactly, no leading spaces
 - Leading spaces in `.env.local` silently break env vars — always verify with `grep AUTH .env.local`
+
+---
+
+## QR Redirect System
+
+### Routes
+- `GET /go` — redirects using default slug 'go'
+- `GET /go/[slug]` — dynamic redirect by slug
+- Both log a `QRScan` to MongoDB, set/read `hs_qr_session` HttpOnly cookie (7 days)
+
+### Models (`lib/db/models/QRRedirect.ts`)
+
+**QRRedirect**
+```
+slug:      String (unique, lowercase)
+targetUrl: String
+label:     String (admin label)
+isActive:  Boolean (default true)
+timestamps: true
+```
+
+**QRScan**
+```
+slug:                    String (index)
+timestamp:               Date (index)
+userAgent:               String
+ip:                      String
+country:                 String (optional)
+city:                    String (optional)
+device:                  'ios' | 'android' | 'desktop' | 'other'
+referrer:                String
+convertedToRegistration: Boolean (default false)
+convertedAt:             Date (optional)
+sessionId:               String (index)
+```
+
+### Admin Routes
+```
+GET    /api/admin/qr                          list + scan counts
+POST   /api/admin/qr                          create { slug, targetUrl, label }
+PATCH  /api/admin/qr/[slug]                   update { targetUrl, label, isActive }
+GET    /api/admin/qr/[slug]/stats             total, conversions, perDay, deviceBreak, recent
+POST   /api/admin/qr/[slug]/stats/convert     { sessionId } → mark converted
+```
+
+### Conversion Tracking
+`POST /api/auth/register` checks `hs_qr_session` cookie → marks matching `QRScan` as `convertedToRegistration: true`.
+
+### Admin UI
+`/admin/qr` — list with scan counts, create/edit modal, QR code preview (SVG/Canvas), PNG + SVG download.
+`/admin/qr/[slug]` — metrics (total/conversions/rate), area chart (30d), device pie chart, recent scans table.
+
+### QR Code Library
+`qrcode.react` v4.x — use `QRCodeSVG` for display/SVG download, `QRCodeCanvas` for PNG download.
+
+### Seed
+```bash
+pnpm tsx scripts/seed-qr.ts
+```
+Creates: `go` → highandseek.com, `grow` → /hub/grow, `strains` → /hub/strains
