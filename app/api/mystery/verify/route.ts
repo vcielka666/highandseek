@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server'
 import bcrypt from 'bcryptjs'
 
+const COOKIE = 'flower_access'
+const COOKIE_VAL = 'granted'
+const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
+
 export async function POST(req: Request) {
   const body = await req.json() as { password?: unknown }
   const password = body.password
@@ -16,5 +20,16 @@ export async function POST(req: Request) {
 
   const hash = Buffer.from(hashB64, 'base64').toString('utf8')
   const isValid = await bcrypt.compare(password, hash)
-  return NextResponse.json({ success: isValid })
+
+  if (!isValid) return NextResponse.json({ success: false })
+
+  const res = NextResponse.json({ success: true })
+  res.cookies.set(COOKIE, COOKIE_VAL, {
+    httpOnly: true,
+    sameSite: 'lax',
+    path: '/',
+    maxAge: MAX_AGE,
+    secure: process.env.NODE_ENV === 'production',
+  })
+  return res
 }

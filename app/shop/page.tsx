@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { connectDB } from '@/lib/db/connect'
 import Product from '@/lib/db/models/Product'
 import type { ProductDTO } from '@/types/shop'
@@ -42,27 +43,36 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
   const sort       = getString(params.sort) ?? 'price_asc'
   const q          = getString(params.q)
 
+  // Server-side flower gate: check HttpOnly cookie — never send flower data to client when locked
+  const cookieStore = await cookies()
+  const flowerUnlocked = cookieStore.get('flower_access')?.value === 'granted'
+  const isFlowerRequest = category === 'flower'
+
   await connectDB()
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const filter: Record<string, any> = { isAvailable: true }
-  if (category) filter.category = category
-  if (types.length)                    filter['strain.type'] = { $in: types }
-  if (seedTypes.length)                filter['strain.seedType'] = { $in: seedTypes }
-  if (origins.length)                  filter['strain.origin'] = { $in: origins }
-  if (climates.length)                 filter['strain.climate'] = { $in: climates }
-  if (difficulties.length)             filter['strain.difficulty'] = { $in: difficulties }
-  if (yields.length)                   filter['strain.yield'] = { $in: yields }
-  if (priceMax < 2500)                 filter.price = { $lte: priceMax }
-  if (q)                               filter.name = { $regex: q, $options: 'i' }
+  let serialised: ProductDTO[] = []
 
-  let sortObj: Record<string, 1 | -1> = { price: 1 }
-  if (sort === 'price_desc') sortObj = { price: -1 }
+  // Skip DB query entirely for locked flower requests — no product data in RSC payload
+  if (!isFlowerRequest || flowerUnlocked) {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const filter: Record<string, any> = { isAvailable: true }
+    if (category) filter.category = category
+    if (types.length)                    filter['strain.type'] = { $in: types }
+    if (seedTypes.length)                filter['strain.seedType'] = { $in: seedTypes }
+    if (origins.length)                  filter['strain.origin'] = { $in: origins }
+    if (climates.length)                 filter['strain.climate'] = { $in: climates }
+    if (difficulties.length)             filter['strain.difficulty'] = { $in: difficulties }
+    if (yields.length)                   filter['strain.yield'] = { $in: yields }
+    if (priceMax < 2500)                 filter.price = { $lte: priceMax }
+    if (q)                               filter.name = { $regex: q, $options: 'i' }
 
-  const products = await Product.find(filter).sort(sortObj).lean<ProductDTO[]>()
+    let sortObj: Record<string, 1 | -1> = { price: 1 }
+    if (sort === 'price_desc') sortObj = { price: -1 }
 
-  // Deep-serialize: strips all Mongoose types (ObjectId, Buffer, etc.) at every level
-  const serialised: ProductDTO[] = JSON.parse(JSON.stringify(products))
+    const products = await Product.find(filter).sort(sortObj).lean<ProductDTO[]>()
+    // Deep-serialize: strips all Mongoose types (ObjectId, Buffer, etc.) at every level
+    serialised = JSON.parse(JSON.stringify(products))
+  }
 
   return (
     <div style={{ padding: '24px 24px 48px' }}>
@@ -92,16 +102,19 @@ export default async function ShopPage({ searchParams }: { searchParams: SearchP
 
       {/* Product grid */}
       {category === 'flower' ? (
-        <FlowerGate>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-            gap: '16px',
-          }}>
-            {serialised.map((product) => (
-              <ProductCard key={product._id} product={product} />
-            ))}
-          </div>
+        <FlowerGate initialUnlocked={flowerUnlocked}>
+          {/* Children only rendered (and only present in RSC payload) when server confirms unlock */}
+          {flowerUnlocked ? (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+              gap: '16px',
+            }}>
+              {serialised.map((product) => (
+                <ProductCard key={product._id} product={product} />
+              ))}
+            </div>
+          ) : null}
         </FlowerGate>
       ) : serialised.length === 0 ? (
         <div style={{

@@ -1,23 +1,18 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
-const FLOWER_KEY = 'hs-flower-access'
+interface FlowerGateProps {
+  children: React.ReactNode
+  initialUnlocked: boolean
+}
 
-export default function FlowerGate({ children }: { children: React.ReactNode }) {
-  const [unlocked, setUnlocked] = useState<boolean | null>(null)
+export default function FlowerGate({ children, initialUnlocked }: FlowerGateProps) {
+  const [unlocked, setUnlocked] = useState(initialUnlocked)
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [shake, setShake] = useState(false)
   const [loading, setLoading] = useState(false)
-
-  useEffect(() => {
-    try {
-      setUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
-    } catch {
-      setUnlocked(false)
-    }
-  }, [])
 
   async function handleUnlock() {
     if (!password.trim()) return
@@ -30,9 +25,9 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
       })
       const data = await res.json() as { success: boolean }
       if (data.success) {
-        try { localStorage.setItem(FLOWER_KEY, 'true') } catch { /* private mode */ }
-        window.dispatchEvent(new CustomEvent('flower-unlocked'))
         setUnlocked(true)
+        // Full reload so server re-renders with the cookie set — flower products enter RSC payload
+        window.location.reload()
       } else {
         setError('Incorrect password.')
         setShake(true)
@@ -45,7 +40,6 @@ export default function FlowerGate({ children }: { children: React.ReactNode }) 
     }
   }
 
-  if (unlocked === null) return null
   if (unlocked) return <>{children}</>
 
   return (

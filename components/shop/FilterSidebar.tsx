@@ -3,9 +3,6 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useCallback, useState, useEffect } from 'react'
 import Image from 'next/image'
-import Link from 'next/link'
-
-const FLOWER_KEY = 'hs-flower-access'
 
 interface FilterSidebarProps {
   isOpen: boolean
@@ -68,10 +65,10 @@ export default function FilterSidebar({ isOpen, onClose }: FilterSidebarProps) {
   })
   const [flowerUnlocked, setFlowerUnlocked] = useState<boolean | null>(null)
   useEffect(() => {
-    setFlowerUnlocked(localStorage.getItem(FLOWER_KEY) === 'true')
-    const handler = () => setFlowerUnlocked(true)
-    window.addEventListener('flower-unlocked', handler)
-    return () => window.removeEventListener('flower-unlocked', handler)
+    fetch('/api/mystery/status')
+      .then(r => r.json())
+      .then((d: { flowerUnlocked: boolean }) => setFlowerUnlocked(d.flowerUnlocked))
+      .catch(() => setFlowerUnlocked(false))
   }, [])
 
   const toggleSection = (key: string) =>
