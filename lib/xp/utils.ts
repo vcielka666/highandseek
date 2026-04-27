@@ -35,6 +35,15 @@ export const XP_EVENTS = {
   STRAIN_AVATAR_LEVEL_UP:    50,
   STRAIN_CHAT_SESSION_LONG:  30,
   STRAIN_BG_CHANGE:           3,
+  // Social Feed
+  POST_TEXT:                  10,
+  POST_PHOTO:                 20,
+  POST_VIDEO:                 30,
+  POST_GROW_UPDATE:           15,
+  POST_COMMENT:                5,
+  POST_LIKED:                  3,
+  FOLLOW_MILESTONE_10:        50,
+  FOLLOW_MILESTONE_100:      200,
 } as const
 
 export const LEVELS = [

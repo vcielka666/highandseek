@@ -30,6 +30,9 @@ const UserSchema = new mongoose.Schema({
   badges:          [{ badgeId: String, earnedAt: Date }],
   followers:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   following:       [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+  followersCount:  { type: Number, default: 0 },
+  followingCount:  { type: Number, default: 0 },
+  postsCount:      { type: Number, default: 0 },
   growsCompleted:  { type: Number, default: 0 },
   cloneBank: { type: [{
     strainSlug:    { type: String, required: true },

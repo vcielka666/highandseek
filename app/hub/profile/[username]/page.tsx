@@ -5,6 +5,7 @@ import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
 import Order from '@/lib/db/models/Order'
 import Listing from '@/lib/db/models/Listing'
+import Post from '@/lib/db/models/Post'
 import Link from 'next/link'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import OrderCard from '@/components/shop/OrderCard'
@@ -12,10 +13,12 @@ import type { OrderData } from '@/components/shop/OrderCard'
 import { getXPProgress } from '@/lib/xp/index'
 import { BADGES } from '@/lib/badges/index'
 import MyListingActions from '@/components/hub/MyListingActions'
+import FollowButton from '@/components/hub/FollowButton'
 import type { ListingStatus } from '@/lib/db/models/Listing'
 import WalletSection from '@/components/hub/WalletSection'
+import mongoose from 'mongoose'
 
-type Tab = 'overview' | 'grows' | 'badges' | 'activity' | 'orders' | 'listings'
+type Tab = 'overview' | 'grows' | 'posts' | 'badges' | 'activity' | 'orders' | 'listings'
 
 export default async function ProfilePage(props: {
   params: Promise<{ username: string }>
@@ -26,7 +29,7 @@ export default async function ProfilePage(props: {
 
   const { username } = await props.params
   const { tab: rawTab } = await props.searchParams
-  const tab: Tab = (['overview', 'grows', 'badges', 'activity', 'orders', 'listings'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
+  const tab: Tab = (['overview', 'grows', 'posts', 'badges', 'activity', 'orders', 'listings'].includes(rawTab ?? '') ? rawTab : 'overview') as Tab
 
   await connectDB()
 
@@ -41,8 +44,11 @@ export default async function ProfilePage(props: {
     location: string
     links: { website: string; instagram: string }
     badges: { badgeId: string; earnedAt: Date }[]
-    followers: unknown[]
-    following: unknown[]
+    followers: mongoose.Types.ObjectId[]
+    following: mongoose.Types.ObjectId[]
+    followersCount: number
+    followingCount: number
+    postsCount: number
     growsCompleted: number
     totalXpEarned: number
     showcaseBadges: string[]
@@ -54,6 +60,14 @@ export default async function ProfilePage(props: {
 
   const isOwnProfile = profileUser._id.toString() === session.user.id
   const { current, next, percent } = getXPProgress(profileUser.xp)
+
+  const isFollowingProfile = !isOwnProfile
+    ? (profileUser.followers ?? []).some(fid => String(fid) === session.user.id)
+    : false
+
+  const followersCount = profileUser.followersCount ?? (profileUser.followers ?? []).length
+  const followingCount = profileUser.followingCount ?? (profileUser.following ?? []).length
+  const postsCount = profileUser.postsCount ?? 0
 
   const recentXP = await XPEvent.find({ userId: profileUser._id.toString() })
     .sort({ createdAt: -1 })
@@ -76,6 +90,20 @@ export default async function ProfilePage(props: {
     stripePaymentIntentId: o.stripePaymentIntentId,
     createdAt: o.createdAt.toISOString(),
     xpAwarded: o.xpAwarded,
+  }))
+
+  // Fetch user posts (for posts tab)
+  const userPostsRaw = tab === 'posts'
+    ? await Post.find({ userId: profileUser._id.toString(), isDeleted: false, isPublic: true })
+        .sort({ createdAt: -1 })
+        .limit(30)
+        .lean<{ _id: { toString(): string }; type: string; content: { text?: string; mediaUrl?: string; mediaType: string | null }; createdAt: Date }[]>()
+    : []
+  const userPosts = userPostsRaw.map(p => ({
+    _id: p._id.toString(),
+    type: p.type,
+    content: p.content,
+    createdAt: p.createdAt.toISOString(),
   }))
 
   // Fetch own listings (all statuses except 'removed')
@@ -114,6 +142,7 @@ export default async function ProfilePage(props: {
   const TABS: { value: Tab; label: string; icon: string }[] = [
     { value: 'overview',  label: 'Overview',                        icon: '◈' },
     { value: 'grows',     label: 'Grows',                           icon: '🌱' },
+    { value: 'posts',     label: `Posts${postsCount > 0 ? ` · ${postsCount}` : ''}`,      icon: '📸' },
     { value: 'badges',    label: `Badges ${userBadges.length > 0 ? `· ${userBadges.length}` : ''}`,   icon: '🏆' },
     { value: 'activity',  label: 'Activity',                        icon: '⚡' },
     ...(isOwnProfile ? [{ value: 'orders'   as Tab, label: `Orders ${userOrders.length > 0 ? `· ${userOrders.length}` : ''}`,     icon: '🛒' }] : []),
@@ -205,12 +234,13 @@ export default async function ProfilePage(props: {
               Edit Profile
             </Link>
           ) : (
-            <button
-              style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase', color: '#cc00aa', background: 'rgba(204,0,170,0.1)', border: '0.5px solid rgba(204,0,170,0.3)', borderRadius: '4px', padding: '8px 16px', cursor: 'pointer', transition: 'all 0.2s' }}
-              className="hover:bg-[rgba(204,0,170,0.2)]"
-            >
-              + Follow
-            </button>
+            <FollowButton
+              username={profileUser.username}
+              initialFollowing={isFollowingProfile}
+              initialFollowersCount={followersCount}
+              followLabel="Follow"
+              unfollowLabel="Unfollow"
+            />
           )}
         </div>
 
@@ -229,8 +259,9 @@ export default async function ProfilePage(props: {
         <div style={{ display: 'flex', gap: '24px', marginTop: '16px', flexWrap: 'wrap' }}>
           {[
             { label: 'Grows', value: profileUser.growsCompleted },
-            { label: 'Followers', value: (profileUser.followers ?? []).length },
-            { label: 'Following', value: (profileUser.following ?? []).length },
+            { label: 'Posts', value: postsCount },
+            { label: 'Followers', value: followersCount },
+            { label: 'Following', value: followingCount },
             { label: 'Badges', value: userBadges.length },
           ].map(({ label, value }) => (
             <div key={label}>
@@ -335,6 +366,45 @@ export default async function ProfilePage(props: {
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>No activity yet.</div>
               )}
             </div>
+          </div>
+        )}
+
+        {/* Posts */}
+        {tab === 'posts' && (
+          <div>
+            {userPosts.length === 0 ? (
+              <div style={{ ...cardStyle, padding: '32px', textAlign: 'center' }}>
+                <div style={{ fontSize: '28px', marginBottom: '12px' }}>📸</div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>
+                  No posts yet.
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
+                {userPosts.map(p => (
+                  <a
+                    key={p._id}
+                    href={`/hub/feed/${p._id}`}
+                    style={{ display: 'block', aspectRatio: '1', overflow: 'hidden', borderRadius: '4px', textDecoration: 'none', position: 'relative', background: '#0a1a1c' }}
+                  >
+                    {p.content.mediaUrl && p.content.mediaType === 'image' ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={p.content.mediaUrl}
+                        alt=""
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '8px', background: 'rgba(204,0,170,0.06)' }}>
+                        <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: 'rgba(232,240,239,0.5)', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', textAlign: 'center', lineHeight: 1.3 }}>
+                          {p.content.text?.slice(0, 80) ?? ''}
+                        </span>
+                      </div>
+                    )}
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

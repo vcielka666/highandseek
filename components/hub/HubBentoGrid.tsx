@@ -11,12 +11,14 @@ import AcademyCard                                from './cards/AcademyCard'
 import MarketplaceCard, { type ListingData }     from './cards/MarketplaceCard'
 import LeaderboardCard, { type LeaderUser }      from './cards/LeaderboardCard'
 import SeekersCard                                from './cards/SeekersCard'
+import FeedCard,        { type FeedPreviewData } from './cards/FeedCard'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface BentoData {
   userId:         string
   username:       string
+  userAvatar:     string
   xp:             number
   level:          number
   credits:        number
@@ -33,11 +35,12 @@ export interface BentoData {
   listingCount:   number
   topUsers:       LeaderUser[]
   xpEvents:       XPEventData[]
+  feedPreview:    FeedPreviewData | null
 }
 
 // ── Card config ───────────────────────────────────────────────────────────────
 
-type CardId = 'grow' | 'strain' | 'forum' | 'xp' | 'academy' | 'marketplace' | 'leaderboard' | 'seekers'
+type CardId = 'grow' | 'strain' | 'forum' | 'xp' | 'academy' | 'marketplace' | 'leaderboard' | 'seekers' | 'feed'
 
 interface CardMeta {
   id:         CardId
@@ -49,6 +52,7 @@ interface CardMeta {
 }
 
 const CARDS: CardMeta[] = [
+  { id: 'feed',        accent: '#00d4c8', glowRgb: '0,212,200',   colSpan: 2, rowSpan: 2, mobileSpan: 2 },
   { id: 'grow',        accent: '#00d4c8', glowRgb: '0,212,200',   colSpan: 2, rowSpan: 2, mobileSpan: 2 },
   { id: 'strain',      accent: '#cc00aa', glowRgb: '204,0,170',   colSpan: 2, rowSpan: 1, mobileSpan: 2 },
   { id: 'forum',       accent: '#8844cc', glowRgb: '136,68,204',  colSpan: 2, rowSpan: 1, mobileSpan: 2 },
@@ -66,6 +70,8 @@ function CardPreview({ id, data, t, growAcknowledged }: { id: CardId; data: Bent
   const b = t.hubBento
 
   switch (id) {
+    case 'feed':
+      return <FeedCard feedPreview={data.feedPreview} currentUser={{ id: data.userId, username: data.username, avatar: data.userAvatar }} labels={t.feed} />
     case 'grow':
       return <GrowCard grow={growAcknowledged ? null : data.activeGrow} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp, startNewGrow: t.grow.startNewGrow, creditsPerGrow: t.grow.creditsPerGrow }} />
     case 'strain':
@@ -90,6 +96,8 @@ function CardExpanded({ id, data, t, onGrowAcknowledge, growAcknowledged }: { id
   const b = t.hubBento
 
   switch (id) {
+    case 'feed':
+      return <FeedCard feedPreview={data.feedPreview} currentUser={{ id: data.userId, username: data.username, avatar: data.userAvatar }} expanded labels={t.feed} />
     case 'grow': {
       const growStrains: StrainPickerItem[] = data.strains.map(s => ({ slug: s.slug, name: s.name, type: s.type, floweringTime: s.floweringTime, difficulty: s.difficulty }))
       return <GrowCard grow={growAcknowledged ? null : data.activeGrow} strains={growStrains} expanded growsCompleted={data.growsCompleted} userXP={data.xp} userCredits={data.credits} cloneBank={data.cloneBank} onAcknowledge={onGrowAcknowledge} labels={{ growSim: d.growSim, noActiveGrow: d.noActiveGrow, startGrow: d.startGrow, viewGrow: d.viewGrow, openFull: b.openFull, day: b.day, health: b.health, yield: b.yield, originLabel: b.growOriginLabel, story1: b.growStory1, story2: b.growStory2, story3: b.growStory3, noActiveDesc: b.growNoActiveDesc, startSetup: b.growStartSetup, availableStrains: b.growAvailableStrains, indica: b.growIndica, sativa: b.growSativa, hybrid: b.growHybrid, growsCompletedLabel: t.grow.growsCompleted, xpFromGrowsLabel: t.grow.xpFromGrows, creditsEarnedLabel: t.grow.creditsEarned, realtimeTitle: t.grow.realtimeTitle, realtimeDesc: t.grow.realtimeDesc, realtimeFree: t.grow.realtimeFree, addJournal: t.grow.addJournal, cloneBankTitle: t.grow.cloneBankTitle, cloneFreeLabel: t.grow.cloneFreeLabel, cloneSkipVegLabel: t.grow.cloneSkipVegLabel, growFailedTitle: t.growUI.growFailedTitle, growAbandonedTitle: t.growUI.growAbandonedTitle, growFailedSub: t.growUI.growFailedSub, growAbandonedSub: t.growUI.growAbandonedSub, growEndDayLabel: t.growUI.growEndDayLabel, growEndDaySuffix: t.growUI.growEndDaySuffix, growEndXpLabel: t.growUI.growEndXpLabel, growEndHealthLabel: t.growUI.growEndHealthLabel, growEndWhyTitle: t.growUI.growEndWhyTitle, growEndNoWarnings: t.growUI.growEndNoWarnings, growEndStartNew: t.growUI.growEndStartNew, growEndOkBtn: t.growUI.growEndOkBtn, growHistoryTitle: t.growUI.growHistoryTitle, growHistoryEmpty: t.growUI.growHistoryEmpty, growHistoryBack: t.growUI.growHistoryBack, growHistoryStatus: t.growUI.growHistoryStatus, growHistoryDay: t.growUI.growHistoryDay, growHistoryYield: t.growUI.growHistoryYield, growHistoryXp: t.growUI.growHistoryXp, startNewGrow: t.grow.startNewGrow, creditsPerGrow: t.grow.creditsPerGrow }} />

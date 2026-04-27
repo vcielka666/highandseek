@@ -6,8 +6,10 @@ import XPEvent from '@/lib/db/models/XPEvent'
 import VirtualGrow from '@/lib/db/models/VirtualGrow'
 import Listing from '@/lib/db/models/Listing'
 import Strain from '@/lib/db/models/Strain'
+import Post from '@/lib/db/models/Post'
 import { getXPProgress } from '@/lib/xp/index'
 import HubBentoGrid, { type BentoData } from '@/components/hub/HubBentoGrid'
+import mongoose from 'mongoose'
 
 export default async function HubPage() {
   const session = await auth()
@@ -16,9 +18,10 @@ export default async function HubPage() {
   await connectDB()
 
   const [userData, recentXP, activeGrow, recentListings, listingCount, topUsers, strains] = await Promise.all([
-    User.findById(session.user.id).select('xp level credits growsCompleted cloneBank').lean<{
-      xp: number; level: number; credits: number; growsCompleted: number
+    User.findById(session.user.id).select('xp level credits growsCompleted cloneBank avatar following').lean<{
+      xp: number; level: number; credits: number; growsCompleted: number; avatar: string
       cloneBank: Array<{ strainSlug: string; strainName: string; strainType: string; floweringTime: number; takenAt: string }>
+      following: mongoose.Types.ObjectId[]
     }>(),
     XPEvent.find({ userId: session.user.id })
       .sort({ createdAt: -1 }).limit(6)
@@ -52,9 +55,69 @@ export default async function HubPage() {
   const level   = userData?.level ?? session.user.level ?? 1
   const { current, next, percent } = getXPProgress(xp)
 
+  // Feed preview: personal feed if following someone, popular fallback otherwise
+  const followingIds = userData?.following ?? []
+  const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+  type PreviewPost = {
+    _id: { toString(): string }
+    type: string
+    content: { mediaUrl?: string; mediaType: string | null; text?: string }
+    userId: { username: string; avatar: string }
+    likesCount: number
+    createdAt: Date
+  }
+
+  const hasFollowing = followingIds.length > 0
+  const authorIds: mongoose.Types.ObjectId[] = hasFollowing
+    ? [...followingIds, new mongoose.Types.ObjectId(session.user.id)]
+    : []
+
+  const [recentFeedPosts, newPostsCount, followerAvatarUsers] = await Promise.all([
+    hasFollowing
+      ? Post.find({ userId: { $in: authorIds }, isDeleted: false, isPublic: true })
+          .sort({ _id: -1 })
+          .limit(4)
+          .populate('userId', 'username avatar')
+          .lean<PreviewPost[]>()
+      : Post.find({ isDeleted: false, isPublic: true })
+          .sort({ likesCount: -1, _id: -1 })
+          .limit(4)
+          .populate('userId', 'username avatar')
+          .lean<PreviewPost[]>(),
+    hasFollowing
+      ? Post.countDocuments({
+          userId: { $in: authorIds },
+          isDeleted: false,
+          isPublic: true,
+          createdAt: { $gte: oneDayAgo },
+        })
+      : Promise.resolve(0),
+    hasFollowing
+      ? User.find({ _id: { $in: followingIds.slice(0, 4) } })
+          .select('username avatar')
+          .lean<{ username: string; avatar: string }[]>()
+      : Promise.resolve([] as { username: string; avatar: string }[]),
+  ])
+
+  const feedPreview = {
+    recentPosts: recentFeedPosts.map(p => ({
+      _id: p._id.toString(),
+      type: p.type,
+      content: p.content,
+      user: { username: p.userId.username, avatar: p.userId.avatar },
+      likesCount: p.likesCount ?? 0,
+      createdAt: p.createdAt.toISOString(),
+    })),
+    newPostsCount,
+    followerAvatars: followerAvatarUsers,
+    totalFollowing: followingIds.length,
+  }
+
   const data: BentoData = {
     userId:         session.user.id,
     username:       session.user.username,
+    userAvatar:     userData?.avatar ?? '',
     xp,
     level,
     credits:        userData?.credits        ?? 0,
@@ -100,6 +163,8 @@ export default async function HubPage() {
       amount:    e.amount,
       createdAt: e.createdAt.toISOString(),
     })),
+
+    feedPreview,
   }
 
   return <HubBentoGrid data={data} />

@@ -9,7 +9,7 @@ export const TENT_FLOOR_Y = 640  // SVG Y of the tent floor surface
 // All element positions in SVG coordinate space
 export const TENT_LAYOUT = {
   light:    { x: 330, y: 15,  w: 340, h: 200 },
-  exhaust:  { x: 830, y: 25,  w: 140, h: 170 },
+  exhaust:  { x: 855, y: 25,  w: 140, h: 170 },
   sonoflex: { x: 760, y: 90,  w: 90,  h: 280 },
   filter:   { x: 840, y: 340, w: 120, h: 210 },
   circ:     { x: 20,  y: 330, w: 130, h: 130 },
@@ -37,9 +37,13 @@ export function lampTopSVG(heightCm: number): number {
   return Math.round(10 + ((100 - heightCm) / 80) * 100)
 }
 
-// Lamp image width in SVG units (CFL is shorter)
+// Lamp image dimensions in SVG units (+25% from original 120/160 × 200)
 export function getLampSVGWidth(lightType: string): number {
-  return lightType === 'cfl' ? 120 : 160
+  return lightType === 'cfl' ? 150 : 200
+}
+
+export function getLampSVGHeight(): number {
+  return 250
 }
 
 // Light image URL — HPS and CFL have separate on/off images
@@ -58,12 +62,12 @@ const PLANT_COUNT_MULT: Record<number, number> = { 1: 1.0, 2: 0.65, 3: 0.5, 4: 0
 const TENT_SIZE_MULT: Record<string, number> = {
   '60x60': 0.7, '80x80': 0.85, '100x100': 1.0, '120x120': 1.1, '150x150': 1.25,
 }
-const MAX_PLANT_W = 400
+const MAX_PLANT_W = 500
 
 export function getPlantContainerWidth(potCount: number, tentSize: string): number {
   const cMult = PLANT_COUNT_MULT[potCount] ?? 1.0
   const tMult = TENT_SIZE_MULT[tentSize] ?? 1.0
-  return Math.min(MAX_PLANT_W, Math.round(400 * cMult * tMult))
+  return Math.min(MAX_PLANT_W, Math.round(500 * cMult * tMult))
 }
 
 // foreignObject spans Y=0 → TENT_FLOOR_Y, plant renders bottom-anchored inside

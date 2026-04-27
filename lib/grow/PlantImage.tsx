@@ -354,8 +354,8 @@ export default function PlantImage({
   const basePlantH = containerH * 0.88 * tentMult * healthScale * seedlingScale
 
   const potImg = POT_IMGS[potSize]
-  // Base pot width — smaller fractions keep pots proportional and inside the tent
-  const basePotW = Math.round(containerWidth * (clampedCount === 1 ? 0.42 : 0.34))
+  // Base pot width
+  const basePotW = Math.round(containerWidth * (clampedCount === 1 ? 0.68 : 0.54))
 
   return (
     <div style={{ position: 'relative', width: containerWidth, height: containerH }}>
@@ -366,8 +366,8 @@ export default function PlantImage({
         const depthScale = slot.bottomFrac > 0 ? 0.88 : 1.0
         const potW       = Math.round(basePotW * depthScale)
         const potH       = Math.round(potW * 0.85)
-        // Plant raised so its stem base sits at pot's soil surface (~62% up the pot)
-        const plantBottom = floorY + Math.round(potH * 0.62)
+        // Plant raised so its stem base sits at pot's soil surface (~62% up the pot) + 12px lift
+        const plantBottom = floorY + Math.round(potH * 0.62) + 12
         const potCssLeft  = Math.round(containerWidth * slot.xFrac - potW / 2)
         const plantCssLeft = Math.round(containerWidth * slot.xFrac - plantW / 2)
         const depthFilter  = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined

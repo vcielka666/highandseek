@@ -12,7 +12,7 @@ import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attribut
 import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
 import {
   TENT_LAYOUT, EQUIP_IMGS, SVG_W, PLANT_FO_Y, PLANT_FO_H,
-  lampTopSVG, getLightImageUrl, getLampSVGWidth,
+  lampTopSVG, getLightImageUrl, getLampSVGWidth, getLampSVGHeight,
   getPlantContainerWidth, getPlantFOX,
 } from '@/lib/grow/tentLayout'
 
@@ -133,7 +133,7 @@ function AttrBar({
           background: '#0a1a1c', border: '0.5px solid rgba(74,96,102,0.4)',
           borderRadius: '5px', padding: '10px 12px',
           fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#e8f0ef', lineHeight: 1.6,
-          whiteSpace: 'pre-line', maxWidth: '240px', boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+          whiteSpace: 'pre-line', width: 'min(240px, 85vw)', boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
           pointerEvents: 'none',
         }}>
           {tooltip}
@@ -288,51 +288,60 @@ function StatusBar({
     color: string,
     infoTitle: string,
     infoBody: string,
-  ) => (
-    <span style={{ position: 'relative' }}>
-      <button
-        onClick={() => setOpen(v => v === id ? null : id)}
-        style={{
-          background: 'none', border: 'none', padding: 0, cursor: 'pointer',
-          fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color,
-          letterSpacing: '0.3px',
-          textDecoration: open === id ? 'underline' : 'none',
-          textUnderlineOffset: '3px',
-          textDecorationColor: color,
-        }}
-      >
-        {label} <span style={{ fontSize: '7px', opacity: 0.5 }}>ⓘ</span>
-      </button>
-      {open === id && (
-        <div style={{
-          position: 'absolute', bottom: 'calc(100% + 8px)', left: '50%', transform: 'translateX(-50%)',
-          width: '220px', background: '#050f14',
-          border: '0.5px solid rgba(74,96,102,0.35)', borderRadius: '8px', padding: '12px',
-          zIndex: 30, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
-          pointerEvents: 'none',
-        }}>
-          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
-            {infoTitle}
+    align: 'left' | 'center' | 'right' = 'center',
+  ) => {
+    const popupPos: React.CSSProperties =
+      align === 'left'   ? { left: 0 } :
+      align === 'right'  ? { right: 0 } :
+      { left: '50%', transform: 'translateX(-50%)' }
+
+    return (
+      <span style={{ position: 'relative' }}>
+        <button
+          onClick={() => setOpen(v => v === id ? null : id)}
+          style={{
+            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color,
+            letterSpacing: '0.3px',
+            textDecorationLine: open === id ? 'underline' : 'none',
+            textDecorationColor: color,
+            textUnderlineOffset: '3px',
+          }}
+        >
+          {label} <span style={{ fontSize: '7px', opacity: 0.5 }}>ⓘ</span>
+        </button>
+        {open === id && (
+          <div style={{
+            position: 'absolute', bottom: 'calc(100% + 8px)',
+            ...popupPos,
+            width: '220px', background: '#050f14',
+            border: '0.5px solid rgba(74,96,102,0.35)', borderRadius: '8px', padding: '12px',
+            zIndex: 30, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+            pointerEvents: 'none',
+          }}>
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
+              {infoTitle}
+            </div>
+            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.6 }}>
+              {infoBody}
+            </div>
           </div>
-          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.7)', lineHeight: 1.6 }}>
-            {infoBody}
-          </div>
-        </div>
-      )}
-    </span>
-  )
+        )}
+      </span>
+    )
+  }
 
   return (
     <div ref={ref} style={{
       display: 'flex', alignItems: 'center', gap: '8px',
       marginTop: '10px', flexWrap: 'wrap',
     }}>
-      {seg('cycle', cycleLabel, cycleColor, cycleInfoTitle, cycleInfoBody)}
+      {seg('cycle', cycleLabel, cycleColor, cycleInfoTitle, cycleInfoBody, 'left')}
       <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{cycleSub}</span>
       <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
-      {seg('stage', stageLabel, stageColor, stageInfoTitle, stageInfoBody)}
+      {seg('stage', stageLabel, stageColor, stageInfoTitle, stageInfoBody, 'center')}
       <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
-      {seg('yield', `${progressLabel} · ${yieldLabel}`, '#00d4c8', yieldInfoTitle, yieldInfoBody)}
+      {seg('yield', `${progressLabel} · ${yieldLabel}`, '#00d4c8', yieldInfoTitle, yieldInfoBody, 'right')}
     </div>
   )
 }
@@ -508,6 +517,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const fanDragStartS   = useRef(100)
   const fanDragSpeedRef = useRef(100)
   const isFanDragging   = useRef(false)
+
+  const [isMobile, setIsMobile] = useState(false)
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
 
   useEffect(() => {
     fetch(`/api/hub/grow?id=${id}`)
@@ -1138,12 +1155,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         <div>
         {/* ── SVG Tent — viewBox 0 0 1000 750, all positions in TENT_LAYOUT ── */}
         {/* On mobile: bleed edge-to-edge (override 16px page padding) */}
-        <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } .hb { transform: scale(2.2); transform-origin: 12px 12px; } }`}</style>
+        <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } .grow-tent-svg { display: block; width: 100%; height: auto; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } .grow-tent-svg { height: 100vw; } .hb { transform: scale(1.7); transform-origin: 128px 12px; } }`}</style>
         <div className="grow-tent-wrap">
         <svg
           viewBox="0 0 1000 750"
           xmlns="http://www.w3.org/2000/svg"
-          style={{ display: 'block', width: '100%', height: 'auto' }}
+          preserveAspectRatio="xMidYMid slice"
+          className="grow-tent-svg"
         >
           <defs>
             {/* Light cone gradients (LED / CFL / HPS-CMH) */}
@@ -1183,21 +1201,26 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           {/* ── Layer 2: Equipment ── */}
 
           {/* Carbon filter — rotated */}
-          {grow.setup.hasCarbonFilter && (
-            <image
-              href={EQUIP_IMGS.filter}
-              x={TENT_LAYOUT.filter.x} y={TENT_LAYOUT.filter.y}
-              width={TENT_LAYOUT.filter.w} height={TENT_LAYOUT.filter.h}
-              transform={`rotate(55,${TENT_LAYOUT.filter.x + TENT_LAYOUT.filter.w / 2},${TENT_LAYOUT.filter.y + TENT_LAYOUT.filter.h / 2})`}
-              style={{ filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.5))' }}
-            />
-          )}
+          {grow.setup.hasCarbonFilter && (() => {
+            const fx = isMobile ? 750 : TENT_LAYOUT.filter.x
+            const cx = fx + TENT_LAYOUT.filter.w / 2
+            const cy = TENT_LAYOUT.filter.y + TENT_LAYOUT.filter.h / 2
+            return (
+              <image
+                href={EQUIP_IMGS.filter}
+                x={fx} y={TENT_LAYOUT.filter.y}
+                width={TENT_LAYOUT.filter.w} height={TENT_LAYOUT.filter.h}
+                transform={`rotate(55,${cx},${cy})`}
+                style={{ filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.5))' }}
+              />
+            )
+          })()}
 
           {/* Circulation fan — left wall */}
           {grow.setup.hasCirculationFan && (
             <image
               href={EQUIP_IMGS.circulation}
-              x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
+              x={isMobile ? 128 : TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
               style={{ opacity: 0.85, filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
             />
@@ -1206,33 +1229,37 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           {/* Medium bag — bottom left */}
           <image
             href={EQUIP_IMGS.mediumSoil}
-            x={TENT_LAYOUT.medium.x} y={TENT_LAYOUT.medium.y}
+            x={isMobile ? 128 : TENT_LAYOUT.medium.x} y={TENT_LAYOUT.medium.y}
             width={TENT_LAYOUT.medium.w} height={TENT_LAYOUT.medium.h}
             style={{ opacity: 0.82 }}
           />
 
           {/* Exhaust fan — top right, draggable fan-speed slider */}
-          {grow.setup.hasExhaustFan && (
-            <image
-              href={EQUIP_IMGS.exhaust}
-              x={TENT_LAYOUT.exhaust.x} y={TENT_LAYOUT.exhaust.y}
-              width={TENT_LAYOUT.exhaust.w} height={TENT_LAYOUT.exhaust.h}
-              style={{
-                opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
-                touchAction: 'none',
-                filter: fanSliderActive
-                  ? 'drop-shadow(-2px 0 12px rgba(0,212,200,0.7))'
-                  : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
-                transition: 'filter 0.15s',
-              }}
-              onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
-              onTouchStart={(e) => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
-            />
-          )}
+          {grow.setup.hasExhaustFan && (() => {
+            const ex = isMobile ? 740 : TENT_LAYOUT.exhaust.x
+            const ey = isMobile ? 8  : TENT_LAYOUT.exhaust.y
+            return (
+              <image
+                href={EQUIP_IMGS.exhaust}
+                x={ex} y={ey}
+                width={TENT_LAYOUT.exhaust.w} height={TENT_LAYOUT.exhaust.h}
+                style={{
+                  opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
+                  touchAction: 'none',
+                  filter: fanSliderActive
+                    ? 'drop-shadow(-2px 0 12px rgba(0,212,200,0.7))'
+                    : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
+                  transition: 'filter 0.15s',
+                }}
+                onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
+                onTouchStart={(e) => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
+              />
+            )
+          })()}
 
           {/* Fan speed badge — left of exhaust, only when dragging */}
           {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (
-            <g transform={`translate(${TENT_LAYOUT.exhaust.x - 76},${TENT_LAYOUT.exhaust.y + 50})`}>
+            <g transform={`translate(${(isMobile ? 740 : TENT_LAYOUT.exhaust.x) - 76},${(isMobile ? 8 : TENT_LAYOUT.exhaust.y) + 50})`}>
               <rect x={0} y={0} width={62} height={40} rx={4}
                 fill="rgba(0,212,200,0.2)" stroke="rgba(0,212,200,0.6)" strokeWidth={0.5} />
               <text x={8} y={22} fontFamily="var(--font-orbitron), monospace" fontSize={13} fontWeight={700} fill="#00d4c8">
@@ -1268,6 +1295,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           {lightImg && (() => {
             const lt      = grow.setup.lightType
             const lampW   = getLampSVGWidth(lt)
+            const lampH   = getLampSVGHeight()
             const lampX   = SVG_W / 2 - lampW / 2
             const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
             const opacity = (lt === 'hps' || lt === 'cfl') ? 1 : (isLight ? 1 : 0.25)
@@ -1276,7 +1304,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 <image
                   href={lightImg}
                   x={lampX} y={lampTop}
-                  width={lampW} height={200}
+                  width={lampW} height={lampH}
                   style={{
                     cursor: lampSliderActive ? 'grabbing' : 'grab',
                     touchAction: 'none',
@@ -1318,7 +1346,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 width={containerW} height={PLANT_FO_H}
                 style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease' }}
               >
-                <div style={{ width: containerW, height: PLANT_FO_H }}>
+                <div style={{ width: containerW, height: PLANT_FO_H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                   <PlantImage
                     stage={grow.stage}
                     strainType={grow.strainType}
@@ -1358,26 +1386,27 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
           {/* Health badge — top left */}
           {(() => {
-            const hCol = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
-            const barW  = Math.round(grow.health * 0.74)
-            const capX  = (grow.maxHealth ?? 100) < 100 ? Math.round((grow.maxHealth ?? 100) * 0.74) : null
+            const hCol   = grow.health > 60 ? '#56c254' : grow.health > 30 ? '#f0a830' : '#e03535'
+            const barW   = Math.round(grow.health * 0.74)
+            const capX   = (grow.maxHealth ?? 100) < 100 ? Math.round((grow.maxHealth ?? 100) * 0.74) : null
+            const bx     = isMobile ? 128 : 12   // badge x — shift inside crop zone on mobile
             return (
               <g className="hb">
-                <rect x={12} y={12} width={106} height={62} rx={5} fill="rgba(5,5,8,0.88)" />
-                <text x={20} y={27} fontFamily="DM Mono,monospace" fontSize={8} letterSpacing={0.5} fill="#4a6066">
+                <rect x={bx} y={12} width={106} height={62} rx={5} fill="rgba(5,5,8,0.88)" />
+                <text x={bx + 8} y={27} fontFamily="DM Mono,monospace" fontSize={8} letterSpacing={0.5} fill="#4a6066">
                   {g.healthLabel as string}
                 </text>
-                <text x={20} y={47} fontFamily="var(--font-orbitron),monospace" fontSize={14} fontWeight={700} fill={hCol}>
+                <text x={bx + 8} y={47} fontFamily="var(--font-orbitron),monospace" fontSize={14} fontWeight={700} fill={hCol}>
                   {grow.health}%
                   {(grow.maxHealth ?? 100) < 100 && (
                     <tspan fontSize={8} fill="#4a6066"> / {grow.maxHealth ?? 100}</tspan>
                   )}
                 </text>
-                <rect x={20} y={54} width={74} height={4} rx={2} fill="rgba(74,96,102,0.25)" />
-                <rect x={20} y={54} width={barW} height={4} rx={2} fill={hCol}
+                <rect x={bx + 8} y={54} width={74} height={4} rx={2} fill="rgba(74,96,102,0.25)" />
+                <rect x={bx + 8} y={54} width={barW} height={4} rx={2} fill={hCol}
                   style={{ transition: 'width 0.5s' }} />
                 {capX !== null && (
-                  <rect x={20 + capX} y={52} width={2} height={8} rx={1} fill="rgba(255,80,80,0.7)" />
+                  <rect x={bx + 8 + capX} y={52} width={2} height={8} rx={1} fill="rgba(255,80,80,0.7)" />
                 )}
               </g>
             )
@@ -1392,27 +1421,27 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
             const lollipopDone = grow.hasLollipoped ?? false
             const actions = [
-              { type: 'water',     label: g.actionWater,     xp: 5,  disabled: false },
-              { type: 'feed',      label: g.actionFeed,      xp: 10, disabled: false },
-              { type: 'ph_check',  label: g.actionPh,        xp: 5,  disabled: false },
+              { type: 'water',     label: g.actionWater,     disabled: false },
+              { type: 'feed',      label: g.actionFeed,      disabled: false },
+              { type: 'ph_check',  label: g.actionPh,        disabled: false },
               isVeg
-                ? { type: 'lst',      label: g.actionLst,      xp: 25, disabled: false }
-                : { type: 'lollipop', label: g.actionLollipop, xp: 20, disabled: lollipopDone },
-              { type: 'defoliate', label: g.actionDefoliate, xp: 15, disabled: false },
-              { type: 'flush',     label: g.actionFlush,     xp: 5,  disabled: false },
+                ? { type: 'lst',      label: g.actionLst,      disabled: false }
+                : { type: 'lollipop', label: g.actionLollipop, disabled: lollipopDone },
+              { type: 'defoliate', label: g.actionDefoliate, disabled: false },
+              { type: 'flush',     label: g.actionFlush,     disabled: false },
             ] as const
             return (
               <>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '7px' }}>
-                  {actions.map(({ type, label, xp, disabled }) => (
+                <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)', gap: isMobile ? '10px' : '7px' }}>
+                  {actions.map(({ type, label, disabled }) => (
                     <button
                       key={type}
                       onClick={() => requestAction(type)}
                       disabled={pending || disabled}
                       title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
                       style={{
-                        fontFamily: 'var(--font-dm-mono)', fontSize: '9px',
-                        padding: '9px 4px', borderRadius: '4px',
+                        fontFamily: 'var(--font-dm-mono)', fontSize: isMobile ? '11px' : '9px',
+                        padding: isMobile ? '13px 6px' : '9px 4px', borderRadius: '4px',
                         border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
                         background: 'rgba(10,36,40,0.5)',
                         color: disabled ? '#3a4a50' : '#e8f0ef',
@@ -1421,9 +1450,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                       }}
                     >
                       {label}
-                      <span style={{ display: 'block', fontSize: '8px', color: disabled ? '#2a3a40' : '#4a6066', marginTop: '2px' }}>
-                        {disabled ? g.doneLbl : `+${xp}xp`}
-                      </span>
+                      {disabled && (
+                        <span style={{ display: 'block', fontSize: '8px', color: '#2a3a40', marginTop: '2px' }}>
+                          {g.doneLbl}
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
