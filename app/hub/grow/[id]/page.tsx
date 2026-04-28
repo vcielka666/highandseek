@@ -641,7 +641,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       // dragging up = raising lamp = more distance from plant (higher cm)
       const delta = dragStartY.current - clientY
-      const newH  = Math.min(100, Math.max(20, Math.round(dragStartH.current + delta * 0.5)))
+      const newH  = Math.min(80, Math.max(20, Math.round(dragStartH.current + delta * 0.5)))
       dragHeightRef.current = newH
       setDragHeight(newH)
     }
@@ -914,16 +914,16 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   })
   const criticalCount  = activeWarnings.filter(w => w.severity === 'critical').length
   const lightImg       = getLightImageUrl(grow.setup.lightType, isLight)
-  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 60)
+  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 50)
   const lampTop        = lampTopSVG(currentHeight)  // SVG Y coordinate
   const currentFanSpeed = fanSliderActive ? dragFanSpeed : (committedFanSpeed ?? grow.environment.exhaustFanSpeed ?? 100)
 
   const stageTips = (g.stageGuide as Record<string, readonly string[]>)[grow.stage]
     ?? (g.stageGuide as Record<string, readonly string[]>).veg
 
-  const lampLabel = currentHeight <= 30 ? g.lampHot
-    : currentHeight <= 50 ? g.lampWarm
-    : currentHeight <= 70 ? g.lampOptimal
+  const lampLabel = currentHeight <= 25 ? g.lampHot
+    : currentHeight <= 40 ? g.lampWarm
+    : currentHeight <= 60 ? g.lampOptimal
     : g.lampFar
 
   const fanSpeedLabel = currentFanSpeed === 0 ? g.fanOff
@@ -1245,14 +1245,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               style={{ opacity: 0.85, filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
             />
           )}
-
-          {/* Medium bag — bottom left */}
-          <image
-            href={EQUIP_IMGS.mediumSoil}
-            x={isMobile ? 128 : TENT_LAYOUT.medium.x} y={TENT_LAYOUT.medium.y}
-            width={TENT_LAYOUT.medium.w} height={TENT_LAYOUT.medium.h}
-            style={{ opacity: 0.82 }}
-          />
 
           {/* Exhaust fan — top right, draggable fan-speed slider */}
           {grow.setup.hasExhaustFan && (() => {
@@ -1852,7 +1844,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   { key: 'ph',     label: g.envPhLabel,          value: String(grow.environment.ph),     desc: g.envPhDesc,          info: g.envPhInfo },
                   { key: 'ec',     label: g.envEcLabel,          value: `${grow.environment.ec} mS/cm`,  desc: g.envEcDesc,          info: g.envEcInfo },
                   { key: 'cycle',  label: g.envLightCycleLabel,  value: grow.manualFlipDay ? `12h / 12h ✓` : `${grow.environment.lightHours}h / ${24 - grow.environment.lightHours}h`, calcValue: undefined, desc: grow.stage === 'veg' && !grow.manualFlipDay ? g.flipDesc : g.envLightCycleDesc, info: g.envLightCycleInfo },
-                  { key: 'height', label: g.envLightHeightLabel, value: `${grow.environment.lightHeight ?? 60}cm`, calcValue: undefined, desc: g.envLightHeightDesc, info: g.envLightHeightInfo },
+                  { key: 'height', label: g.envLightHeightLabel, value: `${grow.environment.lightHeight ?? 50}cm`, calcValue: undefined, desc: g.envLightHeightDesc, info: g.envLightHeightInfo },
                   { key: 'vpd',    label: g.vpdLabel,            value: `${vpdValue} kPa`,  desc: g.vpdDesc,            info: g.vpdInfo },
                   ...(grow.setup.hasExhaustFan ? [{ key: 'fan', label: g.fanHint, value: `${grow.environment.exhaustFanSpeed ?? 100}%`, calcValue: undefined, desc: fanSpeedLabel, info: '' }] : []),
                 ] as Array<{ key: string; label: string; value: string; calcValue?: string; desc: string; info: string }>).map(({ key, label, value, desc, info }) => {
