@@ -1371,7 +1371,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               <foreignObject
                 x={foX} y={PLANT_FO_Y}
                 width={containerW} height={PLANT_FO_H}
-                style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease' }}
+                style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}
               >
                 <div style={{ width: containerW, height: PLANT_FO_H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                   <PlantImage
