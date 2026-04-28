@@ -69,7 +69,7 @@ interface VirtualGrow {
     temperature: AttributeRange; humidity: AttributeRange; light: AttributeRange
     ventilation: AttributeRange; nutrients: AttributeRange; watering: AttributeRange
   }
-  warnings: Array<{ attribute: string; message: string; guide: string; severity: string; resolvedAt: string | null }>
+  warnings: Array<{ attribute: string; message: string; guide: string; code?: string; triggerValue?: number; severity: string; resolvedAt: string | null }>
   actions: Array<{ type: string; timestamp: string; xpEarned: number; effect: string }>
   journalEntries: Array<{ day: number; stage: string; mood: string; notes: string; photoUrl: string }>
   dayDurationSeconds: number
@@ -1134,7 +1134,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 borderRadius: '3px', background: 'transparent',
                 color: w.severity === 'critical' ? '#ff4040' : '#f0a830', cursor: 'pointer',
               }}>
-                {w.severity === 'critical' ? '🚨' : '⚠️'} {w.attribute}
+                {w.severity === 'critical' ? '🚨' : '⚠️'} {(g.warningAttrNames as Record<string, string>)[w.attribute] ?? w.attribute}
               </button>
             ))}
           </div>
@@ -1152,10 +1152,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             borderRadius: '8px', padding: '24px', maxWidth: '480px', width: '100%',
           }} onClick={e => e.stopPropagation()}>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: activeWarning.severity === 'critical' ? '#ff4040' : '#f0a830', marginBottom: '12px' }}>
-              {activeWarning.severity} · {activeWarning.attribute}
+              {(g.warningSeverity as Record<string, string>)[activeWarning.severity] ?? activeWarning.severity} · {(g.warningAttrNames as Record<string, string>)[activeWarning.attribute] ?? activeWarning.attribute}
             </div>
             <pre style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#e8f0ef', whiteSpace: 'pre-wrap', lineHeight: 1.7, margin: '0 0 20px' }}>
-              {activeWarning.guide}
+              {activeWarning.code && (g.warningGuides as Record<string, (v: number, s: string) => string>)[activeWarning.code]
+                ? (g.warningGuides as Record<string, (v: number, s: string) => string>)[activeWarning.code](activeWarning.triggerValue ?? 0, activeWarning.severity)
+                : activeWarning.guide}
             </pre>
             <button onClick={() => setActiveWarning(null)} style={{
               fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '7px 16px',

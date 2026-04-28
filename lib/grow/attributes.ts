@@ -312,6 +312,42 @@ export function calculateHealthImpact(
   return healthLoss * Math.max(1, criticals * 0.5)
 }
 
+// ── getWarningCode ─────────────────────────────────────────────────────────────
+
+export function getWarningCode(
+  attribute: keyof GrowAttributes,
+  status: AttributeStatus,
+  value: number,
+  setup: Setup,
+  stage: GrowStage,
+): string {
+  switch (attribute) {
+    case 'temperature':
+      return value > STAGE_OPTIMAL[stage].temperature.max ? 'temperature_high' : 'temperature_low'
+    case 'humidity':
+      if (value > STAGE_OPTIMAL[stage].humidity.max) {
+        return (stage === 'flower' || stage === 'late_flower') ? 'humidity_high_flower' : 'humidity_high'
+      }
+      return 'humidity_low'
+    case 'light':
+      return value < STAGE_OPTIMAL[stage].light.min ? 'light_low' : 'light_high'
+    case 'ventilation': {
+      const opt = STAGE_OPTIMAL[stage].ventilation
+      if (value < opt.min) return setup.hasExhaustFan ? 'ventilation_low' : 'ventilation_low_nofan'
+      return 'ventilation_high'
+    }
+    case 'nutrients':
+      if (value < STAGE_OPTIMAL[stage].nutrients.min) {
+        return (setup.medium === 'coco' && setup.nutrients === 'none') ? 'nutrients_low_coco' : 'nutrients_low'
+      }
+      return 'nutrients_high'
+    case 'watering':
+      return value < STAGE_OPTIMAL[stage].watering.min ? 'watering_low' : 'watering_high'
+    default:
+      return `${String(attribute)}_${status}`
+  }
+}
+
 // ── generateGuide ──────────────────────────────────────────────────────────────
 
 export function generateGuide(

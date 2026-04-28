@@ -10,9 +10,11 @@ const AttributeSchema = new mongoose.Schema({
 }, { _id: false })
 
 const WarningSchema = new mongoose.Schema({
-  attribute:   { type: String, required: true },
-  message:     { type: String, required: true },
-  guide:       { type: String, required: true },
+  attribute:    { type: String, required: true },
+  message:      { type: String, required: true },
+  guide:        { type: String, required: true },
+  code:         { type: String, default: '' },
+  triggerValue: { type: Number, default: 0 },
   severity:    { type: String, enum: ['warning', 'critical'], required: true },
   triggeredAt: { type: Date, default: () => new Date() },
   resolvedAt:  { type: Date, default: null },

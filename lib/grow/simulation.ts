@@ -7,6 +7,7 @@ import {
   calculateAttributes,
   calculateStatus,
   generateGuide,
+  getWarningCode,
   estimateYield,
   STAGE_OPTIMAL,
   type GrowStage,
@@ -18,12 +19,14 @@ import {
 export type { GrowStage }
 
 export interface Warning {
-  attribute: string
-  message:   string
-  guide:     string
-  severity:  'warning' | 'critical'
-  triggeredAt: Date
-  resolvedAt:  Date | null
+  attribute:    string
+  message:      string
+  guide:        string
+  code:         string
+  triggerValue: number
+  severity:     'warning' | 'critical'
+  triggeredAt:  Date
+  resolvedAt:   Date | null
 }
 
 export interface DayResult {
@@ -113,12 +116,14 @@ export function advanceDay(params: {
       newWarnings.push(existing)
     } else {
       newWarnings.push({
-        attribute:   key,
-        message:     guide.split('\n')[0] ?? `${key} out of range`,
+        attribute:    key,
+        message:      guide.split('\n')[0] ?? `${key} out of range`,
         guide,
-        severity:    attr.status,
-        triggeredAt: new Date(),
-        resolvedAt:  null,
+        code:         getWarningCode(key, attr.status, attr.value, setup, stage),
+        triggerValue: attr.value,
+        severity:     attr.status,
+        triggeredAt:  new Date(),
+        resolvedAt:   null,
       })
     }
   }
