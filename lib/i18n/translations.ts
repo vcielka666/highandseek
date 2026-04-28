@@ -521,6 +521,7 @@ export const translations = {
       actionDefoliate: '✂️ Defo',
       actionFlush: '🚿 Flush',
       doneLbl: 'done',
+      tapAgainToUse: 'Tap again to use →',
       // Defoliate warning dialogs
       defoliateSeedlingTitle: '⚠️ Very risky!',
       defoliateSeedlingBody: 'Defoliating a seedling removes the leaves it needs to grow. This severely stunts development and cuts yield by −20%. Growers never do this.',
@@ -1428,6 +1429,7 @@ export const translations = {
       actionDefoliate: '✂️ Defo',
       actionFlush: '🚿 Flush',
       doneLbl: 'hotovo',
+      tapAgainToUse: 'Klepni znovu →',
       // Defoliate warning dialogs
       defoliateSeedlingTitle: '⚠️ Velmi riskantní!',
       defoliateSeedlingBody: 'Defoliace semenáče odstraní listy, které potřebuje k růstu. Výnos se sníží o −20%. Žádný pěstitel tohle nedělá.',

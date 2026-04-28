@@ -272,7 +272,9 @@ function StatusBar({
   progressLabel: string; yieldLabel: string; yieldInfoTitle: string; yieldInfoBody: string
 }) {
   const [open, setOpen] = useState<'cycle' | 'stage' | 'yield' | null>(null)
+  const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({})
   const ref = useRef<HTMLDivElement>(null)
+  const btnRefs = useRef<Partial<Record<'cycle' | 'stage' | 'yield', HTMLButtonElement>>>({})
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -282,23 +284,36 @@ function StatusBar({
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
+  function openSeg(id: 'cycle' | 'stage' | 'yield') {
+    if (open === id) { setOpen(null); return }
+    const btn = btnRefs.current[id]
+    if (btn) {
+      const r = btn.getBoundingClientRect()
+      const popupW = Math.min(220, window.innerWidth - 16)
+      let left = r.left + r.width / 2 - popupW / 2
+      left = Math.max(8, Math.min(left, window.innerWidth - popupW - 8))
+      setPopupStyle({
+        position: 'fixed',
+        bottom: `${window.innerHeight - r.top + 8}px`,
+        left: `${left}px`,
+        width: `${popupW}px`,
+      })
+    }
+    setOpen(id)
+  }
+
   const seg = (
     id: 'cycle' | 'stage' | 'yield',
     label: string,
     color: string,
     infoTitle: string,
     infoBody: string,
-    align: 'left' | 'center' | 'right' = 'center',
   ) => {
-    const popupPos: React.CSSProperties =
-      align === 'left'   ? { left: 0 } :
-      align === 'right'  ? { right: 0 } :
-      { left: '50%', transform: 'translateX(-50%)' }
-
     return (
       <span style={{ position: 'relative' }}>
         <button
-          onClick={() => setOpen(v => v === id ? null : id)}
+          ref={el => { if (el) btnRefs.current[id] = el }}
+          onClick={() => openSeg(id)}
           style={{
             background: 'none', border: 'none', padding: 0, cursor: 'pointer',
             fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color,
@@ -312,11 +327,10 @@ function StatusBar({
         </button>
         {open === id && (
           <div style={{
-            position: 'absolute', bottom: 'calc(100% + 8px)',
-            ...popupPos,
-            width: '220px', background: '#050f14',
+            ...popupStyle,
+            background: '#050f14',
             border: '0.5px solid rgba(74,96,102,0.35)', borderRadius: '8px', padding: '12px',
-            zIndex: 30, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
+            zIndex: 9999, boxShadow: '0 8px 24px rgba(0,0,0,0.6)',
             pointerEvents: 'none',
           }}>
             <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color, letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '6px' }}>
@@ -336,12 +350,12 @@ function StatusBar({
       display: 'flex', alignItems: 'center', gap: '8px',
       marginTop: '10px', flexWrap: 'wrap',
     }}>
-      {seg('cycle', cycleLabel, cycleColor, cycleInfoTitle, cycleInfoBody, 'left')}
+      {seg('cycle', cycleLabel, cycleColor, cycleInfoTitle, cycleInfoBody)}
       <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066' }}>{cycleSub}</span>
       <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
-      {seg('stage', stageLabel, stageColor, stageInfoTitle, stageInfoBody, 'center')}
+      {seg('stage', stageLabel, stageColor, stageInfoTitle, stageInfoBody)}
       <span style={{ color: 'rgba(74,96,102,0.3)', fontSize: '10px' }}>·</span>
-      {seg('yield', `${progressLabel} · ${yieldLabel}`, '#00d4c8', yieldInfoTitle, yieldInfoBody, 'right')}
+      {seg('yield', `${progressLabel} · ${yieldLabel}`, '#00d4c8', yieldInfoTitle, yieldInfoBody)}
     </div>
   )
 }
@@ -493,6 +507,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [cycleCountdown, setCycleCountdown] = useState('')
   const [upgradePending, setUpgradePending] = useState<string | null>(null)
   const [editingSetup, setEditingSetup]     = useState<string | null>(null)
+  const [armedAction, setArmedAction]       = useState<string | null>(null)
 
   // Lamp drag slider
   const [lampSliderActive, setLampSliderActive] = useState(false)
@@ -582,7 +597,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const darkSecs   = cycleSecs - lightSecs
       // Position within the CURRENT day (since last advance)
       const elapsedSecs = (Date.now() - new Date(grow.lastAdvanced).getTime()) / 1000
-      const posInCycle  = Math.min(elapsedSecs, cycleSecs)
+      const posInCycle  = elapsedSecs % cycleSecs
       const lit         = posInCycle < lightSecs
       setIsLight(lit)
       const secsLeft = lit
@@ -649,13 +664,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       }
     }
 
+    const onMoveTouch = (e: TouchEvent) => { e.preventDefault(); onMove(e) }
     window.addEventListener('mousemove', onMove)
-    window.addEventListener('touchmove', onMove, { passive: true })
+    window.addEventListener('touchmove', onMoveTouch, { passive: false })
     window.addEventListener('mouseup', onEnd)
     window.addEventListener('touchend', onEnd)
     return () => {
       window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('touchmove', onMoveTouch)
       window.removeEventListener('mouseup', onEnd)
       window.removeEventListener('touchend', onEnd)
     }
@@ -705,13 +721,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       }
     }
 
+    const onMoveTouch = (e: TouchEvent) => { e.preventDefault(); onMove(e) }
     window.addEventListener('mousemove', onMove)
-    window.addEventListener('touchmove', onMove, { passive: true })
+    window.addEventListener('touchmove', onMoveTouch, { passive: false })
     window.addEventListener('mouseup', onEnd)
     window.addEventListener('touchend', onEnd)
     return () => {
       window.removeEventListener('mousemove', onMove)
-      window.removeEventListener('touchmove', onMove)
+      window.removeEventListener('touchmove', onMoveTouch)
       window.removeEventListener('mouseup', onEnd)
       window.removeEventListener('touchend', onEnd)
     }
@@ -745,14 +762,17 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const prevDefoCount = grow.actions.filter(a => a.type === 'defoliate').length
 
       if (grow.stage === 'seedling') {
+        setArmedAction(null)
         setConfirmDialog({ type, title: g.defoliateSeedlingTitle, body: g.defoliateSeedlingBody, severity: 'danger' })
         return
       }
       if (grow.stage === 'veg' && vegDays < 14) {
+        setArmedAction(null)
         setConfirmDialog({ type, title: g.defoliateEarlyVegTitle, body: g.defoliateEarlyVegBody, severity: 'warning' })
         return
       }
       if ((grow.stage === 'late_flower' || grow.stage === 'harvest') && prevDefoCount >= 2) {
+        setArmedAction(null)
         setConfirmDialog({ type, title: g.defoliateLatFlowerTitle, body: g.defoliateLatFlowerBody, severity: 'warning' })
         return
       }
@@ -1317,6 +1337,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   onMouseDown={(e) => { e.preventDefault(); startLampDrag(e.clientY) }}
                   onTouchStart={(e) => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
                 />
+                {/* Drag hint — left of lamp, visible when not dragging */}
+                {!lampSliderActive && committedHeight === null && (
+                  <g transform={`translate(${lampX - 58},${lampTop + lampH / 2 - 12})`} style={{ pointerEvents: 'none', opacity: 0.45 }}>
+                    <text x={0} y={10} fontFamily="DM Mono, monospace" fontSize={14} fill="#f0a830" textAnchor="middle">⇕</text>
+                    <text x={0} y={22} fontFamily="DM Mono, monospace" fontSize={7} fill="#4a6066" textAnchor="middle">drag</text>
+                  </g>
+                )}
                 {/* Height badge — left of lamp, visible only while dragging */}
                 {(lampSliderActive || committedHeight !== null) && (
                   <g transform={`translate(${lampX - 74},${lampTop + 4})`}
@@ -1433,31 +1460,62 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             return (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)', gap: isMobile ? '10px' : '7px' }}>
-                  {actions.map(({ type, label, disabled }) => (
-                    <button
-                      key={type}
-                      onClick={() => requestAction(type)}
-                      disabled={pending || disabled}
-                      title={(g.actionTooltips as Record<string, string>)[type] ?? ''}
-                      style={{
-                        fontFamily: 'var(--font-dm-mono)', fontSize: isMobile ? '11px' : '9px',
-                        padding: isMobile ? '13px 6px' : '9px 4px', borderRadius: '4px',
-                        border: `0.5px solid ${disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
-                        background: 'rgba(10,36,40,0.5)',
-                        color: disabled ? '#3a4a50' : '#e8f0ef',
-                        cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
-                        opacity: pending ? 0.5 : 1, textAlign: 'center',
-                      }}
-                    >
-                      {label}
-                      {disabled && (
-                        <span style={{ display: 'block', fontSize: '8px', color: '#2a3a40', marginTop: '2px' }}>
-                          {g.doneLbl}
-                        </span>
-                      )}
-                    </button>
-                  ))}
+                  {actions.map(({ type, label, disabled }) => {
+                    const isArmed = armedAction === type
+                    const tooltip = (g.actionTooltips as Record<string, string>)[type] ?? ''
+                    return (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          if (disabled || pending) return
+                          if (isArmed) {
+                            setArmedAction(null)
+                            requestAction(type)
+                          } else {
+                            setArmedAction(type)
+                          }
+                        }}
+                        disabled={pending || disabled}
+                        style={{
+                          fontFamily: 'var(--font-dm-mono)', fontSize: isMobile ? '11px' : '9px',
+                          padding: isMobile ? '13px 6px' : '9px 4px', borderRadius: '4px',
+                          border: `0.5px solid ${isArmed ? 'rgba(0,212,200,0.6)' : disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
+                          background: isArmed ? 'rgba(0,212,200,0.1)' : 'rgba(10,36,40,0.5)',
+                          color: disabled ? '#3a4a50' : isArmed ? '#00d4c8' : '#e8f0ef',
+                          cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
+                          opacity: pending ? 0.5 : 1, textAlign: 'center',
+                          transition: 'border-color 0.15s, background 0.15s, color 0.15s',
+                        }}
+                      >
+                        {label}
+                        {disabled && (
+                          <span style={{ display: 'block', fontSize: '8px', color: '#2a3a40', marginTop: '2px' }}>
+                            {g.doneLbl}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
                 </div>
+
+                {/* Armed action info panel */}
+                {armedAction && !confirmDialog && (() => {
+                  const tooltip = (g.actionTooltips as Record<string, string>)[armedAction] ?? ''
+                  return (
+                    <div style={{
+                      marginTop: '8px', padding: '10px 12px',
+                      background: 'rgba(0,212,200,0.06)', border: '0.5px solid rgba(0,212,200,0.25)',
+                      borderRadius: '6px',
+                    }}>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.75)', lineHeight: 1.55, whiteSpace: 'pre-line', marginBottom: '6px' }}>
+                        {tooltip}
+                      </div>
+                      <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#00d4c8', letterSpacing: '0.5px' }}>
+                        {g.tapAgainToUse}
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {confirmDialog && (
                   <div style={{
