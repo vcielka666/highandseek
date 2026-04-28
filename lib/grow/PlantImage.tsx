@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
 // ── Frame mapping ──────────────────────────────────────────────────────────────
 
@@ -326,14 +326,7 @@ export default function PlantImage({
   containerWidth = 160,
   tentSize,
 }: PlantImageProps) {
-  const [mounted, setMounted] = useState(false)
-
-  useEffect(() => {
-    injectKeyframes()
-    setMounted(true)
-  }, [])
-
-  if (!mounted) return null
+  injectKeyframes()
 
   const clampedCount = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
   const slots        = PERSPECTIVE_LAYOUTS[clampedCount]
