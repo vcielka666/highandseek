@@ -398,16 +398,16 @@ function SetupWizardInner() {
       {/* Step tabs */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {STEPS.map((s, i) => {
-          // With preset active, steps 2-6 are filled — mark them as done, don't allow navigating into them
-          const presetFilled = !!activePreset && i >= 2 && i < STEPS.length - 1
-          const isSkipped    = presetFilled && i > step
-          const isDone       = i < step || presetFilled
-          const canClick     = i <= step && !presetFilled
+          // Preset active: steps 1-6 are all skipped, only step 0 and Review matter
+          const presetSkipped = !!activePreset && i >= 1 && i < STEPS.length - 1
+          const isDone  = presetSkipped || i < step
+          const isActive = i === step
+          const canClick = !presetSkipped && i <= step
           return (
             <button key={s} onClick={() => canClick && setStep(i)} style={{
-              ...S.btn(i === step, i > step && !presetFilled),
+              ...S.btn(isActive, !isDone && !isActive),
               fontSize: '9px', padding: '4px 9px',
-              opacity: isSkipped ? 0.35 : 1,
+              opacity: presetSkipped ? 0.3 : 1,
               cursor: canClick ? 'pointer' : 'default',
             }}>
               {isDone ? '✓ ' : ''}{s}
@@ -502,6 +502,7 @@ function SetupWizardInner() {
                     onClick={() => {
                       setSetup(key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO)
                       setActivePreset(key)
+                      setStep(STEPS.length - 1)
                     }}
                     style={{
                       background:   isActive ? c.bg : 'rgba(10,36,40,0.5)',
@@ -1168,6 +1169,37 @@ function SetupWizardInner() {
         <div style={S.card}>
           <div style={S.label}>{g.reviewLabel}</div>
 
+          {/* Inline strain picker — shown when arriving via preset with no strain selected */}
+          {!strainReady && activePreset && (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#cc00aa', letterSpacing: '1.5px', textTransform: 'uppercase', marginBottom: '10px' }}>
+                {g.chooseStrain}
+              </div>
+              {strainsLoading ? (
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>{g.loadingStrains}</div>
+              ) : (
+                <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {strains.map(s => (
+                    <button
+                      key={s.slug}
+                      onClick={() => setSelectedSlug(s.slug)}
+                      style={{
+                        fontFamily: 'var(--font-dm-sans)', fontSize: '11px',
+                        padding: '6px 12px', borderRadius: '4px',
+                        border: `0.5px solid ${selectedSlug === s.slug ? 'rgba(204,0,170,0.6)' : 'rgba(74,96,102,0.3)'}`,
+                        background: selectedSlug === s.slug ? 'rgba(204,0,170,0.12)' : 'transparent',
+                        color: selectedSlug === s.slug ? '#cc00aa' : '#e8f0ef',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      {TYPE_EMOJI[s.type]} {s.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Strain summary */}
           <div style={{ background: 'rgba(204,0,170,0.07)', border: '0.5px solid rgba(204,0,170,0.2)', borderRadius: '6px', padding: '12px 14px', marginBottom: '18px' }}>
             <div style={{ ...S.label, marginBottom: '4px' }}>{g.strainLabel}</div>
@@ -1247,8 +1279,8 @@ function SetupWizardInner() {
         <button
           onClick={() => {
             if (step === 0) { router.push('/hub/grow'); return }
-            // Back from Review with preset → back to Strain (step 1), not Accessories
-            if (activePreset && step === STEPS.length - 1) { setStep(1); return }
+            // Back from Review with preset → back to step 0 (Speed), not Accessories
+            if (activePreset && step === STEPS.length - 1) { setStep(0); return }
             setStep(s => s - 1)
           }}
           style={S.btn(false)}
@@ -1263,8 +1295,6 @@ function SetupWizardInner() {
                 toast.error(g.selectStrainFirst)
                 return
               }
-              // Preset fills steps 2-6 — jump straight to Review after Strain
-              if (activePreset && step === 1) { setStep(STEPS.length - 1); return }
               setStep(s => s + 1)
             }}
             style={S.btn(true)}
