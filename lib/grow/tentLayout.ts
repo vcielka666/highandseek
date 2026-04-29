@@ -62,12 +62,12 @@ const PLANT_COUNT_MULT: Record<number, number> = { 1: 1.0, 2: 0.65, 3: 0.5, 4: 0
 const TENT_SIZE_MULT: Record<string, number> = {
   '60x60': 0.7, '80x80': 0.85, '100x100': 1.0, '120x120': 1.1, '150x150': 1.25,
 }
-const MAX_PLANT_W = 293
+const MAX_PLANT_W = 264
 
 export function getPlantContainerWidth(potCount: number, tentSize: string): number {
   const cMult = PLANT_COUNT_MULT[potCount] ?? 1.0
   const tMult = TENT_SIZE_MULT[tentSize] ?? 1.0
-  return Math.min(MAX_PLANT_W, Math.round(293 * cMult * tMult))
+  return Math.min(MAX_PLANT_W, Math.round(264 * cMult * tMult))
 }
 
 // foreignObject spans Y=0 → TENT_FLOOR_Y, plant renders bottom-anchored inside
