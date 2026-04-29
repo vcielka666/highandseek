@@ -361,6 +361,16 @@ function SetupWizardInner() {
 
   return (
     <div style={{ maxWidth: '680px', padding: '20px 16px 60px', margin: '0 auto' }}>
+      <style>{`
+        @keyframes strain-border-glow {
+          0%,100% { box-shadow: 0 0 0px rgba(204,0,170,0), 0 0 0px rgba(204,0,170,0); border-color: rgba(74,96,102,0.35); }
+          50%     { box-shadow: 0 0 8px rgba(204,0,170,0.35), 0 0 18px rgba(204,0,170,0.15); border-color: rgba(204,0,170,0.55); }
+        }
+        @keyframes strain-card-in {
+          from { opacity: 0; transform: translateY(8px) scale(0.95); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+      `}</style>
 
       {/* Header */}
       <div style={{ marginBottom: '24px' }}>
