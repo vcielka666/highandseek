@@ -1179,22 +1179,38 @@ function SetupWizardInner() {
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>{g.loadingStrains}</div>
               ) : (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {strains.map(s => (
-                    <button
-                      key={s.slug}
-                      onClick={() => setSelectedSlug(s.slug)}
-                      style={{
-                        fontFamily: 'var(--font-dm-sans)', fontSize: '11px',
-                        padding: '6px 12px', borderRadius: '4px',
-                        border: `0.5px solid ${selectedSlug === s.slug ? 'rgba(204,0,170,0.6)' : 'rgba(74,96,102,0.3)'}`,
-                        background: selectedSlug === s.slug ? 'rgba(204,0,170,0.12)' : 'transparent',
-                        color: selectedSlug === s.slug ? '#cc00aa' : '#e8f0ef',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      {TYPE_EMOJI[s.type]} {s.name}
-                    </button>
-                  ))}
+                  {strains.map(s => {
+                    const img = STRAIN_LOCAL_IMG[s.slug] ?? s.shopImageUrl ?? s.imageUrl ?? ''
+                    const selected = selectedSlug === s.slug
+                    return (
+                      <button
+                        key={s.slug}
+                        onClick={() => setSelectedSlug(s.slug)}
+                        style={{
+                          display: 'flex', alignItems: 'center', gap: '7px',
+                          fontFamily: 'var(--font-dm-sans)', fontSize: '11px',
+                          padding: '5px 10px 5px 5px', borderRadius: '6px',
+                          border: `0.5px solid ${selected ? 'rgba(204,0,170,0.6)' : 'rgba(74,96,102,0.3)'}`,
+                          background: selected ? 'rgba(204,0,170,0.12)' : 'rgba(255,255,255,0.03)',
+                          color: selected ? '#cc00aa' : '#e8f0ef',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {img ? (
+                          <img
+                            src={img}
+                            alt={s.name}
+                            style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0 }}
+                          />
+                        ) : (
+                          <span style={{ width: '28px', height: '28px', borderRadius: '4px', background: 'rgba(204,0,170,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>
+                            {TYPE_EMOJI[s.type]}
+                          </span>
+                        )}
+                        {s.name}
+                      </button>
+                    )
+                  })}
                 </div>
               )}
             </div>
