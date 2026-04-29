@@ -1179,7 +1179,7 @@ function SetupWizardInner() {
                 <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>{g.loadingStrains}</div>
               ) : (
                 <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                  {strains.map(s => {
+                  {strains.map((s, i) => {
                     const img = STRAIN_LOCAL_IMG[s.slug] ?? s.shopImageUrl ?? s.imageUrl ?? ''
                     const selected = selectedSlug === s.slug
                     return (
@@ -1190,17 +1190,22 @@ function SetupWizardInner() {
                           display: 'flex', alignItems: 'center', gap: '7px',
                           fontFamily: 'var(--font-dm-sans)', fontSize: '11px',
                           padding: '5px 10px 5px 5px', borderRadius: '6px',
-                          border: `0.5px solid ${selected ? 'rgba(204,0,170,0.6)' : 'rgba(74,96,102,0.3)'}`,
-                          background: selected ? 'rgba(204,0,170,0.12)' : 'rgba(255,255,255,0.03)',
+                          border: `0.5px solid ${selected ? 'rgba(204,0,170,0.7)' : 'rgba(74,96,102,0.35)'}`,
+                          background: selected ? 'rgba(204,0,170,0.15)' : 'rgba(255,255,255,0.03)',
                           color: selected ? '#cc00aa' : '#e8f0ef',
                           cursor: 'pointer',
+                          transition: 'background 0.2s, color 0.2s',
+                          animation: selected
+                            ? `strain-card-in 0.25s ease both`
+                            : `strain-card-in 0.3s ${i * 0.06}s ease both, strain-border-glow 2.4s ${i * 0.3}s ease-in-out infinite`,
+                          boxShadow: selected ? '0 0 12px rgba(204,0,170,0.4), 0 0 28px rgba(204,0,170,0.15)' : undefined,
                         }}
                       >
                         {img ? (
                           <img
                             src={img}
                             alt={s.name}
-                            style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0 }}
+                            style={{ width: '28px', height: '28px', borderRadius: '4px', objectFit: 'cover', flexShrink: 0, opacity: selected ? 1 : 0.85 }}
                           />
                         ) : (
                           <span style={{ width: '28px', height: '28px', borderRadius: '4px', background: 'rgba(204,0,170,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', flexShrink: 0 }}>
