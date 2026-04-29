@@ -6,7 +6,7 @@ import VirtualGrow from '@/lib/db/models/VirtualGrow'
 import Strain from '@/lib/db/models/Strain'
 import User from '@/lib/db/models/User'
 import { awardXP } from '@/lib/xp'
-import { calculateAttributes, estimateYield, generateGuide, type GrowAttributes } from '@/lib/grow/attributes'
+import { calculateAttributes, estimateYield, generateGuide, getWarningCode, type GrowAttributes } from '@/lib/grow/attributes'
 
 const LIGHT_IMAGES: Record<string, string> = {
   led: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-led_o3w4p6.png',
@@ -142,17 +142,19 @@ export async function POST(req: NextRequest) {
   const yieldProjection   = estimateYield(fullSetup, strainData.type)
 
   // Generate initial warnings for any out-of-range attributes
-  const initialWarnings: Array<{ attribute: string; message: string; guide: string; severity: 'warning' | 'critical'; triggeredAt: Date; resolvedAt: null }> = []
+  const initialWarnings: Array<{ attribute: string; message: string; guide: string; code: string; triggerValue: number; severity: 'warning' | 'critical'; triggeredAt: Date; resolvedAt: null }> = []
   for (const [key, attr] of Object.entries(initialAttributes) as [keyof GrowAttributes, (typeof initialAttributes)[keyof GrowAttributes]][]) {
     if (attr.status === 'optimal') continue
     const guide = generateGuide(key, attr.status, attr.value, fullSetup, 'seedling')
     initialWarnings.push({
-      attribute:   key,
-      message:     guide.split('\n')[0] ?? `${key} out of range`,
+      attribute:    key,
+      message:      guide.split('\n')[0] ?? `${key} out of range`,
       guide,
-      severity:    attr.status,
-      triggeredAt: new Date(),
-      resolvedAt:  null,
+      code:         getWarningCode(key, attr.status, attr.value, fullSetup, 'seedling'),
+      triggerValue: attr.value,
+      severity:     attr.status,
+      triggeredAt:  new Date(),
+      resolvedAt:   null,
     })
   }
 

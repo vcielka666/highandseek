@@ -239,7 +239,7 @@ function SetupWizardInner() {
   const [step, setStep]           = useState(0)
   const [dayDurationSeconds, setDds] = useState<number>(initDDS)
   const [setup, setSetup]         = useState<Setup>(DEFAULT_SETUP)
-  const [activePreset, setActivePreset] = useState<'beginner' | 'pro' | 'random' | null>(null)
+  const [activePreset, setActivePreset] = useState<'beginner' | 'pro' | null>(null)
   const [pending, start]          = useTransition()
 
   // Strain state
@@ -478,24 +478,21 @@ function SetupWizardInner() {
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
-              {([ 'beginner', 'pro', 'random' ] as const).map(key => {
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px' }}>
+              {([ 'beginner', 'pro' ] as const).map(key => {
                 const info    = g.presets[key]
                 const isActive = activePreset === key
                 const colors: Record<string, { border: string; bg: string; text: string }> = {
                   beginner: { border: 'rgba(0,212,200,0.5)',   bg: 'rgba(0,212,200,0.08)',   text: '#00d4c8' },
                   pro:      { border: 'rgba(204,0,170,0.5)',   bg: 'rgba(204,0,170,0.08)',   text: '#cc00aa' },
-                  random:   { border: 'rgba(240,168,48,0.5)',  bg: 'rgba(240,168,48,0.08)',  text: '#f0a830' },
                 }
                 const c = colors[key]
                 return (
                   <button
                     key={key}
                     onClick={() => {
-                      const next = key === 'random' ? randomSetup() : key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO
-                      setSetup(next)
+                      setSetup(key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO)
                       setActivePreset(key)
-                      setStep(STEPS.length - 1)
                     }}
                     style={{
                       background:   isActive ? c.bg : 'rgba(10,36,40,0.5)',

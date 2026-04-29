@@ -850,7 +850,7 @@ export const translations = {
       valNone: 'None', valYes: 'Yes', valNo: 'No',
       // Quick setup presets (in Speed step)
       quickSetupTitle:   'Quick Setup',
-      quickSetupSub:     'One click fills your entire setup — you can still tweak each step.',
+      quickSetupSub:     'One click fills all settings — then pick your grow speed above.',
       presetApplied:     (name: string) => `✓ ${name} applied — speed still yours to choose`,
       presets: {
         beginner: {
@@ -860,16 +860,10 @@ export const translations = {
           hint:  'Forgiving. No pH meter needed.',
         },
         pro: {
-          label: 'Coco Pro',
+          label: 'Coco',
           icon:  '⚡',
           desc:  'Coco coir · LED 400W · 120×120 · drip',
           hint:  'Max yield. Needs daily attention.',
-        },
-        random: {
-          label: 'Random',
-          icon:  '🎲',
-          desc:  'Surprise setup — randomised valid config',
-          hint:  'You never know what you get.',
         },
       },
       // Nav + submit
@@ -1780,7 +1774,7 @@ export const translations = {
       valNone: 'Žádný', valYes: 'Ano', valNo: 'Ne',
       // Quick setup presets (in Speed step)
       quickSetupTitle:   'Rychlé nastavení',
-      quickSetupSub:     'Jeden klik vyplní celé nastavení — každý krok pak můžeš upravit.',
+      quickSetupSub:     'Jeden klik vyplní vše — pak vyber rychlost growu výše.',
       presetApplied:     (name: string) => `✓ ${name} použito — rychlost si zvol sám`,
       presets: {
         beginner: {
@@ -1790,16 +1784,10 @@ export const translations = {
           hint:  'Odpouštívý setup. pH metr nepotřebuješ.',
         },
         pro: {
-          label: 'Coco Pro',
+          label: 'Coco',
           icon:  '⚡',
           desc:  'Coco coir · LED 400W · 120×120 · kapičky',
           hint:  'Max výnos. Vyžaduje každodenní péči.',
-        },
-        random: {
-          label: 'Náhoda',
-          icon:  '🎲',
-          desc:  'Překvapivý setup — náhodná validní konfigurace',
-          hint:  'Nikdy nevíš, co dostaneš.',
         },
       },
       // Nav + submit

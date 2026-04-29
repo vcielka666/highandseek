@@ -4,9 +4,8 @@ import React, { useEffect, useRef, useState, useTransition, use } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
-import dynamic from 'next/dynamic'
 import Lottie from 'lottie-react'
-import type PlantImageType from '@/lib/grow/PlantImage'
+import PlantImage from '@/lib/grow/PlantImage'
 import { useLanguage } from '@/stores/languageStore'
 import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attributes'
 import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
@@ -15,9 +14,6 @@ import {
   lampTopSVG, getLightImageUrl, getLampSVGWidth, getLampSVGHeight,
   getPlantContainerWidth, getPlantFOX,
 } from '@/lib/grow/tentLayout'
-
-type PlantImageProps = Parameters<typeof PlantImageType>[0]
-const PlantImage = dynamic(() => import('@/lib/grow/PlantImage'), { ssr: false }) as React.ComponentType<PlantImageProps>
 
 // ── Action animation data ──────────────────────────────────────────────────────
 const ACTION_ANIMS: Partial<Record<string, string>> = {
