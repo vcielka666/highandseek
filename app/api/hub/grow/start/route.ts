@@ -76,24 +76,24 @@ export async function POST(req: NextRequest) {
 
   await connectDB()
 
-  const [user, totalGrows] = await Promise.all([
+  const [user, activeGrowCount] = await Promise.all([
     User.findById(session.user.id).select('growsCompleted credits cloneBank').lean<{
       growsCompleted: number
       credits: number
       cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
     }>(),
-    VirtualGrow.countDocuments({ userId: session.user.id, status: { $in: ['active', 'completed'] } }),
+    VirtualGrow.countDocuments({ userId: session.user.id, status: 'active' }),
   ])
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
-  // First grow ever is free — subsequent grows cost 2 credits
-  const SUBSEQUENT_GROW_COST = 2
-  const isFirstGrow = totalGrows === 0
-  if (!isFirstGrow) {
-    if ((user.credits ?? 0) < SUBSEQUENT_GROW_COST) {
-      return NextResponse.json({ error: 'Not enough credits', required: SUBSEQUENT_GROW_COST, current: user.credits ?? 0 }, { status: 402 })
+  // Free if no active grow — costs 2 credits only when starting a second concurrent grow
+  const CONCURRENT_GROW_COST = 2
+  const hasActiveGrow = activeGrowCount > 0
+  if (hasActiveGrow) {
+    if ((user.credits ?? 0) < CONCURRENT_GROW_COST) {
+      return NextResponse.json({ error: 'Not enough credits', required: CONCURRENT_GROW_COST, current: user.credits ?? 0 }, { status: 402 })
     }
-    await User.findByIdAndUpdate(session.user.id, { $inc: { credits: -SUBSEQUENT_GROW_COST } })
+    await User.findByIdAndUpdate(session.user.id, { $inc: { credits: -CONCURRENT_GROW_COST } })
   }
   // Resolve strain data
   let strainData: { slug: string; name: string; type: 'indica' | 'sativa' | 'hybrid'; floweringTime: number }
