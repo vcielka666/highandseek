@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
       credits: number
       cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
     }>(),
-    VirtualGrow.countDocuments({ userId: session.user.id }),
+    VirtualGrow.countDocuments({ userId: session.user.id, status: { $in: ['active', 'completed'] } }),
   ])
   if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
