@@ -397,14 +397,23 @@ function SetupWizardInner() {
 
       {/* Step tabs */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', flexWrap: 'wrap' }}>
-        {STEPS.map((s, i) => (
-          <button key={s} onClick={() => i <= step && setStep(i)} style={{
-            ...S.btn(i === step, i > step),
-            fontSize: '9px', padding: '4px 9px',
-          }}>
-            {i < step ? '✓ ' : ''}{s}
-          </button>
-        ))}
+        {STEPS.map((s, i) => {
+          // With preset active, steps 2-6 are filled — mark them as done, don't allow navigating into them
+          const presetFilled = !!activePreset && i >= 2 && i < STEPS.length - 1
+          const isSkipped    = presetFilled && i > step
+          const isDone       = i < step || presetFilled
+          const canClick     = i <= step && !presetFilled
+          return (
+            <button key={s} onClick={() => canClick && setStep(i)} style={{
+              ...S.btn(i === step, i > step && !presetFilled),
+              fontSize: '9px', padding: '4px 9px',
+              opacity: isSkipped ? 0.35 : 1,
+              cursor: canClick ? 'pointer' : 'default',
+            }}>
+              {isDone ? '✓ ' : ''}{s}
+            </button>
+          )
+        })}
       </div>
 
       {/* ── Step 0: Speed ── */}
@@ -1236,7 +1245,12 @@ function SetupWizardInner() {
       {/* Navigation */}
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
         <button
-          onClick={() => step === 0 ? router.push('/hub/grow') : setStep(s => s - 1)}
+          onClick={() => {
+            if (step === 0) { router.push('/hub/grow'); return }
+            // Back from Review with preset → back to Strain (step 1), not Accessories
+            if (activePreset && step === STEPS.length - 1) { setStep(1); return }
+            setStep(s => s - 1)
+          }}
           style={S.btn(false)}
         >
           {g.back}
@@ -1249,6 +1263,8 @@ function SetupWizardInner() {
                 toast.error(g.selectStrainFirst)
                 return
               }
+              // Preset fills steps 2-6 — jump straight to Review after Strain
+              if (activePreset && step === 1) { setStep(STEPS.length - 1); return }
               setStep(s => s + 1)
             }}
             style={S.btn(true)}
