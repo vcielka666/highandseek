@@ -637,7 +637,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       // dragging up = raising lamp = more distance from plant (higher cm)
       const delta = dragStartY.current - clientY
-      const newH  = Math.min(80, Math.max(20, Math.round(dragStartH.current + delta * 0.5)))
+      const newH  = Math.min(80, Math.max(5, Math.round(dragStartH.current + delta * 0.5)))
       dragHeightRef.current = newH
       setDragHeight(newH)
     }
@@ -1363,7 +1363,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 width={containerW} height={PLANT_FO_H}
                 style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}
               >
-                <div style={{ width: containerW, height: PLANT_FO_H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
+                {/* xmlns required for React 19 + SVG foreignObject to render HTML content */}
+                <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: containerW, height: PLANT_FO_H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
                   <PlantImage
                     stage={grow.stage}
                     strainType={grow.strainType}

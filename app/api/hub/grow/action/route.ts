@@ -58,10 +58,10 @@ export async function POST(req: NextRequest) {
     const current = (grow.environment as { lightHeight?: number }).lightHeight ?? 60
     let newHeight: number
     if (type === 'light_height' && parsed.data.value !== undefined) {
-      newHeight = Math.min(100, Math.max(20, parsed.data.value))
+      newHeight = Math.min(80, Math.max(5, parsed.data.value))
     } else {
       const delta = type === 'light_raise' ? 10 : -10
-      newHeight = Math.min(100, Math.max(20, current + delta))
+      newHeight = Math.min(80, Math.max(5, current + delta))
     }
     ;(grow.environment as { lightHeight?: number }).lightHeight = newHeight
 

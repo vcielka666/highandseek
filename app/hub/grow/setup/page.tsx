@@ -1295,13 +1295,22 @@ function SetupWizardInner() {
             style={{
               display: 'block', width: '100%',
               fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase',
-              color: '#050508', background: pending ? '#4a6066' : '#cc00aa',
-              border: 'none', borderRadius: '4px', padding: '14px 24px',
-              cursor: pending ? 'not-allowed' : 'pointer', transition: 'background 0.2s',
+              color: !strainReady ? '#e03535' : '#050508',
+              background: pending ? 'rgba(74,96,102,0.3)' : !strainReady ? 'rgba(224,53,53,0.08)' : '#cc00aa',
+              border: !strainReady ? '1.5px solid rgba(224,53,53,0.7)' : 'none',
+              borderRadius: '4px', padding: '14px 24px',
+              cursor: (pending || !strainReady) ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s',
+              animation: !strainReady ? 'strain-border-glow-red 1.8s ease-in-out infinite' : 'none',
             }}
           >
             {pending ? g.planting : g.plantSeed}
           </button>
+          {!strainReady && (
+            <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#e03535', textAlign: 'center', marginTop: '8px', letterSpacing: '0.5px' }}>
+              {g.selectStrainFirst ?? '⚠ Select a strain first'}
+            </div>
+          )}
         </div>
       )}
 
