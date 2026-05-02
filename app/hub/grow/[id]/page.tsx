@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { toast } from 'sonner'
 import Lottie from 'lottie-react'
-import PlantImage from '@/lib/grow/PlantImage'
+import PlantImage, { PlantSVGLayer } from '@/lib/grow/PlantImage'
 import { useLanguage } from '@/stores/languageStore'
 import { calculateVPD, vpdStatus, generateSmartGuide } from '@/lib/grow/attributes'
 import type { GrowStage, GrowAttributes, Setup } from '@/lib/grow/attributes'
@@ -1352,37 +1352,30 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             )
           })()}
 
-          {/* ── Layer 4: Plant (foreignObject, bottom-anchored) ── */}
+          {/* ── Layer 4: Plant (native SVG images — no foreignObject) ── */}
           {(() => {
             const pc         = grow.setup.plantCount ?? 1
             const containerW = getPlantContainerWidth(pc, grow.setup.tentSize)
             const foX        = getPlantFOX(containerW)
             return (
-              <foreignObject
-                x={foX} y={PLANT_FO_Y}
-                width={containerW} height={PLANT_FO_H}
-                style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}
-              >
-                {/* xmlns required for React 19 + SVG foreignObject to render HTML content */}
-                <div xmlns="http://www.w3.org/1999/xhtml" style={{ width: containerW, height: PLANT_FO_H, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' }}>
-                  <PlantImage
-                    stage={grow.stage}
-                    strainType={grow.strainType}
-                    health={grow.health}
-                    day={grow.currentDay}
-                    techniques={{
-                      lstApplied:       grow.actions.some(a => a.type === 'lst'),
-                      toppingApplied:   grow.actions.some(a => a.type === 'top'),
-                      defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
-                      lollipopApplied:  grow.hasLollipoped ?? false,
-                    }}
-                    potCount={pc}
-                    potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
-                    containerWidth={containerW}
-                    tentSize={grow.setup.tentSize}
-                  />
-                </div>
-              </foreignObject>
+              <PlantSVGLayer
+                foX={foX}
+                containerW={containerW}
+                isLight={isLight}
+                day={grow.currentDay}
+                stage={grow.stage}
+                health={grow.health}
+                strainType={grow.strainType}
+                techniques={{
+                  lstApplied:       grow.actions.some(a => a.type === 'lst'),
+                  toppingApplied:   grow.actions.some(a => a.type === 'top'),
+                  defoliationCount: grow.actions.filter(a => a.type === 'defoliate').length,
+                  lollipopApplied:  grow.hasLollipoped ?? false,
+                }}
+                potCount={pc}
+                potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
+                tentSize={grow.setup.tentSize}
+              />
             )
           })()}
 

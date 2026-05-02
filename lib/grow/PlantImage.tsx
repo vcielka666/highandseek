@@ -412,3 +412,75 @@ export default function PlantImage({
     </div>
   )
 }
+
+// ── Native SVG version — avoids foreignObject (unreliable in production) ─────
+
+export interface PlantSVGLayerProps {
+  foX:        number
+  containerW: number
+  isLight:    boolean
+  day:        number
+  stage:      string
+  health:     number
+  strainType: 'indica' | 'sativa' | 'hybrid'
+  potCount?:  number
+  potSize?:   'small' | 'medium' | 'large'
+  techniques?: PlantTechniques
+  tentSize?:  string
+}
+
+const TENT_FLOOR_SVG = 640
+
+export function PlantSVGLayer({
+  foX, containerW, isLight,
+  day, stage, health, strainType,
+  potCount = 1, potSize = 'medium',
+  techniques = DEFAULT_TECHNIQUES, tentSize,
+}: PlantSVGLayerProps) {
+  const clampedCount = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
+  const slots        = PERSPECTIVE_LAYOUTS[clampedCount]
+  const baseFrac     = BASE_FRACS[clampedCount]
+
+  const tentMult    = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
+  const healthScale = getHealthScale(health)
+  const seedlingScale = day <= 3 ? 0.45 : day <= 7 ? 0.65 : 1.0
+
+  const containerH  = Math.round(containerW * 1.6)
+  const basePlantW  = containerW  * baseFrac * tentMult * healthScale * seedlingScale
+  const basePlantH  = containerH * 0.88     * tentMult * healthScale * seedlingScale
+
+  const potImg      = POT_IMGS[potSize]
+  const basePotW    = Math.round(containerW * (clampedCount === 1 ? 0.68 : 0.54))
+  const plantFrame  = PLANT_FRAMES[getPlantFrame(day, stage)]
+
+  return (
+    <g style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}>
+      {slots.map((slot, i) => {
+        const plantW      = Math.round(basePlantW * slot.scale)
+        const plantH      = Math.round(basePlantH * slot.scale)
+        const floorY      = Math.round(containerH * slot.bottomFrac)
+        const depthScale  = slot.bottomFrac > 0 ? 0.88 : 1.0
+        const potW        = Math.round(basePotW * depthScale)
+        const potH        = Math.round(potW * 0.85)
+        const plantBottom = floorY + Math.round(potH * 0.62) + 12
+        const potCssLeft  = Math.round(containerW * slot.xFrac - potW / 2)
+        const plantCssLeft = Math.round(containerW * slot.xFrac - plantW / 2)
+
+        const potSVGX   = foX + potCssLeft
+        const potSVGY   = TENT_FLOOR_SVG - floorY - potH
+        const plantSVGX = foX + plantCssLeft
+        const plantSVGY = TENT_FLOOR_SVG - plantBottom - plantH
+
+        const depthFilter = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined
+
+        return (
+          <g key={i} style={{ filter: depthFilter }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMid meet" />
+            <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMid meet" />
+          </g>
+        )
+      })}
+    </g>
+  )
+}

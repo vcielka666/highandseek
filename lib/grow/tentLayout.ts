@@ -31,11 +31,11 @@ export const EQUIP_IMGS = {
 
 // ── Lamp ─────────────────────────────────────────────────────────────────────
 
-// 80 cm from canopy (lamp high) → y=10  near tent ceiling
-// 5  cm from canopy (lamp low)  → y=350 lamp bottom at ~600, near plant canopy
+// 80 cm from canopy (lamp high) → y=35  (original ceiling position, unchanged)
+// 5  cm from canopy (lamp low)  → y=350 lamp bottom ~600, near plant canopy
 export function lampTopSVG(heightCm: number): number {
   const clamped = Math.min(80, Math.max(5, heightCm))
-  return Math.round(10 + ((80 - clamped) / 75) * 340)
+  return Math.round(35 + ((80 - clamped) / 75) * 315)
 }
 
 // Lamp image dimensions in SVG units (+25% from original 120/160 × 200)
