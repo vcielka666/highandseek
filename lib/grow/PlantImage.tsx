@@ -431,6 +431,37 @@ export interface PlantSVGLayerProps {
 
 const TENT_FLOOR_SVG = 640
 
+// Returns the SVG Y coordinate of the tallest plant's top edge (lowest Y value = highest up)
+export function computePlantTopSVG(
+  containerW: number,
+  health: number,
+  day: number,
+  potCount: number,
+  tentSize?: string,
+): number {
+  const clampedCount  = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
+  const slots         = PERSPECTIVE_LAYOUTS[clampedCount]
+  const tentMult      = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
+  const healthScale   = getHealthScale(health)
+  const seedlingScale = day <= 3 ? 0.45 : day <= 7 ? 0.65 : 1.0
+  const containerH    = Math.round(containerW * 1.6)
+  const basePlantH    = containerH * 0.88 * tentMult * healthScale * seedlingScale
+  const basePotW      = Math.round(containerW * (clampedCount === 1 ? 0.68 : 0.54))
+
+  let minTopY = TENT_FLOOR_SVG
+  for (const slot of slots) {
+    const plantH     = Math.round(basePlantH * slot.scale)
+    const floorY     = Math.round(containerH * slot.bottomFrac)
+    const depthScale = slot.bottomFrac > 0 ? 0.88 : 1.0
+    const potW       = Math.round(basePotW * depthScale)
+    const potH       = Math.round(potW * 0.85)
+    const plantBot   = floorY + Math.round(potH * 0.62) + 12
+    const topY       = TENT_FLOOR_SVG - plantBot - plantH
+    if (topY < minTopY) minTopY = topY
+  }
+  return minTopY
+}
+
 export function PlantSVGLayer({
   foX, containerW, isLight,
   day, stage, health, strainType,
@@ -462,7 +493,8 @@ export function PlantSVGLayer({
         const depthScale  = slot.bottomFrac > 0 ? 0.88 : 1.0
         const potW        = Math.round(basePotW * depthScale)
         const potH        = Math.round(potW * 0.85)
-        const plantBottom = floorY + Math.round(potH * 0.62) + 12
+        const seedlingShift = day <= 7 ? -15 : 0
+        const plantBottom = floorY + Math.round(potH * 0.62) + 20 + seedlingShift
         const potCssLeft  = Math.round(containerW * slot.xFrac - potW / 2)
         const plantCssLeft = Math.round(containerW * slot.xFrac - plantW / 2)
 
@@ -476,8 +508,8 @@ export function PlantSVGLayer({
         return (
           <g key={i} style={{ filter: depthFilter }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMid meet" />
-            <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMid meet" />
+            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet" />
+            <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMax meet" />
           </g>
         )
       })}

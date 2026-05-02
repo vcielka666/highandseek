@@ -89,7 +89,7 @@ const VirtualGrowSchema = new mongoose.Schema({
     ph:           { type: Number, default: 6.5 },
     ec:           { type: Number, default: 1.4 },
     lightHours:       { type: Number, default: 18 },
-    lightHeight:      { type: Number, default: 50 },  // cm from canopy, 20–80
+    lightHeight:      { type: Number, default: 67 },  // cm from canopy, 30–80
     exhaustFanSpeed:  { type: Number, default: 100 }, // 0–100 %
   },
 

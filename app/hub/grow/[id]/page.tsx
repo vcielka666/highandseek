@@ -507,11 +507,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   // Lamp drag slider
   const [lampSliderActive, setLampSliderActive] = useState(false)
-  const [dragHeight, setDragHeight]             = useState(60)
+  const [dragHeight, setDragHeight]             = useState(67)
   const [committedHeight, setCommittedHeight]   = useState<number | null>(null)
   const dragStartY      = useRef(0)
-  const dragStartH      = useRef(60)
-  const dragHeightRef   = useRef(60)
+  const dragStartH      = useRef(67)
+  const dragHeightRef   = useRef(67)
   const isDragging      = useRef(false)
 
   // Defoliate confirmation dialog
@@ -637,7 +637,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       // dragging up = raising lamp = more distance from plant (higher cm)
       const delta = dragStartY.current - clientY
-      const newH  = Math.min(80, Math.max(5, Math.round(dragStartH.current + delta * 0.5)))
+      const newH  = Math.min(67, Math.max(30, Math.round(dragStartH.current + delta * 0.5)))
       dragHeightRef.current = newH
       setDragHeight(newH)
     }
@@ -910,7 +910,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   })
   const criticalCount  = activeWarnings.filter(w => w.severity === 'critical').length
   const lightImg       = getLightImageUrl(grow.setup.lightType, isLight)
-  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 50)
+  const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 67)
   const lampTop        = lampTopSVG(currentHeight)  // SVG Y coordinate
   const currentFanSpeed = fanSliderActive ? dragFanSpeed : (committedFanSpeed ?? grow.environment.exhaustFanSpeed ?? 100)
 
@@ -1180,8 +1180,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           xmlns="http://www.w3.org/2000/svg"
           preserveAspectRatio="xMidYMid slice"
           className="grow-tent-svg"
+          style={{ overflow: 'hidden' }}
         >
           <defs>
+            {/* Clips cone to start from lamp bottom, never above it */}
+            <clipPath id="cone-clip">
+              <rect x={0} y={lampTop + getLampSVGHeight()} width={1000} height={750} />
+            </clipPath>
             {/* Light cone gradients (LED / CFL / HPS-CMH) */}
             <radialGradient id="cone-led" cx="50%" cy="0%" r="80%" fx="50%" fy="0%">
               <stop offset="0%"  stopColor="#b4ffb4" stopOpacity="0.22" />
@@ -1283,7 +1288,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
           {/* ── Layer 3: Light cone + Lamp ── */}
 
-          {/* Light cone — radiates downward from lamp bottom */}
+          {/* Light cone — radiates downward from lamp bottom, clipped to tent floor */}
           {(() => {
             const lt = grow.setup.lightType
             const coneId = lt === 'led' ? 'cone-led' : lt === 'cfl' ? 'cone-cfl' : 'cone-hps'
@@ -1291,6 +1296,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               <ellipse
                 cx={500} cy={lampTop + 70} rx={190} ry={310}
                 fill={`url(#${coneId})`}
+                clipPath="url(#cone-clip)"
                 style={{
                   opacity: isLight ? 1 : 0,
                   transition: 'opacity 2.5s ease',

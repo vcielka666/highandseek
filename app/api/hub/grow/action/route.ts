@@ -55,13 +55,13 @@ export async function POST(req: NextRequest) {
 
   // Handle light height adjustments
   if (type === 'light_raise' || type === 'light_lower' || type === 'light_height') {
-    const current = (grow.environment as { lightHeight?: number }).lightHeight ?? 60
+    const current = (grow.environment as { lightHeight?: number }).lightHeight ?? 67
     let newHeight: number
     if (type === 'light_height' && parsed.data.value !== undefined) {
-      newHeight = Math.min(80, Math.max(5, parsed.data.value))
+      newHeight = Math.min(67, Math.max(30, parsed.data.value))
     } else {
       const delta = type === 'light_raise' ? 10 : -10
-      newHeight = Math.min(80, Math.max(5, current + delta))
+      newHeight = Math.min(67, Math.max(30, current + delta))
     }
     ;(grow.environment as { lightHeight?: number }).lightHeight = newHeight
 
