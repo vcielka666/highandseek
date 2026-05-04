@@ -424,7 +424,7 @@ const TENT_FLOOR_SVG = 640
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
   2: [340, 660],
   3: [500, 310, 690],          // [back-center, front-left, front-right]
-  4: [425, 575, 345, 655],     // [back-left, back-right, front-left, front-right]
+  4: [445, 555, 345, 655],     // [back-left, back-right, front-left, front-right]
 }
 
 // Multi plants use the same reference width as a single plant (full size)
