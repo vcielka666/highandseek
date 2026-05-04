@@ -419,9 +419,9 @@ const TENT_FLOOR_SVG = 640
 // ── Multi-plant SVG layout ─────────────────────────────────────────────────────
 // Absolute center-X per slot — evenly spaced within tent interior (x ≈ 150–850)
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
-  2: [290, 710],
-  3: [220, 500, 780],
-  4: [210, 390, 610, 790],
+  2: [320, 680],
+  3: [260, 500, 740],
+  4: [255, 405, 595, 745],
 }
 
 // Per-count reference width for sizing — fixed (not tent-scaled) so pots stay inside bounds
