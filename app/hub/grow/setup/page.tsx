@@ -408,16 +408,16 @@ function SetupWizardInner() {
       {/* Step tabs */}
       <div style={{ display: 'flex', gap: '4px', marginBottom: '24px', flexWrap: 'wrap' }}>
         {STEPS.map((s, i) => {
-          // Preset active: steps 1-6 are all skipped, only step 0 and Review matter
           const presetSkipped = !!activePreset && i >= 1 && i < STEPS.length - 1
-          const isDone  = presetSkipped || i < step
+          const isDone   = presetSkipped || i < step
           const isActive = i === step
-          const canClick = !presetSkipped && i <= step
+          // When preset active, ALL steps are clickable so user can edit any section
+          const canClick = activePreset ? true : i <= step
           return (
             <button key={s} onClick={() => canClick && setStep(i)} style={{
               ...S.btn(isActive, !isDone && !isActive),
               fontSize: '9px', padding: '4px 9px',
-              opacity: presetSkipped ? 0.3 : 1,
+              opacity: presetSkipped ? 0.55 : 1,
               cursor: canClick ? 'pointer' : 'default',
             }}>
               {isDone ? '✓ ' : ''}{s}
@@ -1250,24 +1250,54 @@ function SetupWizardInner() {
             )}
           </div>
 
-          {/* Setup grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px 24px', marginBottom: '24px' }}>
-            {[
-              [g.reviewTent,      setup.tentSize],
-              [g.reviewLight,     `${setup.lightWatts}W ${setup.lightType.toUpperCase()}`],
-              [g.reviewMedium,    g.mediumNames[setup.medium]],
-              [g.reviewContainer, g.potNames[setup.potSize]],
-              [g.reviewWatering,  g.waterNames[setup.watering]],
-              [g.reviewNutrients, g.nutrientNames[setup.nutrients]],
-              [g.reviewExhaust,   setup.hasExhaustFan ? `${setup.exhaustCFM} CFM` : g.valNone],
-              [g.reviewCircFan,   setup.hasCirculationFan ? g.valYes : g.valNo],
-            ].map(([k, v]) => (
-              <div key={k}>
-                <div style={{ ...S.label, marginBottom: '2px' }}>{k}</div>
-                <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{v}</div>
+          {/* Setup grid — clickable when preset active */}
+          {(() => {
+            const rows: Array<[string, string, number]> = [
+              [g.reviewTent,      setup.tentSize,                                        2],
+              [g.reviewPlants,    `${setup.plantCount}`,                                   2],
+              [g.reviewLight,     `${setup.lightWatts}W ${setup.lightType.toUpperCase()}`, 3],
+              [g.reviewMedium,    g.mediumNames[setup.medium],                           4],
+              [g.reviewContainer, g.potNames[setup.potSize],                             4],
+              [g.reviewWatering,  g.waterNames[setup.watering],                          5],
+              [g.reviewNutrients, g.nutrientNames[setup.nutrients],                      5],
+              [g.reviewExhaust,   setup.hasExhaustFan ? `${setup.exhaustCFM} CFM` : g.valNone, 6],
+              [g.reviewCircFan,   setup.hasCirculationFan ? g.valYes : g.valNo,          6],
+            ]
+            return (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 16px', marginBottom: '24px' }}>
+                {rows.map(([k, v, targetStep]) => (
+                  <div
+                    key={k}
+                    onClick={() => activePreset && setStep(targetStep)}
+                    style={{
+                      padding: '8px 10px',
+                      borderRadius: '6px',
+                      border: activePreset ? '0.5px solid rgba(74,96,102,0.25)' : 'none',
+                      background: activePreset ? 'rgba(10,36,40,0.4)' : 'transparent',
+                      cursor: activePreset ? 'pointer' : 'default',
+                      transition: 'border-color 0.15s, background 0.15s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: '6px',
+                    }}
+                    onMouseEnter={e => { if (activePreset) (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(204,0,170,0.45)' }}
+                    onMouseLeave={e => { if (activePreset) (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(74,96,102,0.25)' }}
+                  >
+                    <div>
+                      <div style={{ ...S.label, marginBottom: '2px' }}>{k}</div>
+                      <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{v}</div>
+                    </div>
+                    {activePreset && (
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#4a6066" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    )}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            )
+          })()}
 
           {(() => {
             const tier       = getTier(dayDurationSeconds)
@@ -1335,11 +1365,16 @@ function SetupWizardInner() {
                 toast.error(g.selectStrainFirst)
                 return
               }
+              // When editing from preset, always return to Review instead of going forward
+              if (activePreset && step >= 1) {
+                setStep(STEPS.length - 1)
+                return
+              }
               setStep(s => s + 1)
             }}
             style={S.btn(true)}
           >
-            {g.next}
+            {activePreset && step >= 1 ? '← Review' : g.next}
           </button>
         )}
       </div>
