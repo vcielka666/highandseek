@@ -186,7 +186,7 @@ interface PlantSlot {
 }
 
 const FLAT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0, scale: 1.0, brightness: 1.0, zIndex: 1 }
-const BACK_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.06, scale: 0.75, brightness: 0.72, zIndex: 1 }
+const BACK_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.05, scale: 0.84, brightness: 0.82, zIndex: 1 }
 const FRONT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 3 }
 
 const PERSPECTIVE_LAYOUTS: Record<1|2|3|4, PlantSlot[]> = {
@@ -422,9 +422,9 @@ const TENT_FLOOR_SVG = 640
 // ── Multi-plant SVG layout ─────────────────────────────────────────────────────
 // Absolute center-X per slot — back slots first, then front slots
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
-  2: [330, 670],
-  3: [500, 300, 700],          // [back-center, front-left, front-right]
-  4: [380, 620, 285, 715],     // [back-left, back-right, front-left, front-right]
+  2: [340, 660],
+  3: [500, 310, 690],          // [back-center, front-left, front-right]
+  4: [405, 595, 310, 690],     // [back-left, back-right, front-left, front-right]
 }
 
 // Multi plants use the same reference width as a single plant (full size)
