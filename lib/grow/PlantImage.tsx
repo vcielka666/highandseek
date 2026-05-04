@@ -479,7 +479,7 @@ export function PlantSVGLayer({
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
   // Multi plants: use same reference width as single plant (full size), −2% global scale
-  const refW = isMulti ? Math.min(264, Math.round(264 * tentMult * 0.98)) : Math.round(containerW * 0.98)
+  const refW = isMulti ? Math.min(264, Math.round(264 * tentMult * 0.96)) : Math.round(containerW * 0.96)
   const refH = Math.round(refW * 1.6)
 
   return (
