@@ -12,7 +12,7 @@ export const TENT_LAYOUT = {
   exhaust:  { x: 870, y: 25,  w: 100, h: 125 },
   sonoflex: { x: 775, y: 90,  w: 65,  h: 210 },
   filter:   { x: 840, y: 340, w: 120, h: 210 },
-  circ:     { x: 245, y: 270, w: 90,  h: 90  },
+  circ:     { x: 265, y: 270, w: 90,  h: 90  },
   hygro:    { x: 770, y: 210, w: 90,  h: 90  },
   medium:   { x: 30,  y: 560, w: 160, h: 170 },
   ph:       { x: 790, y: 590, w: 85,  h: 150 },
