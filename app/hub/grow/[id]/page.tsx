@@ -1242,7 +1242,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           {grow.setup.hasCirculationFan && (
             <image
               href={EQUIP_IMGS.circulation}
-              x={isMobile ? 128 : TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
+              x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
               style={{ opacity: 0.85, filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
             />
