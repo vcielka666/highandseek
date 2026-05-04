@@ -422,9 +422,9 @@ const TENT_FLOOR_SVG = 640
 // ── Multi-plant SVG layout ─────────────────────────────────────────────────────
 // Absolute center-X per slot — back slots first, then front slots
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
-  2: [320, 680],
-  3: [500, 285, 715],          // [back-center, front-left, front-right]
-  4: [375, 625, 265, 735],     // [back-left, back-right, front-left, front-right]
+  2: [330, 670],
+  3: [500, 300, 700],          // [back-center, front-left, front-right]
+  4: [380, 620, 285, 715],     // [back-left, back-right, front-left, front-right]
 }
 
 // Multi plants use the same reference width as a single plant (full size)

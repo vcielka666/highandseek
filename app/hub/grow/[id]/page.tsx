@@ -736,7 +736,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     // Fire animation immediately, before API responds
     const animSrc = ACTION_ANIMS[type]
     if (animSrc) {
-      fetch(animSrc).then(r => r.json()).then(d => setActionAnim({ src: animSrc, animData: d })).catch(() => {})
+      fetch(encodeURI(animSrc)).then(r => r.json()).then(d => setActionAnim({ src: animSrc, animData: d })).catch(() => {})
     }
     start(async () => {
       const res  = await fetch('/api/hub/grow/action', {
