@@ -185,29 +185,14 @@ interface PlantSlot {
   zIndex:      number
 }
 
+const FLAT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0, scale: 1.0, brightness: 1.0, zIndex: 1 }
+
 const PERSPECTIVE_LAYOUTS: Record<1|2|3|4, PlantSlot[]> = {
-  1: [
-    { xFrac: 0.50, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 1 },
-  ],
-  2: [
-    { xFrac: 0.30, bottomFrac: 0.00, scale: 0.88, brightness: 1.0, zIndex: 1 },
-    { xFrac: 0.70, bottomFrac: 0.00, scale: 0.88, brightness: 1.0, zIndex: 1 },
-  ],
-  3: [
-    // back: centered, smaller + dimmed — tiny vertical offset so it sits just behind front row
-    { xFrac: 0.50, bottomFrac: 0.04, scale: 0.58, brightness: 0.62, zIndex: 1 },
-    // front: 2 plants
-    { xFrac: 0.27, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
-    { xFrac: 0.73, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
-  ],
-  4: [
-    // back row — same subtle offset
-    { xFrac: 0.34, bottomFrac: 0.04, scale: 0.56, brightness: 0.62, zIndex: 1 },
-    { xFrac: 0.66, bottomFrac: 0.04, scale: 0.56, brightness: 0.62, zIndex: 1 },
-    // front row
-    { xFrac: 0.27, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
-    { xFrac: 0.73, bottomFrac: 0.00, scale: 0.80, brightness: 1.0, zIndex: 2 },
-  ],
+  1: [{ xFrac: 0.50, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 1 }],
+  // Multi-plant: flat equal-size rows — positions driven by MULTI_SVG_CX
+  2: [FLAT_SLOT, FLAT_SLOT],
+  3: [FLAT_SLOT, FLAT_SLOT, FLAT_SLOT],
+  4: [FLAT_SLOT, FLAT_SLOT, FLAT_SLOT, FLAT_SLOT],
 }
 
 // ── Single plant ──────────────────────────────────────────────────────────────
@@ -432,18 +417,17 @@ export interface PlantSVGLayerProps {
 const TENT_FLOOR_SVG = 640
 
 // ── Multi-plant SVG layout ─────────────────────────────────────────────────────
-// Absolute center-X per slot so plants spread naturally across the 1000-wide viewBox.
-// Order matches PERSPECTIVE_LAYOUTS: back slots first, then front.
+// Absolute center-X per slot — evenly spaced within tent interior (x ≈ 150–850)
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
-  2: [285, 715],
-  3: [500, 210, 790],      // back-center, front-left, front-right
-  4: [355, 645, 175, 825], // back-left, back-right, front-left, front-right
+  2: [290, 710],
+  3: [220, 500, 780],
+  4: [210, 390, 610, 790],
 }
 
-// Per-count reference width for sizing (before tentMult / slot.scale)
-const MULTI_REF_W: Partial<Record<number, number>> = { 2: 225, 3: 200, 4: 185 }
+// Per-count reference width for sizing — fixed (not tent-scaled) so pots stay inside bounds
+const MULTI_REF_W: Partial<Record<number, number>> = { 2: 220, 3: 175, 4: 140 }
 const MULTI_PLANT_FRAC = 0.55 // plant width fraction of refW
-const MULTI_POT_FRAC   = 0.70 // pot width fraction of refW
+const MULTI_POT_FRAC   = 0.68 // pot width fraction of refW
 
 // Returns the SVG Y coordinate of the tallest plant's top edge (lowest Y value = highest up)
 export function computePlantTopSVG(
@@ -492,7 +476,7 @@ export function PlantSVGLayer({
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
   // For multi-plant: fixed reference width per count (spread + sizing decoupled from containerW)
-  const refW = isMulti ? Math.round((MULTI_REF_W[clampedCount] ?? 200) * tentMult) : containerW
+  const refW = isMulti ? (MULTI_REF_W[clampedCount] ?? 150) : containerW
   const refH = Math.round(refW * 1.6)
 
   return (
