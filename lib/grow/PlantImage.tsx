@@ -187,7 +187,7 @@ interface PlantSlot {
 
 const FLAT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0, scale: 1.0, brightness: 1.0, zIndex: 1 }
 const BACK_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.05, scale: 0.84, brightness: 0.82, zIndex: 1 }
-const FRONT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 3 }
+const FRONT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.00, scale: 0.86, brightness: 1.0, zIndex: 3 }
 
 const PERSPECTIVE_LAYOUTS: Record<1|2|3|4, PlantSlot[]> = {
   1: [{ xFrac: 0.50, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 1 }],
