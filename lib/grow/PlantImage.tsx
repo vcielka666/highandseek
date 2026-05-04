@@ -431,6 +431,20 @@ export interface PlantSVGLayerProps {
 
 const TENT_FLOOR_SVG = 640
 
+// ── Multi-plant SVG layout ─────────────────────────────────────────────────────
+// Absolute center-X per slot so plants spread naturally across the 1000-wide viewBox.
+// Order matches PERSPECTIVE_LAYOUTS: back slots first, then front.
+const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
+  2: [285, 715],
+  3: [500, 210, 790],      // back-center, front-left, front-right
+  4: [355, 645, 175, 825], // back-left, back-right, front-left, front-right
+}
+
+// Per-count reference width for sizing (before tentMult / slot.scale)
+const MULTI_REF_W: Partial<Record<number, number>> = { 2: 225, 3: 200, 4: 185 }
+const MULTI_PLANT_FRAC = 0.55 // plant width fraction of refW
+const MULTI_POT_FRAC   = 0.70 // pot width fraction of refW
+
 // Returns the SVG Y coordinate of the tallest plant's top edge (lowest Y value = highest up)
 export function computePlantTopSVG(
   containerW: number,
@@ -464,50 +478,56 @@ export function computePlantTopSVG(
 
 export function PlantSVGLayer({
   foX, containerW, isLight,
-  day, stage, health, strainType,
+  day, stage, health,
   potCount = 1, potSize = 'medium',
-  techniques = DEFAULT_TECHNIQUES, tentSize,
+  tentSize,
 }: PlantSVGLayerProps) {
-  const clampedCount = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
-  const slots        = PERSPECTIVE_LAYOUTS[clampedCount]
-  const baseFrac     = BASE_FRACS[clampedCount]
-
-  const tentMult    = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
-  const healthScale = getHealthScale(health)
+  const clampedCount  = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
+  const slots         = PERSPECTIVE_LAYOUTS[clampedCount]
+  const isMulti       = clampedCount > 1
+  const tentMult      = tentSize ? (TENT_SCALE[tentSize] ?? 1.0) : 1.0
+  const healthScale   = getHealthScale(health)
   const seedlingScale = day <= 3 ? 0.45 : day <= 7 ? 0.65 : 1.0
+  const potImg        = POT_IMGS[potSize]
+  const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
-  const containerH  = Math.round(containerW * 1.6)
-  const basePlantW  = containerW  * baseFrac * tentMult * healthScale * seedlingScale
-  const basePlantH  = containerH * 0.88     * tentMult * healthScale * seedlingScale
-
-  const potImg      = POT_IMGS[potSize]
-  const basePotW    = Math.round(containerW * (clampedCount === 1 ? 0.68 : 0.54))
-  const plantFrame  = PLANT_FRAMES[getPlantFrame(day, stage)]
+  // For multi-plant: fixed reference width per count (spread + sizing decoupled from containerW)
+  const refW = isMulti ? Math.round((MULTI_REF_W[clampedCount] ?? 200) * tentMult) : containerW
+  const refH = Math.round(refW * 1.6)
 
   return (
     <g style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}>
       {slots.map((slot, i) => {
-        const plantW      = Math.round(basePlantW * slot.scale)
-        const plantH      = Math.round(basePlantH * slot.scale)
-        const floorY      = Math.round(containerH * slot.bottomFrac)
-        const depthScale  = slot.bottomFrac > 0 ? 0.88 : 1.0
-        const potW        = Math.round(basePotW * depthScale)
-        const potH        = Math.round(potW * 0.85)
+        const depthScale   = slot.bottomFrac > 0 ? 0.88 : 1.0
         const seedlingShift = day <= 7 ? -15 : 0
-        const plantBottom = floorY + Math.round(potH * 0.62) + 20 + seedlingShift
-        const potCssLeft  = Math.round(containerW * slot.xFrac - potW / 2)
-        const plantCssLeft = Math.round(containerW * slot.xFrac - plantW / 2)
 
-        const potSVGX   = foX + potCssLeft
-        const potSVGY   = TENT_FLOOR_SVG - floorY - potH
-        const plantSVGX = foX + plantCssLeft
-        const plantSVGY = TENT_FLOOR_SVG - plantBottom - plantH
+        // ── Sizing ──
+        const plantW = Math.round(
+          (isMulti ? refW * MULTI_PLANT_FRAC : containerW * BASE_FRACS[clampedCount])
+          * slot.scale * (isMulti ? 1 : tentMult) * healthScale * seedlingScale
+        )
+        const plantH = Math.round(refH * 0.88 * slot.scale * healthScale * seedlingScale)
+        const potBaseW = isMulti ? refW * MULTI_POT_FRAC : containerW * (clampedCount === 1 ? 0.68 : 0.54)
+        const potW = Math.round(potBaseW * depthScale * slot.scale)
+        const potH = Math.round(potW * 0.85)
+
+        // ── Y position ──
+        const floorY      = Math.round(refH * slot.bottomFrac)
+        const plantBottom = floorY + Math.round(potH * 0.62) + 20 + seedlingShift
+        const potSVGY     = TENT_FLOOR_SVG - floorY - potH
+        const plantSVGY   = TENT_FLOOR_SVG - plantBottom - plantH
+
+        // ── X position: absolute SVG center for multi, containerW-relative for single ──
+        const centerX  = isMulti
+          ? (MULTI_SVG_CX[clampedCount]?.[i] ?? 500)
+          : (foX + Math.round(containerW * slot.xFrac))
+        const potSVGX   = centerX - Math.round(potW / 2)
+        const plantSVGX = centerX - Math.round(plantW / 2)
 
         const depthFilter = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined
 
         return (
           <g key={i} style={{ filter: depthFilter }}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet" />
             <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMax meet" />
           </g>

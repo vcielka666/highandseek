@@ -629,13 +629,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     isDragging.current    = true
   }
 
+  // Always-on listeners — guards via isDragging ref so no stale closures needed.
+  // Registered at mount so the non-passive touchmove is ready before the first drag gesture.
   useEffect(() => {
-    if (!lampSliderActive) return
-
     const onMove = (e: MouseEvent | TouchEvent) => {
       if (!isDragging.current) return
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-      // dragging up = raising lamp = more distance from plant (higher cm)
       const delta = dragStartY.current - clientY
       const newH  = Math.min(67, Math.max(30, Math.round(dragStartH.current + delta * 0.5)))
       dragHeightRef.current = newH
@@ -647,7 +646,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       isDragging.current = false
       const h = dragHeightRef.current
       setLampSliderActive(false)
-      setCommittedHeight(h)            // hold visual position while API is in flight
+      setCommittedHeight(h)
       const res  = await fetch('/api/hub/grow/action', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'light_height', value: h }),
@@ -655,7 +654,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       const data = await res.json()
       if (res.ok) {
         setGrow(data.grow)
-        setCommittedHeight(null)       // grow state now has the updated height
+        setCommittedHeight(null)
         toast.success(data.effect)
       }
     }
@@ -672,7 +671,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       window.removeEventListener('touchend', onEnd)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lampSliderActive])
+  }, [])
 
   // ── Fan speed drag ─────────────────────────────────────────────────────────
 
