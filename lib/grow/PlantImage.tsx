@@ -186,13 +186,16 @@ interface PlantSlot {
 }
 
 const FLAT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0, scale: 1.0, brightness: 1.0, zIndex: 1 }
+const BACK_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.06, scale: 0.75, brightness: 0.72, zIndex: 1 }
+const FRONT_SLOT: PlantSlot = { xFrac: 0.5, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 3 }
 
 const PERSPECTIVE_LAYOUTS: Record<1|2|3|4, PlantSlot[]> = {
   1: [{ xFrac: 0.50, bottomFrac: 0.00, scale: 1.00, brightness: 1.0, zIndex: 1 }],
-  // Multi-plant: flat equal-size rows — positions driven by MULTI_SVG_CX
   2: [FLAT_SLOT, FLAT_SLOT],
-  3: [FLAT_SLOT, FLAT_SLOT, FLAT_SLOT],
-  4: [FLAT_SLOT, FLAT_SLOT, FLAT_SLOT, FLAT_SLOT],
+  // 1 back + 2 front
+  3: [BACK_SLOT, FRONT_SLOT, FRONT_SLOT],
+  // 2 back + 2 front
+  4: [BACK_SLOT, BACK_SLOT, FRONT_SLOT, FRONT_SLOT],
 }
 
 // ── Single plant ──────────────────────────────────────────────────────────────
@@ -417,15 +420,15 @@ export interface PlantSVGLayerProps {
 const TENT_FLOOR_SVG = 640
 
 // ── Multi-plant SVG layout ─────────────────────────────────────────────────────
-// Absolute center-X per slot — evenly spaced within tent interior (x ≈ 150–850)
+// Absolute center-X per slot — back slots first, then front slots
 const MULTI_SVG_CX: Partial<Record<number, number[]>> = {
   2: [320, 680],
-  3: [260, 500, 740],
-  4: [255, 405, 595, 745],
+  3: [500, 285, 715],          // [back-center, front-left, front-right]
+  4: [375, 625, 265, 735],     // [back-left, back-right, front-left, front-right]
 }
 
-// Per-count reference width for sizing — fixed (not tent-scaled) so pots stay inside bounds
-const MULTI_REF_W: Partial<Record<number, number>> = { 2: 220, 3: 175, 4: 140 }
+// Multi plants use the same reference width as a single plant (full size)
+// MULTI_PLANT_FRAC / MULTI_POT_FRAC control proportions within that reference
 const MULTI_PLANT_FRAC = 0.55 // plant width fraction of refW
 const MULTI_POT_FRAC   = 0.68 // pot width fraction of refW
 
@@ -475,8 +478,8 @@ export function PlantSVGLayer({
   const potImg        = POT_IMGS[potSize]
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
-  // For multi-plant: fixed reference width per count (spread + sizing decoupled from containerW)
-  const refW = isMulti ? (MULTI_REF_W[clampedCount] ?? 150) : containerW
+  // Multi plants: use same reference width as single plant (full size)
+  const refW = isMulti ? Math.min(264, Math.round(264 * tentMult)) : containerW
   const refH = Math.round(refW * 1.6)
 
   return (

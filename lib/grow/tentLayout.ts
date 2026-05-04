@@ -9,10 +9,10 @@ export const TENT_FLOOR_Y = 640  // SVG Y of the tent floor surface
 // All element positions in SVG coordinate space
 export const TENT_LAYOUT = {
   light:    { x: 330, y: 15,  w: 340, h: 200 },
-  exhaust:  { x: 855, y: 25,  w: 140, h: 170 },
-  sonoflex: { x: 760, y: 90,  w: 90,  h: 280 },
+  exhaust:  { x: 870, y: 25,  w: 100, h: 125 },
+  sonoflex: { x: 775, y: 90,  w: 65,  h: 210 },
   filter:   { x: 840, y: 340, w: 120, h: 210 },
-  circ:     { x: 20,  y: 330, w: 130, h: 130 },
+  circ:     { x: 25,  y: 345, w: 90,  h: 90  },
   hygro:    { x: 770, y: 210, w: 90,  h: 90  },
   medium:   { x: 30,  y: 560, w: 160, h: 170 },
   ph:       { x: 790, y: 590, w: 85,  h: 150 },
