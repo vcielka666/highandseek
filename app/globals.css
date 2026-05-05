@@ -183,6 +183,13 @@ body::after {
   100% { transform: translateY(0); }
 }
 
+@keyframes xp-fly {
+  0%   { transform: translateY(0) scale(0.5);   opacity: 0; }
+  15%  { transform: translateY(-20px) scale(1.1); opacity: 1; }
+  55%  { transform: translateY(-70px) scale(1.4); opacity: 1; }
+  100% { transform: translateY(-130px) scale(1.6); opacity: 0; }
+}
+
 @keyframes hps-flicker {
   0%,100% { opacity: 1; }
   92%     { opacity: 1; }

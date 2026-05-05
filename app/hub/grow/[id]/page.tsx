@@ -508,6 +508,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [editingSetup, setEditingSetup]     = useState<string | null>(null)
   const [armedAction, setArmedAction]       = useState<string | null>(null)
   const [subPanel, setSubPanel]             = useState<'water' | 'ph_adjust' | null>(null)
+  const [xpPopups, setXpPopups]             = useState<Array<{ id: number; xp: number; x: number; y: number }>>([])
+  const xpPopupIdRef                        = useRef(0)
 
   // Lamp drag slider
   const [lampSliderActive, setLampSliderActive] = useState(false)
@@ -517,6 +519,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const dragStartH      = useRef(67)
   const dragHeightRef   = useRef(67)
   const isDragging      = useRef(false)
+  const actionBtnRef    = useRef<HTMLDivElement>(null)
 
   // Defoliate confirmation dialog
   const [confirmDialog, setConfirmDialog] = useState<{ type: string; title: string; body: string; severity: 'warning' | 'danger' } | null>(null)
@@ -742,6 +745,15 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
+  function spawnXpPopup(xp: number) {
+    const rect = actionBtnRef.current?.getBoundingClientRect()
+    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const y = rect ? rect.top : window.innerHeight / 2
+    const id = ++xpPopupIdRef.current
+    setXpPopups(prev => [...prev, { id, xp, x, y }])
+    setTimeout(() => setXpPopups(prev => prev.filter(p => p.id !== id)), 1400)
+  }
+
   async function doAction(type: string, value?: number) {
     // Fire animation immediately, before API responds
     const animSrc = ACTION_ANIMS[type]
@@ -757,6 +769,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       if (!res.ok) { toast.error(data.error ?? 'Action failed'); return }
       setGrow(data.grow)
       toast.success(data.effect)
+      const xpEarned = data.grow?.actions?.at(-1)?.xpEarned ?? 0
+      if (xpEarned > 0) spawnXpPopup(xpEarned)
     })
   }
 
@@ -953,6 +967,21 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     <div style={{ maxWidth: '1280px', padding: '16px 16px 60px' }} className="md:px-7 md:pt-6">
 
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
+
+      {/* XP fly-up popups */}
+      {xpPopups.map(({ id, xp, x, y }) => (
+        <div key={id} style={{
+          position: 'fixed', left: x, top: y, transform: 'translateX(-50%)',
+          pointerEvents: 'none', zIndex: 9999,
+          animation: 'xp-fly 1.4s cubic-bezier(0.22,1,0.36,1) forwards',
+          fontFamily: 'var(--font-orbitron)', fontWeight: 900,
+          fontSize: '22px', color: '#f0a830',
+          textShadow: '0 0 12px rgba(240,168,48,0.9), 0 0 30px rgba(240,168,48,0.4)',
+          letterSpacing: '1px', whiteSpace: 'nowrap',
+        }}>
+          +{xp} xp
+        </div>
+      ))}
 
       {/* Header */}
       <style>{`
@@ -1444,7 +1473,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         </div>{/* /SVG border-radius wrapper */}
 
         {/* ── Actions ── */}
-        <div style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px' }}>
+        <div ref={actionBtnRef} style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px', position: 'relative' }}>
           {(() => {
             const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
             const lollipopDone = grow.hasLollipoped ?? false
