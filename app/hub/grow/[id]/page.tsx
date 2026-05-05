@@ -395,7 +395,7 @@ function GrowEndOverlay({ grow, g, onStartNew }: {
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
           <div style={{ marginBottom: '14px', lineHeight: 1 }}>
             {isFailed
-              ? <img src="/grow/plant/dead/dead.png" alt="dead" style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(204,0,170,0.4))', display: 'block', margin: '0 auto' }} />
+              ? <img src="/grow/plant/dead/dead.png" alt="dead" style={{ width: '120px', height: '120px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(204,0,170,0.4))', display: 'block', margin: '0 auto' }} />
               : <span style={{ fontSize: '48px' }}>🚪</span>
             }
           </div>
