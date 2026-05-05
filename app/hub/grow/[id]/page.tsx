@@ -508,8 +508,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [editingSetup, setEditingSetup]     = useState<string | null>(null)
   const [armedAction, setArmedAction]       = useState<string | null>(null)
   const [subPanel, setSubPanel]             = useState<'water' | 'ph_adjust' | null>(null)
-  const [xpPopups, setXpPopups]             = useState<Array<{ id: number; xp: number; x: number; y: number }>>([])
-  const xpPopupIdRef                        = useRef(0)
 
   // Lamp drag slider
   const [lampSliderActive, setLampSliderActive] = useState(false)
@@ -747,11 +745,29 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   function spawnXpPopup(xp: number) {
     const rect = actionBtnRef.current?.getBoundingClientRect()
-    const x = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
-    const y = rect ? rect.top : window.innerHeight / 2
-    const id = ++xpPopupIdRef.current
-    setXpPopups(prev => [...prev, { id, xp, x, y }])
-    setTimeout(() => setXpPopups(prev => prev.filter(p => p.id !== id)), 2300)
+    const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
+    const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
+
+    const outer = document.createElement('div')
+    outer.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;transform:translateX(-50%);pointer-events:none;z-index:9999;`
+
+    const inner = document.createElement('div')
+    inner.textContent = `+${xp} xp`
+    inner.style.cssText = [
+      'will-change:transform,opacity',
+      'animation:xp-fly 1.8s cubic-bezier(0.22,1,0.36,1) forwards',
+      'font-family:var(--font-orbitron)',
+      'font-weight:900',
+      'font-size:20px',
+      'color:#f0a830',
+      'text-shadow:0 0 10px rgba(240,168,48,0.85),0 0 22px rgba(240,168,48,0.3)',
+      'letter-spacing:1px',
+      'white-space:nowrap',
+    ].join(';')
+
+    outer.appendChild(inner)
+    document.body.appendChild(outer)
+    inner.addEventListener('animationend', () => outer.remove(), { once: true })
   }
 
   async function doAction(type: string, value?: number) {
@@ -968,21 +984,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
 
-      {/* XP fly-up popups */}
-      {xpPopups.map(({ id, xp, x, y }) => (
-        <div key={id} style={{
-          position: 'fixed', left: x, top: y, transform: 'translateX(-50%)',
-          pointerEvents: 'none', zIndex: 9999,
-          willChange: 'transform, opacity',
-          animation: 'xp-fly 2.2s cubic-bezier(0.33,1,0.68,1) forwards',
-          fontFamily: 'var(--font-orbitron)', fontWeight: 900,
-          fontSize: '20px', color: '#f0a830',
-          textShadow: '0 0 10px rgba(240,168,48,0.8), 0 0 24px rgba(240,168,48,0.3)',
-          letterSpacing: '1px', whiteSpace: 'nowrap',
-        }}>
-          +{xp} xp
-        </div>
-      ))}
 
       {/* Header */}
       <style>{`
