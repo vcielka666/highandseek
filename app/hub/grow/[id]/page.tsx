@@ -659,7 +659,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       }
     }
 
-    const onMoveTouch = (e: TouchEvent) => { e.preventDefault(); onMove(e) }
+    const onMoveTouch = (e: TouchEvent) => { if (isDragging.current) e.preventDefault(); onMove(e) }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('touchmove', onMoveTouch, { passive: false })
     window.addEventListener('mouseup', onEnd)
@@ -716,7 +716,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       }
     }
 
-    const onMoveTouch = (e: TouchEvent) => { e.preventDefault(); onMove(e) }
+    const onMoveTouch = (e: TouchEvent) => { if (isFanDragging.current) e.preventDefault(); onMove(e) }
     window.addEventListener('mousemove', onMove)
     window.addEventListener('touchmove', onMoveTouch, { passive: false })
     window.addEventListener('mouseup', onEnd)
