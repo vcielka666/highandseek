@@ -393,8 +393,11 @@ function GrowEndOverlay({ grow, g, onStartNew }: {
 
         {/* Icon + title */}
         <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '14px', lineHeight: 1 }}>
-            {isFailed ? '💀' : '🚪'}
+          <div style={{ marginBottom: '14px', lineHeight: 1 }}>
+            {isFailed
+              ? <img src="/grow/plant/dead/dead.png" alt="dead" style={{ width: '80px', height: '80px', objectFit: 'contain', filter: 'drop-shadow(0 0 12px rgba(204,0,170,0.4))' }} />
+              : <span style={{ fontSize: '48px' }}>🚪</span>
+            }
           </div>
           <div style={{ fontFamily: 'var(--font-cacha)', fontSize: 'clamp(22px,5vw,32px)', color: '#e8f0ef', letterSpacing: '2px', marginBottom: '8px' }}>
             {title}
@@ -538,9 +541,15 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   }, [])
 
   useEffect(() => {
-    fetch(`/api/hub/grow?id=${id}`)
+    fetch(`/api/hub/grow?id=${id}`, { cache: 'no-store' })
       .then(r => r.json())
-      .then(d => { if (d.grow) setGrow(d.grow); setLoading(false) })
+      .then(d => {
+        if (d.grow) {
+          setGrow(d.grow)
+          if (d.grow.status === 'failed') toast.error(g.growDied as string ?? 'Your grow has died')
+        }
+        setLoading(false)
+      })
   }, [id])
 
   useEffect(() => {
@@ -788,6 +797,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         toast.error(data.error ?? 'Failed'); return
       }
       setGrow(data.grow)
+      if (data.grow.status === 'failed') { toast.error(g.growDied as string ?? 'Your grow has died'); return }
       if (data.daysAdvanced > 1) toast.success(`⏩ Caught up ${data.daysAdvanced} days`)
       if (data.stageChanged) toast.success(g.stageChanged(data.grow.stage.replace('_', ' ')))
     })
@@ -1682,14 +1692,16 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                         borderRadius: '6px',
                       }}>
                         <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', color: sw.severity === 'critical' ? '#ff4040' : '#f0a830', marginBottom: '5px' }}>
-                          {sw.severity === 'critical' ? '🚨' : '⚠️'} {sw.attributes.join(' + ')}
+                          {sw.severity === 'critical' ? '🚨' : '⚠️'} {sw.attributes.map(a => (g.warningAttrNames as Record<string, string>)[a] ?? a).join(' + ')}
                         </div>
                         <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: 'rgba(232,240,239,0.8)', lineHeight: 1.5, marginBottom: sw.solutions.length ? '8px' : 0 }}>
-                          {sw.message}
+                          {sw.params && (g.smartGuide?.messages as Record<string, (p: Record<string, number|boolean|string>) => string>)?.[sw.id]
+                            ? (g.smartGuide.messages as Record<string, (p: Record<string, number|boolean|string>) => string>)[sw.id](sw.params)
+                            : sw.message}
                         </div>
                         {sw.conflictNote && (
                           <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#f0a830', marginBottom: '6px', opacity: 0.7 }}>
-                            ℹ️ {sw.conflictNote}
+                            ℹ️ {(g.smartGuide?.conflictNotes as Record<string, string>)?.[sw.id] ?? sw.conflictNote}
                           </div>
                         )}
                         {sw.solutions.length > 0 && (
@@ -1701,7 +1713,9 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                               return (
                                 <div key={si} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: 'rgba(232,240,239,0.65)', flex: 1 }}>
-                                    → {sol.text}
+                                    → {sol.key && (g.smartGuide?.solutionTexts as Record<string, string>)?.[sol.key]
+                                      ? (g.smartGuide.solutionTexts as Record<string, string>)[sol.key]
+                                      : sol.text}
                                   </span>
                                   {isUpgrade && !alreadyOwned && (
                                     <button

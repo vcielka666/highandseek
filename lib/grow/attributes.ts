@@ -472,6 +472,7 @@ export function vpdStatus(vpd: number, stage: GrowStage): AttributeStatus {
 
 export interface SmartSolution {
   text:    string
+  key?:    string   // i18n lookup key
   action?: string   // upgrade type OR grow action type
   cost?:   number   // credits (0 = free)
 }
@@ -483,6 +484,7 @@ export interface SmartWarning {
   message:        string
   solutions:      SmartSolution[]
   conflictNote?:  string
+  params?:        Record<string, number | boolean | string>
 }
 
 export function generateSmartGuide(
@@ -516,10 +518,11 @@ export function generateSmartGuide(
       severity: t.status === 'critical' || h.status === 'critical' ? 'critical' : 'warning',
       message: `Temperature ${Math.round(t.value)}°C + humidity ${Math.round(h.value)}% are both too high. A single exhaust fan fixes both problems simultaneously — it removes hot humid air and draws in cooler dry air.`,
       solutions: [
-        { text: 'Add exhaust fan 200 CFM — fixes both', action: 'upgrade_fan_small', cost: 25 },
-        { text: 'Upgrade to 400 CFM fan', action: 'upgrade_fan_medium', cost: 40 },
+        { text: 'Add exhaust fan 200 CFM — fixes both', key: 'sol_exhaust_fixes_both', action: 'upgrade_fan_small', cost: 25 },
+        { text: 'Upgrade to 400 CFM fan', key: 'sol_upgrade_fan_400', action: 'upgrade_fan_medium', cost: 40 },
       ],
       conflictNote: 'Single solution resolves both issues',
+      params: { tVal: Math.round(t.value), hVal: Math.round(h.value) },
     })
   }
   // ── Conflict: high temp + low humidity → fix temp first ────────────────────
@@ -530,10 +533,11 @@ export function generateSmartGuide(
       severity: t.status === 'critical' ? 'critical' : 'warning',
       message: `Temperature ${Math.round(t.value)}°C is too high. Do NOT add a humidifier yet — humidifiers make heat worse. Fix temperature first, then adjust humidity if still needed.`,
       solutions: [
-        { text: 'Add/upgrade exhaust fan — reduces heat first', action: 'upgrade_fan_small', cost: 25 },
-        { text: 'Raise light higher — less radiant heat', action: 'light_raise', cost: 0 },
+        { text: 'Add/upgrade exhaust fan — reduces heat first', key: 'sol_exhaust_heat_first', action: 'upgrade_fan_small', cost: 25 },
+        { text: 'Raise light higher — less radiant heat', key: 'sol_raise_light_heat', action: 'light_raise', cost: 0 },
       ],
       conflictNote: 'Adding humidity while hot = stress + mould risk',
+      params: { tVal: Math.round(t.value) },
     })
   }
   // ── Standalone high temp ────────────────────────────────────────────────────
@@ -545,11 +549,12 @@ export function generateSmartGuide(
       message: `Temperature ${Math.round(t.value)}°C is too high for ${stage} (optimal ${t.optimal.min}–${t.optimal.max}°C). ${setup.lightType === 'hps' ? 'HPS lights are the primary heat source — consider switching to LED.' : 'Increase ventilation or raise the light.'}`,
       solutions: [
         !setup.hasExhaustFan
-          ? { text: 'Add exhaust fan — most effective cooling', action: 'upgrade_fan_small', cost: 25 }
-          : { text: 'Upgrade to stronger fan', action: 'upgrade_fan_medium', cost: 40 },
-        { text: 'Raise light — less radiant heat at canopy', action: 'light_raise', cost: 0 },
-        ...(setup.lightType === 'hps' ? [{ text: 'Switch to LED — runs 40% cooler', action: 'upgrade_light_led', cost: 80 }] : []),
+          ? { text: 'Add exhaust fan — most effective cooling', key: 'sol_exhaust_cooling', action: 'upgrade_fan_small', cost: 25 }
+          : { text: 'Upgrade to stronger fan', key: 'sol_upgrade_fan_stronger', action: 'upgrade_fan_medium', cost: 40 },
+        { text: 'Raise light — less radiant heat at canopy', key: 'sol_raise_light_canopy', action: 'light_raise', cost: 0 },
+        ...(setup.lightType === 'hps' ? [{ text: 'Switch to LED — runs 40% cooler', key: 'sol_switch_led_cooler', action: 'upgrade_light_led', cost: 80 }] : []),
       ],
+      params: { tVal: Math.round(t.value), tMin: t.optimal.min, tMax: t.optimal.max, isHPS: setup.lightType === 'hps', hasExhaustFan: setup.hasExhaustFan },
     })
   }
 
@@ -563,11 +568,12 @@ export function generateSmartGuide(
       message: `Humidity ${Math.round(h.value)}% is too high.${isMouldRisk ? ' 🚨 HIGH MOULD RISK during flowering — Botrytis can destroy buds in 24–48h.' : ''} Increase exhaust fan speed or add a dehumidifier.`,
       solutions: [
         !setup.hasExhaustFan
-          ? { text: 'Add exhaust fan', action: 'upgrade_fan_small', cost: 25 }
-          : { text: 'Increase fan speed — drag fan image up', action: 'fan_speed', cost: 0 },
-        { text: 'Add dehumidifier', action: 'dehumidifier', cost: 1 },
-        { text: 'Defoliate — removes moisture-trapping leaves', action: 'defoliate', cost: 0 },
+          ? { text: 'Add exhaust fan', key: 'sol_add_exhaust', action: 'upgrade_fan_small', cost: 25 }
+          : { text: 'Increase fan speed — drag fan image up', key: 'sol_increase_fan_speed', action: 'fan_speed', cost: 0 },
+        { text: 'Add dehumidifier', key: 'sol_add_dehumidifier', action: 'dehumidifier', cost: 1 },
+        { text: 'Defoliate — removes moisture-trapping leaves', key: 'sol_defoliate_moisture', action: 'defoliate', cost: 0 },
       ],
+      params: { hVal: Math.round(h.value), isMouldRisk: stage === 'flower' || stage === 'late_flower' },
     })
   }
 
@@ -579,9 +585,10 @@ export function generateSmartGuide(
       severity: sev(h.status),
       message: `Humidity ${Math.round(h.value)}% is too low for ${stage} (optimal ${h.optimal.min}–${h.optimal.max}%). Plants absorb water through leaves — very dry air slows growth.`,
       solutions: [
-        { text: 'Add humidifier', action: 'humidifier', cost: 50 },
-        { text: 'Reduce fan speed temporarily', action: 'fan_speed', cost: 0 },
+        { text: 'Add humidifier', key: 'sol_add_humidifier', action: 'humidifier', cost: 50 },
+        { text: 'Reduce fan speed temporarily', key: 'sol_reduce_fan_temp', action: 'fan_speed', cost: 0 },
       ],
+      params: { hVal: Math.round(h.value), hMin: h.optimal.min, hMax: h.optimal.max },
     })
   }
 
@@ -594,10 +601,11 @@ export function generateSmartGuide(
       message: `Ventilation ${Math.round(v.value)} ACH is insufficient (optimal ${v.optimal.min}–${v.optimal.max} ACH). Poor airflow = hot spots, high humidity, weak stems, and mould risk.`,
       solutions: [
         !setup.hasExhaustFan
-          ? { text: 'Add exhaust fan — critical for any tent', action: 'upgrade_fan_small', cost: 25 }
-          : { text: 'Increase fan speed', action: 'fan_speed', cost: 0 },
-        { text: 'Add circulation fan — improves airflow', action: 'circulation_fan', cost: 20 },
+          ? { text: 'Add exhaust fan — critical for any tent', key: 'sol_exhaust_critical', action: 'upgrade_fan_small', cost: 25 }
+          : { text: 'Increase fan speed', key: 'sol_fan_speed_increase', action: 'fan_speed', cost: 0 },
+        { text: 'Add circulation fan — improves airflow', key: 'sol_add_circ_fan', action: 'circulation_fan', cost: 20 },
       ],
+      params: { vVal: Math.round(v.value), vMin: v.optimal.min, vMax: v.optimal.max, hasExhaustFan: setup.hasExhaustFan },
     })
   }
 
@@ -609,9 +617,10 @@ export function generateSmartGuide(
       severity: sev(v.status),
       message: `Ventilation ${Math.round(v.value)} ACH is too strong (optimal ${v.optimal.min}–${v.optimal.max} ACH). Excessive airflow dries out the medium too fast, stresses the plant, and can lower humidity dangerously.`,
       solutions: [
-        { text: 'Reduce fan speed — drag fan control down', action: 'fan_speed', cost: 0 },
-        { text: 'Partially close exhaust duct — throttles airflow', cost: 0 },
+        { text: 'Reduce fan speed — drag fan control down', key: 'sol_reduce_fan_drag', action: 'fan_speed', cost: 0 },
+        { text: 'Partially close exhaust duct — throttles airflow', key: 'sol_close_duct', cost: 0 },
       ],
+      params: { vVal: Math.round(v.value), vMin: v.optimal.min, vMax: v.optimal.max },
     })
   }
 
@@ -623,9 +632,10 @@ export function generateSmartGuide(
       severity: sev(n.status),
       message: `Nutrients ${Math.round(n.value)}% — excess in living soil. Living soil has its own nutrient ecosystem. Extra feeding causes salt buildup and burns roots.`,
       solutions: [
-        { text: 'Flush with plain water 2–3×', action: 'flush', cost: 0 },
+        { text: 'Flush with plain water 2–3×', key: 'sol_flush_soil', action: 'flush', cost: 0 },
       ],
       conflictNote: 'Do not add more nutrients for at least 2 weeks',
+      params: { nVal: Math.round(n.value) },
     })
   }
   // ── Nutrients: deficiency + living soil ─────────────────────────────────────
@@ -636,10 +646,11 @@ export function generateSmartGuide(
       severity: sev(n.status),
       message: `Nutrients ${Math.round(n.value)}% low in living soil. Check pH first (lockout is the most common cause). If pH is correct, top-dress with compost.`,
       solutions: [
-        { text: 'pH check — eliminate lockout first', action: 'ph_check', cost: 0 },
-        { text: 'Top-dress with compost', action: 'topdress', cost: 0 },
+        { text: 'pH check — eliminate lockout first', key: 'sol_ph_check_lockout', action: 'ph_check', cost: 0 },
+        { text: 'Top-dress with compost', key: 'sol_topdress_compost', action: 'topdress', cost: 0 },
       ],
       conflictNote: 'Check pH before adding more amendments',
+      params: { nVal: Math.round(n.value) },
     })
   }
   // ── Nutrients: general ────────────────────────────────────────────────────
@@ -649,7 +660,8 @@ export function generateSmartGuide(
       attributes: ['nutrients'],
       severity: sev(n.status),
       message: `Nutrients ${Math.round(n.value)}% — excess risk (nutrient burn). Brown leaf tips are the first sign. Flush to reset and resume at lower EC.`,
-      solutions: [{ text: 'Flush — resets nutrient level', action: 'flush', cost: 0 }],
+      solutions: [{ text: 'Flush — resets nutrient level', key: 'sol_flush_reset', action: 'flush', cost: 0 }],
+      params: { nVal: Math.round(n.value) },
     })
   } else if (lowNut) {
     warnings.push({
@@ -658,9 +670,10 @@ export function generateSmartGuide(
       severity: sev(n.status),
       message: `Nutrients ${Math.round(n.value)}% — deficiency. ${setup.medium === 'coco' ? 'Coco is inert — feed every watering!' : 'Feed your plant or check pH for lockout.'}`,
       solutions: [
-        { text: 'Feed plant', action: 'feed', cost: 0 },
-        { text: 'pH check — wrong pH blocks nutrient uptake', action: 'ph_check', cost: 0 },
+        { text: 'Feed plant', key: 'sol_feed_plant', action: 'feed', cost: 0 },
+        { text: 'pH check — wrong pH blocks nutrient uptake', key: 'sol_ph_check_uptake', action: 'ph_check', cost: 0 },
       ],
+      params: { nVal: Math.round(n.value), isCoco: setup.medium === 'coco' },
     })
   }
 
@@ -671,7 +684,8 @@ export function generateSmartGuide(
       attributes: ['watering'],
       severity: sev(w.status),
       message: `Moisture ${Math.round(w.value)}% — plant is thirsty. Water until 10–20% runoff from the bottom of the pot.`,
-      solutions: [{ text: 'Water plant', action: 'water', cost: 0 }],
+      solutions: [{ text: 'Water plant', key: 'sol_water_plant', action: 'water', cost: 0 }],
+      params: { wVal: Math.round(w.value) },
     })
   } else if (overWater && setup.watering === 'manual') {
     warnings.push({
@@ -680,6 +694,7 @@ export function generateSmartGuide(
       severity: sev(w.status),
       message: `Moisture ${Math.round(w.value)}% — overwatered. Allow the medium to dry out. Lift the pot — light = needs water, heavy = wait.`,
       solutions: [],
+      params: { wVal: Math.round(w.value) },
     })
   }
 
