@@ -507,6 +507,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const [upgradePending, setUpgradePending] = useState<string | null>(null)
   const [editingSetup, setEditingSetup]     = useState<string | null>(null)
   const [armedAction, setArmedAction]       = useState<string | null>(null)
+  const [subPanel, setSubPanel]             = useState<'water' | 'ph_adjust' | null>(null)
 
   // Lamp drag slider
   const [lampSliderActive, setLampSliderActive] = useState(false)
@@ -741,7 +742,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
-  async function doAction(type: string) {
+  async function doAction(type: string, value?: number) {
     // Fire animation immediately, before API responds
     const animSrc = ACTION_ANIMS[type]
     if (animSrc) {
@@ -750,7 +751,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     start(async () => {
       const res  = await fetch('/api/hub/grow/action', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type }),
+        body: JSON.stringify({ type, ...(value !== undefined ? { value } : {}) }),
       })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? 'Action failed'); return }
@@ -760,6 +761,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   }
 
   function requestAction(type: string) {
+    setSubPanel(null)
     if (type === 'defoliate' && grow) {
       const seedlingEnd = grow.isClone ? 4 : 7
       const vegDays = grow.currentDay - seedlingEnd
@@ -1447,31 +1449,36 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const isVeg = grow.stage === 'veg' || grow.stage === 'seedling'
             const lollipopDone = grow.hasLollipoped ?? false
             const actions = [
-              { type: 'water',     label: g.actionWater,     disabled: false },
-              { type: 'feed',      label: g.actionFeed,      disabled: false },
-              { type: 'ph_check',  label: g.actionPh,        disabled: false },
+              { type: 'water',     label: g.actionWater,                        disabled: false },
+              { type: 'feed',      label: g.actionFeed,                         disabled: false },
+              { type: 'ph_adjust', label: g.actionPhAdjust as string,           disabled: false },
               isVeg
                 ? { type: 'lst',      label: g.actionLst,      disabled: false }
                 : { type: 'lollipop', label: g.actionLollipop, disabled: lollipopDone },
-              { type: 'defoliate', label: g.actionDefoliate, disabled: false },
-              { type: 'flush',     label: g.actionFlush,     disabled: false },
+              { type: 'defoliate', label: g.actionDefoliate,                    disabled: false },
+              { type: 'topdress',  label: g.actionTopdress as string,           disabled: false },
             ] as const
             return (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)', gap: isMobile ? '10px' : '7px' }}>
                   {actions.map(({ type, label, disabled }) => {
-                    const isArmed = armedAction === type
-                    const tooltip = (g.actionTooltips as Record<string, string>)[type] ?? ''
+                    const isArmed = type === 'water' || type === 'ph_adjust' ? subPanel === type : armedAction === type
                     return (
                       <button
                         key={type}
                         onClick={() => {
                           if (disabled || pending) return
+                          if (type === 'water' || type === 'ph_adjust') {
+                            setSubPanel(prev => prev === type ? null : type)
+                            setArmedAction(null)
+                            return
+                          }
                           if (isArmed) {
                             setArmedAction(null)
                             requestAction(type)
                           } else {
                             setArmedAction(type)
+                            setSubPanel(null)
                           }
                         }}
                         disabled={pending || disabled}
@@ -1497,7 +1504,67 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   })}
                 </div>
 
-                {/* Armed action info panel */}
+                {/* Sub-panel: Water / Flush chooser */}
+                {subPanel === 'water' && !confirmDialog && (
+                  <div style={{ marginTop: '8px', padding: '10px 12px', background: 'rgba(0,212,200,0.06)', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '6px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                      {([
+                        { type: 'water', label: g.waterSubWater as string, desc: g.waterSubWaterDesc as string, color: '#00d4c8' },
+                        { type: 'flush', label: g.waterSubFlush as string, desc: g.waterSubFlushDesc as string, color: '#cc00aa' },
+                      ] as const).map(({ type: t, label, desc, color }) => (
+                        <button key={t} onClick={() => { setSubPanel(null); doAction(t) }} disabled={pending}
+                          style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', padding: '10px 8px', borderRadius: '4px',
+                            border: `0.5px solid ${color}40`, background: `${color}08`, color, cursor: 'pointer', textAlign: 'left' }}>
+                          <div style={{ fontWeight: 700, marginBottom: '3px' }}>{label}</div>
+                          <div style={{ fontSize: '8px', color: 'rgba(232,240,239,0.5)', lineHeight: 1.4, fontFamily: 'var(--font-dm-sans)' }}>{desc}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Sub-panel: pH Adjust */}
+                {subPanel === 'ph_adjust' && !confirmDialog && (() => {
+                  const currentPh = grow.environment.ph ?? 6.5
+                  const medium = grow.setup.medium
+                  const phRanges: Record<string, [number, number]> = { soil: [6.2, 6.8], living_soil: [6.0, 7.0], coco: [5.8, 6.2], hydro: [5.5, 6.0] }
+                  const [low, high] = phRanges[medium] ?? [6.2, 6.8]
+                  const optimal = Math.round(((low + high) / 2) * 10) / 10
+                  const inRange = currentPh >= low && currentPh <= high
+                  return (
+                    <div style={{ marginTop: '8px', padding: '10px 12px', background: 'rgba(0,212,200,0.06)', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '6px' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                        <div>
+                          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '1px', textTransform: 'uppercase' }}>{g.phCurrentLabel as string} </span>
+                          <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '18px', fontWeight: 700, color: inRange ? '#00d4c8' : '#f0a830' }}>{currentPh.toFixed(1)}</span>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', letterSpacing: '1px' }}>{g.phOptimalLabel as string}</div>
+                          <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#00d4c8' }}>{low}–{high}</div>
+                        </div>
+                      </div>
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                        {[
+                          { label: g.phDownBtn as string, value: Math.max(4.0, Math.round((currentPh - 0.3) * 10) / 10), color: '#cc00aa' },
+                          { label: g.phSetOptimal as string, value: optimal, color: '#00d4c8' },
+                          { label: g.phUpBtn as string, value: Math.min(8.5, Math.round((currentPh + 0.3) * 10) / 10), color: '#f0a830' },
+                        ].map(({ label, value, color }) => (
+                          <button key={label} onClick={() => { setSubPanel(null); doAction('ph_adjust', value) }} disabled={pending}
+                            style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', padding: '8px 4px', borderRadius: '4px',
+                              border: `0.5px solid ${color}40`, background: `${color}08`, color, cursor: 'pointer', textAlign: 'center' }}>
+                            <div>{label}</div>
+                            <div style={{ fontSize: '11px', fontWeight: 700, marginTop: '2px', fontFamily: 'var(--font-orbitron)' }}>{value.toFixed(1)}</div>
+                          </button>
+                        ))}
+                      </div>
+                      <div style={{ marginTop: '8px', fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: inRange ? '#00d4c8' : '#f0a830', letterSpacing: '0.5px' }}>
+                        {inRange ? `✓ ${g.phInRange as string}` : `⚠ ${g.phOutRange as string}`}
+                      </div>
+                    </div>
+                  )
+                })()}
+
+                {/* Armed action info panel (for non-sub-panel buttons) */}
                 {armedAction && !confirmDialog && (() => {
                   const tooltip = (g.actionTooltips as Record<string, string>)[armedAction] ?? ''
                   return (
@@ -1709,7 +1776,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                             {sw.solutions.map((sol, si) => {
                               const isUpgrade = sol.action?.startsWith('upgrade_') || ['circulation_fan','dehumidifier','humidifier'].includes(sol.action ?? '')
                               const alreadyOwned = isUpgrade && (grow.purchasedUpgrades?.some(u => u.type === sol.action) ?? false)
-                              const isGrowAction = !isUpgrade && sol.action && ['water','feed','flush','ph_check','lst','defoliate','fan_speed','light_raise'].includes(sol.action)
+                              const isGrowAction = !isUpgrade && sol.action && ['water','feed','flush','ph_adjust','ph_check','lst','defoliate','fan_speed','light_raise','light_lower'].includes(sol.action)
                               return (
                                 <div key={si} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
                                   <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '10px', color: 'rgba(232,240,239,0.65)', flex: 1 }}>
@@ -2133,12 +2200,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 actionCounts[a.type] = (actionCounts[a.type] ?? 0) + 1
                 actionXP[a.type] = (actionXP[a.type] ?? 0) + a.xpEarned
               }
-              const actionOrder = ['water', 'feed', 'ph_check', 'lst', 'defoliate', 'flush', 'topdress', 'top']
+              const actionOrder = ['water', 'feed', 'ph_check', 'ph_adjust', 'lst', 'defoliate', 'flush', 'topdress', 'top', 'lollipop']
               const maxCount = Math.max(1, ...Object.values(actionCounts))
               const activeWarningCount = grow.warnings.filter(w => !w.resolvedAt).length
               const actionEmoji: Record<string, string> = {
-                water: '💧', feed: '🌿', ph_check: '🧪', lst: '📎',
-                defoliate: '✂️', flush: '🚿', topdress: '🪱', top: '✂️',
+                water: '💧', feed: '🌿', ph_check: '🧪', ph_adjust: '🧪', lst: '📎',
+                defoliate: '✂️', flush: '🚿', topdress: '🪱', top: '✂️', lollipop: '✂️',
               }
               // Recent actions (last 8, skip light/fan adjustments)
               const recentActions = [...grow.actions]

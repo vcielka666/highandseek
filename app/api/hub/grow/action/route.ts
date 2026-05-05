@@ -5,12 +5,12 @@ import { connectDB } from '@/lib/db/connect'
 import VirtualGrow from '@/lib/db/models/VirtualGrow'
 import { awardXP } from '@/lib/xp'
 import { getActionEffect } from '@/lib/grow/simulation'
-import { calculateAttributes } from '@/lib/grow/attributes'
+import { calculateAttributes, phOptimalRange } from '@/lib/grow/attributes'
 import type { GrowStage } from '@/lib/grow/simulation'
 
 const ActionSchema = z.object({
-  type: z.enum(['water', 'feed', 'lst', 'defoliate', 'lollipop', 'ph_check', 'top', 'flush', 'topdress', 'light_raise', 'light_lower', 'light_height', 'fan_speed', 'flip_12_12']),
-  value: z.number().min(0).max(100).optional(),
+  type: z.enum(['water', 'feed', 'lst', 'defoliate', 'lollipop', 'ph_check', 'ph_adjust', 'top', 'flush', 'topdress', 'light_raise', 'light_lower', 'light_height', 'fan_speed', 'flip_12_12']),
+  value: z.number().optional(),
 })
 
 export async function POST(req: NextRequest) {
@@ -51,6 +51,37 @@ export async function POST(req: NextRequest) {
     grow.actions.push({ type, timestamp: new Date(), xpEarned: 0, effect: effDesc })
     await grow.save()
     return NextResponse.json({ grow: grow.toObject(), effect: effDesc })
+  }
+
+  // Handle pH adjust
+  if (type === 'ph_adjust') {
+    const [low, high] = phOptimalRange((grow.setup as { medium: string }).medium)
+    const optimal = Math.round(((low + high) / 2) * 10) / 10
+    const currentPh = (grow.environment as { ph?: number }).ph ?? 6.5
+    const targetPh = parsed.data.value !== undefined
+      ? Math.max(4.0, Math.min(8.5, Math.round(parsed.data.value * 10) / 10))
+      : optimal
+    ;(grow.environment as { ph?: number }).ph = targetPh
+    grow.markModified('environment')
+    const newAttributes = calculateAttributes(
+      grow.setup as Parameters<typeof calculateAttributes>[0],
+      grow.environment as Parameters<typeof calculateAttributes>[1],
+      grow.stage as GrowStage,
+      storedWatering,
+      storedNutrients,
+    )
+    grow.set('attributes', newAttributes)
+    grow.markModified('attributes')
+    const inRange = targetPh >= low && targetPh <= high
+    const medium = (grow.setup as { medium: string }).medium
+    const effectMsg = inRange
+      ? `pH adjusted to ${targetPh} — in optimal range for ${medium} (${low}–${high})`
+      : `pH adjusted to ${targetPh} — still outside optimal range (${low}–${high})`
+    grow.actions.push({ type, timestamp: new Date(), xpEarned: 5, effect: effectMsg })
+    await awardXP(session.user.id, 'WATER_PLANT', 5)
+    grow.xpEarned += 5
+    await grow.save()
+    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
 
   // Handle light height adjustments

@@ -49,6 +49,28 @@ export interface Environment {
   exhaustFanSpeed?: number  // 0–100 %, default 100
 }
 
+// ── pH optimal ranges by growing medium ───────────────────────────────────────
+
+const PH_OPTIMAL: Record<string, [number, number]> = {
+  soil:        [6.2, 6.8],
+  living_soil: [6.0, 7.0],
+  coco:        [5.8, 6.2],
+  hydro:       [5.5, 6.0],
+}
+
+export function phOptimalRange(medium: string): [number, number] {
+  return PH_OPTIMAL[medium] ?? [6.2, 6.8]
+}
+
+function phNutrientPenalty(ph: number, medium: string): number {
+  const [low, high] = phOptimalRange(medium)
+  const off = Math.max(0, low - ph, ph - high)
+  if (off === 0) return 0
+  if (off < 0.3) return -10
+  if (off < 0.6) return -20
+  return -35
+}
+
 // ── Tent area in m² ────────────────────────────────────────────────────────────
 
 const TENT_AREAS: Record<Setup['tentSize'], number> = {
@@ -282,7 +304,7 @@ export function calculateAttributes(
     humidity:    mk(humidityValue, optimal.humidity),
     light:       mk(lightValue,   optimal.light),
     ventilation: mk(ventValue,    optimal.ventilation),
-    nutrients:   mk(nutrientsValue, optimal.nutrients),
+    nutrients:   mk(Math.max(0, Math.min(100, nutrientsValue + phNutrientPenalty(environment.ph ?? 6.5, setup.medium))), optimal.nutrients),
     watering:    mk(wateringValue, optimal.watering),
   }
 }
@@ -646,7 +668,7 @@ export function generateSmartGuide(
       severity: sev(n.status),
       message: `Nutrients ${Math.round(n.value)}% low in living soil. Check pH first (lockout is the most common cause). If pH is correct, top-dress with compost.`,
       solutions: [
-        { text: 'pH check — eliminate lockout first', key: 'sol_ph_check_lockout', action: 'ph_check', cost: 0 },
+        { text: 'pH adjust — eliminate lockout first', key: 'sol_ph_check_lockout', action: 'ph_adjust', cost: 0 },
         { text: 'Top-dress with compost', key: 'sol_topdress_compost', action: 'topdress', cost: 0 },
       ],
       conflictNote: 'Check pH before adding more amendments',
@@ -671,7 +693,7 @@ export function generateSmartGuide(
       message: `Nutrients ${Math.round(n.value)}% — deficiency. ${setup.medium === 'coco' ? 'Coco is inert — feed every watering!' : 'Feed your plant or check pH for lockout.'}`,
       solutions: [
         { text: 'Feed plant', key: 'sol_feed_plant', action: 'feed', cost: 0 },
-        { text: 'pH check — wrong pH blocks nutrient uptake', key: 'sol_ph_check_uptake', action: 'ph_check', cost: 0 },
+        { text: 'pH adjust — wrong pH blocks nutrient uptake', key: 'sol_ph_check_uptake', action: 'ph_adjust', cost: 0 },
       ],
       params: { nVal: Math.round(n.value), isCoco: setup.medium === 'coco' },
     })

@@ -201,6 +201,8 @@ export function getActionEffect(
       return { wateringDelta: 10, nutrientsDelta: 25, xp: 10, effectDesc: 'Fed — nutrients +25%' }
     case 'ph_check':
       return { xp: 5, effectDesc: 'pH checked — no attribute change' }
+    case 'ph_adjust':
+      return { xp: 5, effectDesc: 'pH adjusted' }
     case 'lst':
       if (stage !== 'veg' && stage !== 'seedling') {
         return { xp: 0, effectDesc: 'LST only available during veg' }
