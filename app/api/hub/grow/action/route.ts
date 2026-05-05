@@ -13,6 +13,24 @@ const ActionSchema = z.object({
   value: z.number().optional(),
 })
 
+// Smart XP: reward fixing problems, punish making things worse, zero for needless repeats
+type AttrStatus = 'optimal' | 'warning' | 'critical'
+function smartXP(before: AttrStatus | undefined, after: AttrStatus | undefined): number {
+  if (!before || !after || before === after) return 0
+  const score: Record<string, number> = { optimal: 0, warning: 1, critical: 2 }
+  const improved = (score[before] ?? 0) - (score[after] ?? 0) > 0
+  if (improved) {
+    if (before === 'critical' && after === 'optimal') return 10
+    if (before === 'warning'  && after === 'optimal') return 5
+    return 2  // critical → warning: partial fix
+  }
+  // Worsened
+  if (before === 'optimal'  && after === 'critical') return -8
+  if (before === 'warning'  && after === 'critical') return -5
+  if (before === 'optimal'  && after === 'warning')  return -3
+  return 0
+}
+
 export async function POST(req: NextRequest) {
   const session = await auth()
   if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -61,6 +79,7 @@ export async function POST(req: NextRequest) {
     const targetPh = parsed.data.value !== undefined
       ? Math.max(4.0, Math.min(8.5, Math.round(parsed.data.value * 10) / 10))
       : optimal
+    const beforeNutrientsStatus = (grow.attributes as { nutrients?: { status?: string } })?.nutrients?.status as AttrStatus | undefined
     ;(grow.environment as { ph?: number }).ph = targetPh
     grow.markModified('environment')
     const newAttributes = calculateAttributes(
@@ -74,14 +93,18 @@ export async function POST(req: NextRequest) {
     grow.markModified('attributes')
     const inRange = targetPh >= low && targetPh <= high
     const medium = (grow.setup as { medium: string }).medium
+    const afterNutrientsStatus = newAttributes.nutrients.status as AttrStatus
+    const xpDelta = inRange && beforeNutrientsStatus !== 'optimal' ? smartXP(beforeNutrientsStatus, afterNutrientsStatus) : (inRange ? 3 : -3)
     const effectMsg = inRange
       ? `pH adjusted to ${targetPh} — in optimal range for ${medium} (${low}–${high})`
       : `pH adjusted to ${targetPh} — still outside optimal range (${low}–${high})`
-    grow.actions.push({ type, timestamp: new Date(), xpEarned: 5, effect: effectMsg })
-    await awardXP(session.user.id, 'WATER_PLANT', 5)
-    grow.xpEarned += 5
+    grow.actions.push({ type, timestamp: new Date(), xpEarned: xpDelta, effect: effectMsg })
+    if (xpDelta !== 0) {
+      await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
+      grow.xpEarned = Math.max(0, grow.xpEarned + xpDelta)
+    }
     await grow.save()
-    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
+    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg, xpDelta })
   }
 
   // Handle light height adjustments
@@ -260,6 +283,10 @@ export async function POST(req: NextRequest) {
 
   const effect = getActionEffect(type, grow.stage as GrowStage)
 
+  // Capture BEFORE status for smart XP comparison
+  const beforeWatering  = (grow.attributes as { watering?: { status?: string } })?.watering?.status  as AttrStatus | undefined
+  const beforeNutrients = (grow.attributes as { nutrients?: { status?: string } })?.nutrients?.status as AttrStatus | undefined
+
   // Apply deltas to persistent dynamic state
   const currentWatering  = effect.wateringDelta
     ? Math.min(100, Math.max(0, storedWatering  + effect.wateringDelta))
@@ -273,7 +300,7 @@ export async function POST(req: NextRequest) {
     grow.yieldProjection = Math.round(grow.yieldProjection * (1 + effect.yieldBonus))
   }
 
-  // Recalculate all attributes — both watering and nutrients are dynamic now
+  // Recalculate all attributes
   const newAttributes = calculateAttributes(
     grow.setup as Parameters<typeof calculateAttributes>[0],
     grow.environment as Parameters<typeof calculateAttributes>[1],
@@ -285,27 +312,42 @@ export async function POST(req: NextRequest) {
   grow.set('attributes', newAttributes)
   grow.markModified('attributes')
 
+  // Smart XP: compare before/after status for attribute-range actions
+  const afterWatering  = newAttributes.watering.status  as AttrStatus
+  const afterNutrients = newAttributes.nutrients.status as AttrStatus
+
+  let xpDelta: number
+  if (type === 'water') {
+    xpDelta = smartXP(beforeWatering, afterWatering)
+  } else if (type === 'feed' || type === 'topdress') {
+    xpDelta = smartXP(beforeNutrients, afterNutrients)
+  } else if (type === 'flush') {
+    // Flush removes nutrients: reward only when nutrients were too high
+    xpDelta = smartXP(beforeNutrients, afterNutrients)
+  } else if (type === 'lst') {
+    // Diminishing returns: first 2 get full XP, after that 0
+    const lstCount = grow.actions.filter((a: { type: string }) => a.type === 'lst').length
+    xpDelta = lstCount === 0 ? 25 : lstCount === 1 ? 10 : 0
+  } else {
+    // top, ph_check, and others keep effect.xp
+    xpDelta = effect.xp
+  }
+
   // Record action
   grow.actions.push({
     type,
     timestamp: new Date(),
-    xpEarned:  effect.xp,
+    xpEarned:  xpDelta,
     effect:    effect.effectDesc,
   })
 
-  // Award XP
-  if (effect.xp > 0) {
-    const xpKey = type === 'water' ? 'WATER_PLANT'
-      : type === 'feed'  ? 'FEED_PLANT'
-      : type === 'lst'   ? 'LST_APPLIED'
-      : type === 'top'   ? 'TOP_PLANT'
-      : type === 'flush' ? 'FLUSH_PLANT'
-      : 'WATER_PLANT'
-    await awardXP(session.user.id, xpKey, effect.xp)
-    grow.xpEarned += effect.xp
+  // Award or deduct XP
+  if (xpDelta !== 0) {
+    await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
+    grow.xpEarned = Math.max(0, grow.xpEarned + xpDelta)
   }
 
   await grow.save()
 
-  return NextResponse.json({ grow: grow.toObject(), effect: effect.effectDesc })
+  return NextResponse.json({ grow: grow.toObject(), effect: effect.effectDesc, xpDelta })
 }

@@ -744,23 +744,30 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   // ── Actions ────────────────────────────────────────────────────────────────
 
   function spawnXpPopup(xp: number) {
+    if (xp === 0) return
     const rect = actionBtnRef.current?.getBoundingClientRect()
     const cx = rect ? rect.left + rect.width / 2 : window.innerWidth / 2
     const cy = rect ? rect.top + rect.height / 2 : window.innerHeight / 2
+
+    const isPos = xp > 0
+    const color     = isPos ? '#f0a830' : '#cc00aa'
+    const glow      = isPos ? 'rgba(240,168,48,0.85)' : 'rgba(204,0,170,0.85)'
+    const glowSoft  = isPos ? 'rgba(240,168,48,0.3)'  : 'rgba(204,0,170,0.3)'
+    const label     = isPos ? `+${xp} xp` : `${xp} xp`
 
     const outer = document.createElement('div')
     outer.style.cssText = `position:fixed;left:${cx}px;top:${cy}px;transform:translateX(-50%);pointer-events:none;z-index:9999;`
 
     const inner = document.createElement('div')
-    inner.textContent = `+${xp} xp`
+    inner.textContent = label
     inner.style.cssText = [
       'will-change:transform,opacity',
       'animation:xp-fly 1.8s cubic-bezier(0.22,1,0.36,1) forwards',
       'font-family:var(--font-orbitron)',
       'font-weight:900',
       'font-size:20px',
-      'color:#f0a830',
-      'text-shadow:0 0 10px rgba(240,168,48,0.85),0 0 22px rgba(240,168,48,0.3)',
+      `color:${color}`,
+      `text-shadow:0 0 10px ${glow},0 0 22px ${glowSoft}`,
       'letter-spacing:1px',
       'white-space:nowrap',
     ].join(';')
@@ -785,8 +792,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       if (!res.ok) { toast.error(data.error ?? 'Action failed'); return }
       setGrow(data.grow)
       toast.success(data.effect)
-      const xpEarned = data.grow?.actions?.at(-1)?.xpEarned ?? 0
-      if (xpEarned > 0) spawnXpPopup(xpEarned)
+      const xpDelta = data.xpDelta ?? data.grow?.actions?.at(-1)?.xpEarned ?? 0
+      if (xpDelta !== 0) spawnXpPopup(xpDelta)
     })
   }
 
