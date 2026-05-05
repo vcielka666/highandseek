@@ -751,7 +751,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     const y = rect ? rect.top : window.innerHeight / 2
     const id = ++xpPopupIdRef.current
     setXpPopups(prev => [...prev, { id, xp, x, y }])
-    setTimeout(() => setXpPopups(prev => prev.filter(p => p.id !== id)), 2100)
+    setTimeout(() => setXpPopups(prev => prev.filter(p => p.id !== id)), 2300)
   }
 
   async function doAction(type: string, value?: number) {
@@ -973,10 +973,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         <div key={id} style={{
           position: 'fixed', left: x, top: y, transform: 'translateX(-50%)',
           pointerEvents: 'none', zIndex: 9999,
-          animation: 'xp-fly 2s cubic-bezier(0.25,0.46,0.45,0.94) forwards',
+          willChange: 'transform, opacity',
+          animation: 'xp-fly 2.2s cubic-bezier(0.33,1,0.68,1) forwards',
           fontFamily: 'var(--font-orbitron)', fontWeight: 900,
-          fontSize: '22px', color: '#f0a830',
-          textShadow: '0 0 12px rgba(240,168,48,0.9), 0 0 30px rgba(240,168,48,0.4)',
+          fontSize: '20px', color: '#f0a830',
+          textShadow: '0 0 10px rgba(240,168,48,0.8), 0 0 24px rgba(240,168,48,0.3)',
           letterSpacing: '1px', whiteSpace: 'nowrap',
         }}>
           +{xp} xp
