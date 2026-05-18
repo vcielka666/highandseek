@@ -133,7 +133,7 @@ export default function HeroSection() {
                 borderRadius: '6px',
                 textDecoration: 'none',
                 background: 'rgba(136,68,204,0.08)',
-                border: '1px solid #8844cc',
+                border: 'none',
                 boxShadow: '0 0 20px rgba(136,68,204,0.1), inset 0 0 20px rgba(136,68,204,0.05)',
                 transition: 'all 0.25s',
                 position: 'relative',
