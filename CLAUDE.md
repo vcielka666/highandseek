@@ -83,6 +83,7 @@
 | Comment | `lib/db/models/Comment.ts` | postId, userId, text(max 300), likes, likesCount, isDeleted |
 | Listing | `lib/db/models/Listing.ts` | userId, title, description, category, price, contact{telegram,signal,threema}, images, status, expiresAt |
 | ErrorLog | `lib/db/models/ErrorLog.ts` | message, stack, route, userId, severity, action, createdAt |
+| Waitlist | `lib/db/models/Waitlist.ts` | email, source ('tours'), createdAt — unique index on (email, source) |
 | QRRedirect | `lib/db/models/QRRedirect.ts` | slug, targetUrl, label, isActive |
 | QRScan | (same file) | slug, sessionId, ip, device, convertedToRegistration |
 
@@ -216,6 +217,7 @@ RESEND_API_KEY=
 | Telegram notifications | — | ✅ Order inquiry + confirmation |
 | Grow equipment DB | — | ✅ 82 products (22 real prices, 60 estimated) |
 | Shop (e-commerce) | `/shop` | 🚧 Placeholder |
+| City Canna Tours | `/tours` | 🚧 Coming soon page + email waitlist (MongoDB `Waitlist`, API `/api/waitlist`) |
 | Seekers integration | — | ⏳ Future |
 | AI forum bridge | — | ⏳ Future |
 
