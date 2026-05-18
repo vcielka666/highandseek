@@ -95,7 +95,7 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
   const [searchLoading, setSearchLoading] = useState(false)
   const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({})
   const [followLoading, setFollowLoading] = useState<Record<string, boolean>>({})
-  const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const searchRef = useRef<number | null>(null)
 
   const postCardLabels: PostCardLabels = {
     likeBtnLabel: labels.likeBtnLabel,
@@ -168,9 +168,9 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
   function handleSearchChange(q: string) {
     setSearchQuery(q)
     if (searchRef.current) clearTimeout(searchRef.current)
-    if (q.trim().length < 2) { setSearchResults([]); return }
-    searchRef.current = setTimeout(async () => {
-      setSearchLoading(true)
+    if (!q.trim()) { setSearchResults([]); setSearchLoading(false); return }
+    setSearchLoading(true)
+    searchRef.current = window.setTimeout(async () => {
       try {
         const res = await fetch(`/api/hub/users/search?q=${encodeURIComponent(q.trim())}`)
         if (!res.ok) return
@@ -182,7 +182,7 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
       } finally {
         setSearchLoading(false)
       }
-    }, 300)
+    }, 200)
   }
 
   async function handleFollowToggle(username: string) {
@@ -483,7 +483,7 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
             </div>
           )}
 
-          {searchQuery.length >= 2 && !searchLoading && searchResults.length === 0 && (
+          {searchQuery.trim().length > 0 && !searchLoading && searchResults.length === 0 && (
             <div style={{ padding: '16px 14px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', textAlign: 'center' }}>
               {labels.searchEmpty}
             </div>

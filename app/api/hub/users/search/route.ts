@@ -7,7 +7,7 @@ export async function GET(req: NextRequest) {
   const session = await auth()
   const q = req.nextUrl.searchParams.get('q')?.trim()
 
-  if (!q || q.length < 2) {
+  if (!q) {
     return NextResponse.json({ users: [] })
   }
 
