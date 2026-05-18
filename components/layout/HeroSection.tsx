@@ -141,7 +141,7 @@ export default function HeroSection() {
               }}
               className="w-full sm:w-[170px] hover:bg-[rgba(136,68,204,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(136,68,204,0.25),inset_0_0_30px_rgba(136,68,204,0.08)]"
             >
-              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#8844cc' }}>
+              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa' }}>
                 {t.hero.cta3Label}
               </span>
               <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066' }}>
@@ -192,7 +192,7 @@ export default function HeroSection() {
               }}
               className="w-full sm:w-[170px] hover:bg-[rgba(204,0,170,0.15)] hover:-translate-y-0.5 hover:shadow-[0_0_40px_rgba(204,0,170,0.25),inset_0_0_30px_rgba(204,0,170,0.08)]"
             >
-              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa' }}>
+              <span style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#8844cc' }}>
                 {t.hero.cta2Label}
               </span>
               <span style={{ fontSize: '10px', letterSpacing: '0.5px', color: '#4a6066' }}>
