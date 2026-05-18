@@ -43,7 +43,7 @@ export default function ToursPage() {
       <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 1 }}>
 
         {/* Icon */}
-        <div style={{ fontSize: '64px', marginBottom: '24px', lineHeight: 1 }}>🧭</div>
+        <div style={{ fontSize: '64px', marginBottom: '24px', lineHeight: 1 }}>👣</div>
 
         {/* Heading */}
         <h1 style={{
