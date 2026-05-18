@@ -159,17 +159,17 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
             </div>
             <Link
               href="/hub"
-              style={{ padding: '12px 16px', background: 'rgba(204,0,170,0.15)', border: '0.5px solid rgba(204,0,170,0.4)', borderRadius: '8px', color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(204,0,170,0.25)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(204,0,170,0.15)')}
+              style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#cc00aa', background: 'rgba(204,0,170,0.08)', border: 'none', boxShadow: '0 0 20px rgba(204,0,170,0.1), inset 0 0 20px rgba(204,0,170,0.05)', borderRadius: '6px', padding: '14px 16px', textDecoration: 'none', textAlign: 'center', display: 'block', transition: 'all 0.25s' }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(204,0,170,0.15)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = '0 0 40px rgba(204,0,170,0.25),inset 0 0 30px rgba(204,0,170,0.08)' }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(204,0,170,0.08)'; el.style.transform = ''; el.style.boxShadow = '0 0 20px rgba(204,0,170,0.1),inset 0 0 20px rgba(204,0,170,0.05)' }}
             >
               {d.hubAlertConfirm}
             </Link>
             <Link
               href="/tours"
-              style={{ padding: '12px 16px', background: 'rgba(136,68,204,0.15)', border: '0.5px solid rgba(136,68,204,0.4)', borderRadius: '8px', color: '#8844cc', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
-              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(136,68,204,0.25)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(136,68,204,0.15)')}
+              style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#8844cc', background: 'rgba(136,68,204,0.08)', border: 'none', boxShadow: '0 0 20px rgba(136,68,204,0.1), inset 0 0 20px rgba(136,68,204,0.05)', borderRadius: '6px', padding: '14px 16px', textDecoration: 'none', textAlign: 'center', display: 'block', transition: 'all 0.25s' }}
+              onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(136,68,204,0.15)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = '0 0 40px rgba(136,68,204,0.25),inset 0 0 30px rgba(136,68,204,0.08)' }}
+              onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(136,68,204,0.08)'; el.style.transform = ''; el.style.boxShadow = '0 0 20px rgba(136,68,204,0.1),inset 0 0 20px rgba(136,68,204,0.05)' }}
             >
               {d.toursAlertConfirm}
             </Link>

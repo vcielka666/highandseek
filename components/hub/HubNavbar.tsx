@@ -214,23 +214,23 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <a
                 href="/shop"
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#00d4c8', borderRadius: '6px', padding: '12px 16px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#00f5e8')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#00d4c8')}
+                style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#00d4c8', background: 'rgba(0,212,200,0.08)', border: 'none', boxShadow: '0 0 20px rgba(0,212,200,0.1), inset 0 0 20px rgba(0,212,200,0.05)', borderRadius: '6px', padding: '14px 16px', textDecoration: 'none', textAlign: 'center', display: 'block', transition: 'all 0.25s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,212,200,0.15)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = '0 0 40px rgba(0,212,200,0.25),inset 0 0 30px rgba(0,212,200,0.08)' }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(0,212,200,0.08)'; el.style.transform = ''; el.style.boxShadow = '0 0 20px rgba(0,212,200,0.1),inset 0 0 20px rgba(0,212,200,0.05)' }}
               >
                 {d.shopAlertConfirm}
               </a>
               <a
                 href="/tours"
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#8844cc', borderRadius: '6px', padding: '12px 16px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
-                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#9955dd')}
-                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#8844cc')}
+                style={{ fontFamily: 'var(--font-cacha)', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', color: '#8844cc', background: 'rgba(136,68,204,0.08)', border: 'none', boxShadow: '0 0 20px rgba(136,68,204,0.1), inset 0 0 20px rgba(136,68,204,0.05)', borderRadius: '6px', padding: '14px 16px', textDecoration: 'none', textAlign: 'center', display: 'block', transition: 'all 0.25s' }}
+                onMouseEnter={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(136,68,204,0.15)'; el.style.transform = 'translateY(-2px)'; el.style.boxShadow = '0 0 40px rgba(136,68,204,0.25),inset 0 0 30px rgba(136,68,204,0.08)' }}
+                onMouseLeave={e => { const el = e.currentTarget as HTMLElement; el.style.background = 'rgba(136,68,204,0.08)'; el.style.transform = ''; el.style.boxShadow = '0 0 20px rgba(136,68,204,0.1),inset 0 0 20px rgba(136,68,204,0.05)' }}
               >
                 {d.toursAlertConfirm}
               </a>
               <button
                 onClick={() => setShopAlert(false)}
-                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '6px', padding: '10px', cursor: 'pointer', marginTop: '2px' }}
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.2)', borderRadius: '6px', padding: '10px', cursor: 'pointer', marginTop: '2px' }}
               >
                 {d.shopAlertCancel}
               </button>

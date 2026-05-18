@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import PostCard, { type PostShape, type PostCardLabels } from '../feed/PostCard'
 import CreatePost, { type CreatePostLabels } from '../feed/CreatePost'
 
@@ -55,6 +55,9 @@ interface FeedCardLabels {
   followers: string
   following: string
   posts: string
+  searchLabel: string
+  searchPlaceholder: string
+  searchEmpty: string
 }
 
 interface Props {
@@ -70,12 +73,29 @@ interface FeedResponse {
   isPersonalized: boolean
 }
 
+interface SearchUser {
+  username: string
+  avatar: string
+  level: number
+  followersCount: number
+  isFollowing: boolean
+}
+
 export default function FeedCard({ feedPreview, currentUser, expanded = false, labels }: Props) {
   const [posts, setPosts] = useState<PostShape[]>([])
   const [nextCursor, setNextCursor] = useState<string | null>(null)
   const [isPersonalized, setIsPersonalized] = useState(true)
   const [loading, setLoading] = useState(false)
   const [initialized, setInitialized] = useState(false)
+
+  // Search state
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<SearchUser[]>([])
+  const [searchLoading, setSearchLoading] = useState(false)
+  const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({})
+  const [followLoading, setFollowLoading] = useState<Record<string, boolean>>({})
+  const searchRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const postCardLabels: PostCardLabels = {
     likeBtnLabel: labels.likeBtnLabel,
@@ -143,6 +163,39 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
 
   function handlePostDeleted(id: string) {
     setPosts(prev => prev.filter(p => p._id !== id))
+  }
+
+  function handleSearchChange(q: string) {
+    setSearchQuery(q)
+    if (searchRef.current) clearTimeout(searchRef.current)
+    if (q.trim().length < 2) { setSearchResults([]); return }
+    searchRef.current = setTimeout(async () => {
+      setSearchLoading(true)
+      try {
+        const res = await fetch(`/api/hub/users/search?q=${encodeURIComponent(q.trim())}`)
+        if (!res.ok) return
+        const data = await res.json() as { users: SearchUser[] }
+        setSearchResults(data.users)
+        const map: Record<string, boolean> = {}
+        data.users.forEach(u => { map[u.username] = u.isFollowing })
+        setFollowingMap(map)
+      } finally {
+        setSearchLoading(false)
+      }
+    }, 300)
+  }
+
+  async function handleFollowToggle(username: string) {
+    setFollowLoading(prev => ({ ...prev, [username]: true }))
+    try {
+      const res = await fetch(`/api/hub/users/${username}/follow`, { method: 'POST' })
+      if (res.ok) {
+        const data = await res.json() as { following: boolean }
+        setFollowingMap(prev => ({ ...prev, [username]: data.following }))
+      }
+    } finally {
+      setFollowLoading(prev => ({ ...prev, [username]: false }))
+    }
   }
 
   // Preview state
@@ -341,9 +394,102 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
   // Expanded state
   return (
     <div style={{ display: 'flex', flexDirection: 'column', padding: '20px 20px 40px', minHeight: '100%' }}>
-      <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)', marginBottom: '16px' }}>
-        {labels.title}
+      {/* Header row */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+        <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)' }}>
+          {labels.title}
+        </div>
+        <button
+          onClick={() => { setSearchOpen(v => !v); setSearchQuery(''); setSearchResults([]) }}
+          style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+            color: searchOpen ? '#00d4c8' : '#4a6066',
+            background: searchOpen ? 'rgba(0,212,200,0.1)' : 'transparent',
+            border: `0.5px solid ${searchOpen ? 'rgba(0,212,200,0.3)' : 'rgba(74,96,102,0.25)'}`,
+            borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', transition: 'all 0.15s',
+          }}
+        >
+          🔍 {labels.searchLabel}
+        </button>
       </div>
+
+      {/* Search panel */}
+      {searchOpen && (
+        <div style={{ marginBottom: '16px', background: 'rgba(0,212,200,0.03)', border: '0.5px solid rgba(0,212,200,0.15)', borderRadius: '8px', overflow: 'hidden' }}>
+          <div style={{ padding: '12px 14px', display: 'flex', alignItems: 'center', gap: '8px', borderBottom: searchResults.length > 0 || searchLoading ? '0.5px solid rgba(0,212,200,0.1)' : 'none' }}>
+            <input
+              type="text"
+              autoFocus
+              placeholder={labels.searchPlaceholder}
+              value={searchQuery}
+              onChange={e => handleSearchChange(e.target.value)}
+              style={{
+                flex: 1, background: 'transparent', border: 'none', outline: 'none',
+                fontFamily: 'var(--font-dm-mono)', fontSize: '12px', color: '#e8f0ef',
+              }}
+            />
+            {searchLoading && (
+              <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066' }}>…</span>
+            )}
+          </div>
+
+          {/* Results */}
+          {searchResults.length > 0 && (
+            <div>
+              {searchResults.map(user => (
+                <div key={user.username} style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 14px', borderBottom: '0.5px solid rgba(255,255,255,0.04)' }}>
+                  {/* Avatar */}
+                  <a href={`/hub/profile/${user.username}`} style={{ flexShrink: 0, textDecoration: 'none' }}>
+                    <div style={{ width: '34px', height: '34px', borderRadius: '50%', overflow: 'hidden', background: '#1a2a2c', border: '1.5px solid rgba(204,0,170,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      {user.avatar
+                        ? /* eslint-disable-next-line @next/next/no-img-element */
+                          <img src={user.avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span style={{ fontFamily: 'var(--font-orbitron)', fontSize: '10px', color: '#cc00aa' }}>{user.username.slice(0, 1).toUpperCase()}</span>
+                      }
+                    </div>
+                  </a>
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <a href={`/hub/profile/${user.username}`} style={{ textDecoration: 'none' }}>
+                      <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '11px', fontWeight: 700, color: '#e8f0ef', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {user.username}
+                      </div>
+                    </a>
+                    <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginTop: '1px' }}>
+                      Lv.{user.level} · {user.followersCount} {labels.followers}
+                    </div>
+                  </div>
+                  {/* Follow button */}
+                  {user.username !== currentUser.username && (
+                    <button
+                      onClick={() => handleFollowToggle(user.username)}
+                      disabled={followLoading[user.username]}
+                      style={{
+                        fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+                        flexShrink: 0,
+                        color: followingMap[user.username] ? '#4a6066' : '#cc00aa',
+                        background: followingMap[user.username] ? 'rgba(74,96,102,0.1)' : 'rgba(204,0,170,0.1)',
+                        border: `0.5px solid ${followingMap[user.username] ? 'rgba(74,96,102,0.3)' : 'rgba(204,0,170,0.3)'}`,
+                        borderRadius: '4px', padding: '5px 12px',
+                        cursor: followLoading[user.username] ? 'not-allowed' : 'pointer',
+                        opacity: followLoading[user.username] ? 0.6 : 1, transition: 'all 0.15s',
+                      }}
+                    >
+                      {followLoading[user.username] ? '…' : followingMap[user.username] ? labels.unfollowBtn : labels.followBtn}
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {searchQuery.length >= 2 && !searchLoading && searchResults.length === 0 && (
+            <div style={{ padding: '16px 14px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', textAlign: 'center' }}>
+              {labels.searchEmpty}
+            </div>
+          )}
+        </div>
+      )}
 
       <CreatePost
         currentUser={currentUser}

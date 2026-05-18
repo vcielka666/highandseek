@@ -994,6 +994,9 @@ export const translations = {
       postNotFound: 'Post not found',
       backToHub: '← Hub',
       viewProfile: 'View profile →',
+      searchLabel: 'Find Growers',
+      searchPlaceholder: 'Search by username...',
+      searchEmpty: 'No growers found',
     },
   },
 
@@ -1990,6 +1993,9 @@ export const translations = {
       postNotFound: 'Příspěvek nenalezen',
       backToHub: '← Hub',
       viewProfile: 'Zobrazit profil →',
+      searchLabel: 'Najít growery',
+      searchPlaceholder: 'Hledat podle uživatelského jména...',
+      searchEmpty: 'Žádní grovveři nenalezeni',
     },
   },
 } as const
