@@ -83,14 +83,14 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
           </Link>
         </div>
 
-        {/* Center — Shop button */}
+        {/* Center — Explore button */}
         <button
           onClick={() => setShopAlert(true)}
           style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4c8', border: '0.5px solid rgba(0,212,200,0.3)', borderRadius: '4px', padding: '4px 12px', background: 'transparent', cursor: 'pointer', transition: 'background 0.15s' }}
           onMouseEnter={e => (e.currentTarget.style.background = 'rgba(0,212,200,0.08)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          {d.shop} ↗
+          {d.explore} ↗
         </button>
 
         {/* Right — pills + avatar */}
@@ -194,7 +194,7 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
         </div>
       </nav>
 
-      {/* Shop alert modal — outside nav to avoid sticky stacking context */}
+      {/* Explore modal — outside nav to avoid sticky stacking context */}
       {shopAlert && (
         <>
           <div
@@ -205,25 +205,35 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
             position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
             zIndex: 70, background: 'rgba(13,13,18,0.98)',
             border: '0.5px solid rgba(0,212,200,0.2)', borderRadius: '16px',
-            padding: '28px 24px', maxWidth: '280px', width: 'calc(100vw - 40px)',
+            padding: '28px 24px', maxWidth: '300px', width: 'calc(100vw - 40px)',
             boxShadow: '0 24px 64px rgba(0,0,0,0.6)',
           }}>
             <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', color: '#e8f0ef', letterSpacing: '0.5px', marginBottom: '20px' }}>
               {d.shopAlertTitle}
             </div>
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <button
-                onClick={() => setShopAlert(false)}
-                style={{ flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '6px', padding: '10px', cursor: 'pointer' }}
-              >
-                {d.shopAlertCancel}
-              </button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <a
                 href="/shop"
-                style={{ flex: 1, fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '0.5px', color: '#050508', background: '#00d4c8', borderRadius: '6px', padding: '10px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#00d4c8', borderRadius: '6px', padding: '12px 16px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#00f5e8')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#00d4c8')}
               >
                 {d.shopAlertConfirm}
               </a>
+              <a
+                href="/tours"
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', color: '#050508', background: '#8844cc', borderRadius: '6px', padding: '12px 16px', textDecoration: 'none', textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background 0.15s' }}
+                onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = '#9955dd')}
+                onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = '#8844cc')}
+              >
+                {d.toursAlertConfirm}
+              </a>
+              <button
+                onClick={() => setShopAlert(false)}
+                style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px', color: '#4a6066', background: 'transparent', border: '0.5px solid rgba(74,96,102,0.3)', borderRadius: '6px', padding: '10px', cursor: 'pointer', marginTop: '2px' }}
+              >
+                {d.shopAlertCancel}
+              </button>
             </div>
           </div>
         </>

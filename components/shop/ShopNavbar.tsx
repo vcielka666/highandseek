@@ -81,7 +81,7 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
           HIGH<span style={{ color: '#00d4c8' }}>&</span>SEEK
         </Link>
 
-        {/* Hub button — right next to logo, shows confirm alert */}
+        {/* Explore button — shows multi-pillar picker */}
         <button
           onClick={() => setHubAlert(true)}
           style={{
@@ -101,7 +101,7 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
           onMouseEnter={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.08)')}
           onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
         >
-          Hub ↗
+          {d.explore} ↗
         </button>
 
         {/* Shop label — desktop only */}
@@ -144,37 +144,43 @@ function ShopNavbarInner({ onOpenFilter }: ShopNavbarProps) {
         </button>
       </nav>
 
-      {/* Hub redirect confirmation modal */}
+      {/* Explore modal */}
       {hubAlert && (
         <div
           style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(6px)' }}
           onClick={() => setHubAlert(false)}
         >
           <div
-            style={{ background: '#0d0d12', border: '0.5px solid rgba(204,0,170,0.3)', borderRadius: '16px', padding: '32px 28px', maxWidth: '360px', width: 'calc(100vw - 48px)', display: 'flex', flexDirection: 'column', gap: '20px' }}
+            style={{ background: '#0d0d12', border: '0.5px solid rgba(204,0,170,0.3)', borderRadius: '16px', padding: '32px 28px', maxWidth: '320px', width: 'calc(100vw - 48px)', display: 'flex', flexDirection: 'column', gap: '12px' }}
             onClick={e => e.stopPropagation()}
           >
-            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', letterSpacing: '1px', color: '#e8f0ef' }}>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '20px', letterSpacing: '1px', color: '#e8f0ef', marginBottom: '8px' }}>
               {d.hubAlertTitle}
             </div>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button
-                onClick={() => setHubAlert(false)}
-                style={{ flex: 1, padding: '10px', background: 'transparent', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#4a6066', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px', cursor: 'pointer', transition: 'border-color 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)')}
-                onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
-              >
-                {d.hubAlertCancel}
-              </button>
-              <Link
-                href="/hub"
-                style={{ flex: 1, padding: '10px', background: 'rgba(204,0,170,0.15)', border: '0.5px solid rgba(204,0,170,0.4)', borderRadius: '8px', color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px', cursor: 'pointer', textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
-                onMouseEnter={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.25)')}
-                onMouseLeave={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.15)')}
-              >
-                {d.hubAlertConfirm}
-              </Link>
-            </div>
+            <Link
+              href="/hub"
+              style={{ padding: '12px 16px', background: 'rgba(204,0,170,0.15)', border: '0.5px solid rgba(204,0,170,0.4)', borderRadius: '8px', color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(204,0,170,0.25)')}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(204,0,170,0.15)')}
+            >
+              {d.hubAlertConfirm}
+            </Link>
+            <Link
+              href="/tours"
+              style={{ padding: '12px 16px', background: 'rgba(136,68,204,0.15)', border: '0.5px solid rgba(136,68,204,0.4)', borderRadius: '8px', color: '#8844cc', fontFamily: 'var(--font-dm-mono)', fontSize: '12px', letterSpacing: '1px', textDecoration: 'none', textAlign: 'center', transition: 'background 0.15s' }}
+              onMouseEnter={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(136,68,204,0.25)')}
+              onMouseLeave={e => ((e.currentTarget as HTMLElement).style.background = 'rgba(136,68,204,0.15)')}
+            >
+              {d.toursAlertConfirm}
+            </Link>
+            <button
+              onClick={() => setHubAlert(false)}
+              style={{ padding: '10px', background: 'transparent', border: '0.5px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: '#4a6066', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px', cursor: 'pointer', transition: 'border-color 0.15s', marginTop: '4px' }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.25)')}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
+            >
+              {d.hubAlertCancel}
+            </button>
           </div>
         </div>
       )}
