@@ -13,7 +13,7 @@ import type { OrderData } from '@/components/shop/OrderCard'
 import { getXPProgress } from '@/lib/xp/index'
 import { BADGES } from '@/lib/badges/index'
 import MyListingActions from '@/components/hub/MyListingActions'
-import FollowButton from '@/components/hub/FollowButton'
+import ProfileStats from '@/components/hub/ProfileStats'
 import type { ListingStatus } from '@/lib/db/models/Listing'
 import WalletSection from '@/components/hub/WalletSection'
 import mongoose from 'mongoose'
@@ -224,8 +224,8 @@ export default async function ProfilePage(props: {
             </div>
           </div>
 
-          {/* Action button */}
-          {isOwnProfile ? (
+          {/* Action button (own profile only — follow button is inside ProfileStats) */}
+          {isOwnProfile && (
             <Link
               href="/hub/settings"
               style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', textTransform: 'uppercase', color: '#4a6066', border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px', padding: '8px 16px', textDecoration: 'none', transition: 'all 0.2s' }}
@@ -233,14 +233,6 @@ export default async function ProfilePage(props: {
             >
               Edit Profile
             </Link>
-          ) : (
-            <FollowButton
-              username={profileUser.username}
-              initialFollowing={isFollowingProfile}
-              initialFollowersCount={followersCount}
-              followLabel="Follow"
-              unfollowLabel="Unfollow"
-            />
           )}
         </div>
 
@@ -255,21 +247,19 @@ export default async function ProfilePage(props: {
           </div>
         </div>
 
-        {/* Stats row */}
-        <div style={{ display: 'flex', gap: '24px', marginTop: '16px', flexWrap: 'wrap' }}>
-          {[
-            { label: 'Grows', value: profileUser.growsCompleted },
-            { label: 'Posts', value: postsCount },
-            { label: 'Followers', value: followersCount },
-            { label: 'Following', value: followingCount },
-            { label: 'Badges', value: userBadges.length },
-          ].map(({ label, value }) => (
-            <div key={label}>
-              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: '#e8f0ef' }}>{value}</div>
-              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>{label}</div>
-            </div>
-          ))}
-        </div>
+        {/* Stats row + follow button — client component so counts update instantly */}
+        <ProfileStats
+          username={profileUser.username}
+          isOwnProfile={isOwnProfile}
+          initialFollowing={isFollowingProfile}
+          growsCompleted={profileUser.growsCompleted}
+          postsCount={postsCount}
+          initialFollowersCount={followersCount}
+          initialFollowingCount={followingCount}
+          badgesCount={userBadges.length}
+          followLabel="Follow"
+          unfollowLabel="Unfollow"
+        />
       </div>
 
       {/* Wallet section — own profile only */}
