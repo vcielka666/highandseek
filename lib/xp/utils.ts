@@ -44,6 +44,12 @@ export const XP_EVENTS = {
   POST_LIKED:                  3,
   FOLLOW_MILESTONE_10:        50,
   FOLLOW_MILESTONE_100:      200,
+  // Tours
+  TOUR_BOOKED:               100,
+  TOUR_COMPLETED:            200,
+  TOUR_REVIEWED:              50,
+  SPOT_SUGGESTED:             25,
+  SPOT_VERIFIED:             100,
 } as const
 
 export const LEVELS = [

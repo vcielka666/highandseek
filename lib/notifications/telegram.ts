@@ -115,3 +115,41 @@ export function formatOrderConfirmation(order: OrderSummary): string {
     `⏰ ${timestamp}`,
   ].join('\n')
 }
+
+export function formatTourBooking(data: {
+  tourTitle: string
+  guestName: string
+  guestEmail: string
+  telegramContact?: string
+  date: Date
+  guestsCount: number
+  paymentMethod: string
+  amount: number
+  currency: string
+  qrCode: string
+}): string {
+  const timestamp = new Date().toLocaleString('cs-CZ', {
+    timeZone: 'Europe/Prague',
+    dateStyle: 'short',
+    timeStyle: 'short',
+  })
+  const dateStr = data.date.toLocaleDateString('cs-CZ', {
+    timeZone: 'Europe/Prague',
+    dateStyle: 'medium',
+  })
+
+  return [
+    `🧭 <b>NOVÁ REZERVÁCIA TOUR</b>`,
+    ``,
+    `Tour: ${data.tourTitle}`,
+    `👤 Meno: ${data.guestName}`,
+    `📧 Email: ${data.guestEmail}`,
+    `📱 Telegram: ${data.telegramContact || '—'}`,
+    `📅 Dátum: ${dateStr}`,
+    `👥 Hostia: ${data.guestsCount}`,
+    `💰 Platba: ${data.amount} ${data.currency} (${data.paymentMethod})`,
+    `🎫 Booking ID: ${data.qrCode}`,
+    ``,
+    `⏰ ${timestamp}`,
+  ].join('\n')
+}

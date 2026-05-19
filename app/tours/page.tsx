@@ -1,143 +1,423 @@
-'use client'
+import { connectDB }  from '@/lib/db/connect'
+import Tour           from '@/lib/db/models/Tour'
+import CannabisSpot   from '@/lib/db/models/CannabisSpot'
+import Link           from 'next/link'
+import ToursMap       from './ToursMap'
+import CityFilter     from './CityFilter'
+import ToursWaitlist  from './ToursWaitlist'
+import type { ITour }       from '@/lib/db/models/Tour'
+import type { ICannabisSpot } from '@/lib/db/models/CannabisSpot'
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { toast } from 'sonner'
+// ─── Seed fallback (shown when DB is empty) ───────────────────────────────────
+const PLACEHOLDER_TOUR: TourCard = {
+  _id:              'placeholder',
+  slug:             'prague-cannabis-culture-walk',
+  title:            'Prague Cannabis Culture Walk',
+  city:             'Praha',
+  country:          'CZ',
+  category:         'walking',
+  shortDescription: 'Discover Praha\'s underground cannabis scene — legal spots, chill cafés, culture & history on 3 hours through the old city.',
+  coverImage:       '',
+  duration:         180,
+  maxGuests:        8,
+  languages:        ['EN', 'CS'],
+  price:            { eur: 39, czk: 950, credits: 250 },
+  rating:           4.8,
+  reviewsCount:     12,
+  isComingSoon:     false,
+  isActive:         true,
+}
 
-export default function ToursPage() {
-  const [email, setEmail]       = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [pending, setPending]   = useState(false)
+// ─── Types ────────────────────────────────────────────────────────────────────
+interface TourCard {
+  _id:              string
+  slug:             string
+  title:            string
+  city:             string
+  country:          string
+  category:         string
+  shortDescription: string
+  coverImage:       string
+  duration:         number
+  maxGuests:        number
+  languages:        string[]
+  price:            { eur: number; czk: number; credits: number }
+  rating:           number
+  reviewsCount:     number
+  isComingSoon:     boolean
+  isActive:         boolean
+}
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    if (!email.trim()) return
-    setPending(true)
-    try {
-      const res  = await fetch('/api/waitlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), source: 'tours' }),
-      })
-      const data = await res.json()
-      if (!res.ok) { toast.error(data.error ?? 'Something went wrong'); return }
-      setSubmitted(true)
-      toast.success(data.duplicate ? 'Already on the list!' : 'You\'re on the list!')
-    } finally {
-      setPending(false)
-    }
+interface SpotData {
+  id:      string
+  name:    string
+  type:    string
+  address: string
+  lat:     number
+  lng:     number
+}
+
+interface StopData {
+  id:        string
+  title:     string
+  type:      string
+  lat:       number
+  lng:       number
+  tourTitle: string
+}
+
+// ─── Star rating helper ───────────────────────────────────────────────────────
+function Stars({ rating }: { rating: number }) {
+  return (
+    <span style={{ letterSpacing: '1px' }}>
+      {[1,2,3,4,5].map(n => (
+        <span key={n} style={{ color: n <= Math.round(rating) ? '#f0a830' : '#4a6066', fontSize: '11px' }}>★</span>
+      ))}
+    </span>
+  )
+}
+
+// ─── Tour Card ────────────────────────────────────────────────────────────────
+function TourCard({ tour }: { tour: TourCard }) {
+  const durationH = Math.floor(tour.duration / 60)
+  const durationM = tour.duration % 60
+
+  return (
+    <Link
+      href={tour.isComingSoon ? '#' : `/tours/${tour.slug}`}
+      style={{ textDecoration: 'none', display: 'block', position: 'relative' }}
+    >
+      <div style={{
+        background: '#0d0d10',
+        border: '0.5px solid rgba(136,68,204,0.18)',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        transition: 'border-color 0.2s',
+        cursor: tour.isComingSoon ? 'default' : 'pointer',
+      }}>
+        {/* Cover image / gradient placeholder */}
+        <div style={{
+          height: '180px', position: 'relative',
+          background: tour.coverImage
+            ? `url(${tour.coverImage}) center/cover`
+            : 'linear-gradient(135deg, rgba(136,68,204,0.3) 0%, rgba(136,68,204,0.06) 60%, rgba(5,5,8,0) 100%)',
+        }}>
+          {/* City badge */}
+          <div style={{
+            position: 'absolute', top: '10px', left: '10px',
+            padding: '3px 10px', borderRadius: '20px',
+            background: 'rgba(136,68,204,0.75)', backdropFilter: 'blur(4px)',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
+            color: '#e8f0ef', textTransform: 'uppercase',
+          }}>
+            {tour.city}
+          </div>
+
+          {/* Category badge */}
+          <div style={{
+            position: 'absolute', top: '10px', right: '10px',
+            padding: '3px 10px', borderRadius: '20px',
+            background: 'rgba(5,5,8,0.7)', backdropFilter: 'blur(4px)',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px',
+            color: '#4a6066', textTransform: 'uppercase',
+          }}>
+            {tour.category}
+          </div>
+
+          {/* Coming soon overlay */}
+          {tour.isComingSoon && (
+            <div style={{
+              position: 'absolute', inset: 0,
+              background: 'rgba(5,5,8,0.65)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <div style={{
+                padding: '6px 18px', borderRadius: '20px',
+                border: '0.5px solid rgba(136,68,204,0.4)',
+                fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
+                letterSpacing: '2px', color: '#8844cc', textTransform: 'uppercase',
+              }}>
+                Coming Soon
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Card body */}
+        <div style={{ padding: '16px 18px' }}>
+          <h3 style={{
+            fontFamily: 'var(--font-orbitron)', fontWeight: 700,
+            fontSize: '14px', color: '#e8f0ef', marginBottom: '6px', lineHeight: 1.35,
+          }}>
+            {tour.title}
+          </h3>
+
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)', fontSize: '12px',
+            color: '#4a6066', lineHeight: 1.6, marginBottom: '12px',
+            display: '-webkit-box', overflow: 'hidden',
+          } as React.CSSProperties}>
+            {tour.shortDescription}
+          </p>
+
+          {/* Meta row */}
+          <div style={{
+            display: 'flex', gap: '12px', flexWrap: 'wrap',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066',
+            marginBottom: '12px',
+          }}>
+            <span>🕐 {durationH > 0 ? `${durationH}h` : ''}{durationM > 0 ? ` ${durationM}m` : ''}</span>
+            <span>👥 Max {tour.maxGuests}</span>
+            <span>🌐 {tour.languages.join(', ')}</span>
+          </div>
+
+          {/* Rating + Price */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Stars rating={tour.rating} />
+              {tour.reviewsCount > 0 && (
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066' }}>
+                  ({tour.reviewsCount})
+                </span>
+              )}
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <span style={{
+                fontFamily: 'var(--font-orbitron)', fontSize: '16px',
+                fontWeight: 700, color: '#8844cc',
+              }}>
+                €{tour.price.eur}
+              </span>
+              <span style={{
+                fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', marginLeft: '4px',
+              }}>
+                / person
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+// ─── Page ─────────────────────────────────────────────────────────────────────
+export default async function ToursPage() {
+  let tours:    TourCard[] = []
+  let spots:    SpotData[] = []
+  let tourStops: StopData[] = []
+  let dbError = false
+
+  try {
+    await connectDB()
+
+    const [rawTours, rawSpots] = await Promise.all([
+      Tour.find({ $or: [{ isActive: true }, { isComingSoon: true }] })
+        .sort({ isFeatured: -1, isComingSoon: 1, createdAt: -1 })
+        .limit(20)
+        .lean<(ITour & { _id: { toString(): string } })[]>(),
+
+      CannabisSpot.find({ isActive: true })
+        .limit(50)
+        .lean<(ICannabisSpot & { _id: { toString(): string } })[]>(),
+    ])
+
+    tours = rawTours.map(t => ({
+      _id:              t._id.toString(),
+      slug:             t.slug,
+      title:            t.title,
+      city:             t.city,
+      country:          t.country,
+      category:         t.category,
+      shortDescription: t.shortDescription,
+      coverImage:       t.coverImage ?? '',
+      duration:         t.duration,
+      maxGuests:        t.maxGuests,
+      languages:        t.languages,
+      price:            t.price,
+      rating:           t.rating,
+      reviewsCount:     t.reviewsCount,
+      isComingSoon:     t.isComingSoon,
+      isActive:         t.isActive,
+    }))
+
+    spots = rawSpots.map(s => ({
+      id:      s._id.toString(),
+      name:    s.name,
+      type:    s.type,
+      address: s.address,
+      lat:     s.lat,
+      lng:     s.lng,
+    }))
+
+    // Collect tour stops for map markers
+    tourStops = rawTours.flatMap(t =>
+      (t.stops ?? [])
+        .filter(stop => stop.lat && stop.lng)
+        .map((stop, i) => ({
+          id:        `${t._id.toString()}-${i}`,
+          title:     stop.title,
+          type:      stop.type,
+          lat:       stop.lat,
+          lng:       stop.lng,
+          tourTitle: t.title,
+        }))
+    )
+  } catch {
+    dbError = true
+  }
+
+  // Fallback placeholder when DB is empty
+  if (!dbError && tours.length === 0) {
+    tours = [PLACEHOLDER_TOUR]
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: '#050508',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '40px 20px', position: 'relative', overflow: 'hidden',
-    }}>
-      {/* Subtle purple grid glow */}
-      <div style={{
-        position: 'absolute', inset: 0, pointerEvents: 'none',
-        background: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(136,68,204,0.08) 0%, transparent 70%)',
-      }} />
+    <div style={{ minHeight: '100vh', background: '#050508', color: '#e8f0ef' }}>
 
-      <div style={{ maxWidth: '480px', width: '100%', textAlign: 'center', position: 'relative', zIndex: 1 }}>
+      {/* ── Hero ── */}
+      <section style={{
+        position: 'relative', padding: 'clamp(60px,10vw,100px) 24px 48px',
+        textAlign: 'center', overflow: 'hidden',
+      }}>
+        {/* Radial glow */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          background: 'radial-gradient(ellipse 70% 60% at 50% 0%, rgba(136,68,204,0.18) 0%, transparent 70%)',
+        }} />
+        {/* Scanline-style grid */}
+        <div style={{
+          position: 'absolute', inset: 0, pointerEvents: 'none',
+          backgroundImage: 'linear-gradient(rgba(136,68,204,0.04) 1px, transparent 1px)',
+          backgroundSize: '100% 28px',
+        }} />
 
-        {/* Icon */}
-        <div style={{ fontSize: '64px', marginBottom: '24px', lineHeight: 1 }}>👣</div>
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <div style={{
+            display: 'inline-block', marginBottom: '16px',
+            padding: '4px 14px', borderRadius: '20px',
+            background: 'rgba(136,68,204,0.1)', border: '0.5px solid rgba(136,68,204,0.3)',
+            fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '2px',
+            color: '#8844cc', textTransform: 'uppercase',
+          }}>
+            High &amp; Seek · Tours
+          </div>
 
-        {/* Heading */}
-        <h1 style={{
-          fontFamily: 'var(--font-orbitron)', fontWeight: 900,
-          fontSize: 'clamp(24px,6vw,40px)', letterSpacing: '3px',
-          color: '#e8f0ef', textTransform: 'uppercase', marginBottom: '12px',
+          <h1 style={{
+            fontFamily: 'var(--font-orbitron)', fontWeight: 900,
+            fontSize: 'clamp(28px, 7vw, 56px)', letterSpacing: '4px',
+            color: '#e8f0ef', textTransform: 'uppercase', marginBottom: '12px',
+            lineHeight: 1.05,
+          }}>
+            City Canna<br />
+            <span style={{ color: '#8844cc' }}>Tours</span>
+          </h1>
+
+          <p style={{
+            fontFamily: 'var(--font-dm-mono)', fontSize: '13px',
+            letterSpacing: '1px', color: '#4a6066', marginBottom: '36px',
+          }}>
+            Cannabis culture · Local guides · City vibes
+          </p>
+
+          {/* City pills */}
+          <CityFilter />
+
+          {/* Legal disclaimer */}
+          <p style={{
+            fontFamily: 'var(--font-dm-sans)', fontSize: '11px',
+            color: '#4a6066', maxWidth: '480px', margin: '0 auto',
+            lineHeight: 1.6, opacity: 0.75,
+          }}>
+            High &amp; Seek provides cultural and educational cannabis tourism experiences.
+            All activities comply with local laws. 18+ only.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Map ── */}
+      <section style={{ padding: '0 24px 48px', maxWidth: '1080px', margin: '0 auto' }}>
+        <div style={{
+          height: 'clamp(260px, 35vw, 420px)',
+          borderRadius: '8px', overflow: 'hidden',
+          border: '0.5px solid rgba(136,68,204,0.18)',
         }}>
-          City Canna Tours
-        </h1>
+          <ToursMap
+            spots={spots}
+            tourStops={tourStops}
+            defaultLat={50.0755}
+            defaultLng={14.4378}
+          />
+        </div>
 
-        {/* Tagline */}
-        <p style={{
-          fontFamily: 'var(--font-dm-mono)', fontSize: '12px',
-          letterSpacing: '1.5px', color: '#8844cc', marginBottom: '8px',
+        {/* Map legend */}
+        <div style={{
+          display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '10px',
+          fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#4a6066', letterSpacing: '0.5px',
+        }}>
+          {[
+            { color: '#8844cc', label: 'Cannabis Club' },
+            { color: '#00d4c8', label: 'CBD Shop' },
+            { color: '#f0a830', label: 'Smoke Friendly' },
+            { color: '#44cc88', label: 'Grow Shop' },
+            { color: '#cc6644', label: 'Café' },
+          ].map(({ color, label }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color }} />
+              {label}
+            </div>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', marginLeft: '8px' }}>
+            <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#8844cc', transform: 'rotate(45deg)' }} />
+            Tour Stop
+          </div>
+        </div>
+      </section>
+
+      {/* ── Tour Cards ── */}
+      <section style={{ padding: '0 24px 64px', maxWidth: '1080px', margin: '0 auto' }}>
+        <div style={{
+          display: 'flex', justifyContent: 'space-between', alignItems: 'baseline',
+          marginBottom: '20px', gap: '12px', flexWrap: 'wrap',
+        }}>
+          <h2 style={{
+            fontFamily: 'var(--font-orbitron)', fontWeight: 700,
+            fontSize: '14px', letterSpacing: '2px', textTransform: 'uppercase', color: '#e8f0ef',
+          }}>
+            Available Tours
+          </h2>
+          {dbError && (
+            <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', color: '#4a6066' }}>
+              Showing demo data — database unavailable
+            </span>
+          )}
+        </div>
+
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+          gap: '16px',
+        }}>
+          {tours.map(tour => (
+            <TourCard key={tour._id} tour={tour} />
+          ))}
+        </div>
+      </section>
+
+      {/* ── Waitlist ── */}
+      <section style={{ padding: '0 24px 80px', maxWidth: '1080px', margin: '0 auto' }}>
+        <ToursWaitlist />
+      </section>
+
+      {/* ── Back link ── */}
+      <div style={{ textAlign: 'center', paddingBottom: '40px' }}>
+        <Link href="/" style={{
+          fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
+          letterSpacing: '1px', color: '#4a6066', textDecoration: 'none',
           textTransform: 'uppercase',
         }}>
-          Cannabis culture · Local guides · City vibes
-        </p>
-
-        {/* Cities */}
-        <p style={{
-          fontFamily: 'var(--font-dm-sans)', fontSize: '14px',
-          color: '#4a6066', marginBottom: '40px', lineHeight: 1.7,
-        }}>
-          Coming soon — Praha, Amsterdam, Barcelona & more
-        </p>
-
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'rgba(136,68,204,0.2)', marginBottom: '36px' }} />
-
-        {/* Waitlist */}
-        {submitted ? (
-          <div style={{
-            padding: '20px 24px', borderRadius: '8px',
-            background: 'rgba(136,68,204,0.08)', border: '0.5px solid rgba(136,68,204,0.3)',
-          }}>
-            <div style={{ fontSize: '24px', marginBottom: '8px' }}>✓</div>
-            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '13px', color: '#8844cc', letterSpacing: '1px' }}>
-              You&apos;re on the list
-            </div>
-            <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: '#4a6066', marginTop: '6px' }}>
-              We&apos;ll reach out when tours launch in your city.
-            </div>
-          </div>
-        ) : (
-          <form onSubmit={handleSubmit}>
-            <p style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
-              letterSpacing: '1.5px', color: '#4a6066', textTransform: 'uppercase',
-              marginBottom: '14px',
-            }}>
-              Chcem byť medzi prvými
-            </p>
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-              <input
-                type="email"
-                required
-                placeholder="your@email.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                style={{
-                  flex: '1 1 220px', padding: '11px 14px', borderRadius: '4px',
-                  background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(136,68,204,0.3)',
-                  color: '#e8f0ef', fontFamily: 'var(--font-dm-mono)', fontSize: '12px',
-                  outline: 'none',
-                }}
-              />
-              <button
-                type="submit"
-                disabled={pending}
-                style={{
-                  padding: '11px 20px', borderRadius: '4px', cursor: pending ? 'not-allowed' : 'pointer',
-                  background: 'rgba(136,68,204,0.15)', border: '0.5px solid #8844cc',
-                  color: '#8844cc', fontFamily: 'var(--font-dm-mono)', fontSize: '11px',
-                  letterSpacing: '0.5px', opacity: pending ? 0.6 : 1, transition: 'all 0.2s',
-                  whiteSpace: 'nowrap',
-                }}
-              >
-                {pending ? '...' : 'Notify me'}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* Back link */}
-        <div style={{ marginTop: '48px' }}>
-          <Link href="/" style={{
-            fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
-            letterSpacing: '1px', color: '#4a6066', textDecoration: 'none',
-            textTransform: 'uppercase',
-          }}>
-            ← Back to H&S
-          </Link>
-        </div>
+          ← Back to H&amp;S
+        </Link>
       </div>
     </div>
   )

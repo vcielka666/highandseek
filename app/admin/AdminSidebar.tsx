@@ -16,6 +16,7 @@ import {
   ArrowLeft,
   Ticket,
   QrCode,
+  Footprints,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -28,6 +29,7 @@ const NAV = [
   { href: '/admin/hub',        label: 'Hub Stats',  icon: Leaf },
   { href: '/admin/strains',    label: 'Strains',    icon: Dna  },
   { href: '/admin/qr',         label: 'QR Kódy',    icon: QrCode },
+  { href: '/admin/tours',      label: 'Tours',      icon: Footprints },
   { href: '/admin/analytics',  label: 'Analytics',  icon: BarChart3 },
   { href: '/admin/system',     label: 'System',     icon: Settings },
 ]

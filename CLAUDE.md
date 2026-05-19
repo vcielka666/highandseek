@@ -86,6 +86,10 @@
 | Waitlist | `lib/db/models/Waitlist.ts` | email, source ('tours'), createdAt — unique index on (email, source) |
 | QRRedirect | `lib/db/models/QRRedirect.ts` | slug, targetUrl, label, isActive |
 | QRScan | (same file) | slug, sessionId, ip, device, convertedToRegistration |
+| Tour | `lib/db/models/Tour.ts` | title, slug, city, country, host{name,avatar,bio,verified}, description, duration, maxGuests, price{eur,czk,credits}, meetingPoint{address,lat,lng}, stops[], included[], category, isActive, isFeatured, isComingSoon |
+| TourBooking | `lib/db/models/TourBooking.ts` | tourId, userId, guest{name,email,phone,telegramContact}, date, guestsCount, payment{method,amount,currency,stripePaymentIntentId,creditsSpent,status}, status, qrCode(unique), xpAwarded |
+| TourReview | `lib/db/models/TourReview.ts` | tourId, bookingId, userId, rating(1–5), text(max 500), photos, guestName, verified |
+| CannabisSpot | `lib/db/models/CannabisSpot.ts` | name, city, country, type(cbd_shop/smoke_friendly/cannabis_club/grow_shop/cafe/event_space), lat, lng, hours, verified, featured, isActive, rating |
 
 ---
 
@@ -217,7 +221,7 @@ RESEND_API_KEY=
 | Telegram notifications | — | ✅ Order inquiry + confirmation |
 | Grow equipment DB | — | ✅ 82 products (22 real prices, 60 estimated) |
 | Shop (e-commerce) | `/shop` | 🚧 Placeholder |
-| City Canna Tours | `/tours` | 🚧 Coming soon page + email waitlist (MongoDB `Waitlist`, API `/api/waitlist`) |
+| City Canna Tours | `/tours` | ✅ Tours listing + detail + booking confirmation + admin panel; seed: `scripts/seed-tours.ts` |
 | Seekers integration | — | ⏳ Future |
 | AI forum bridge | — | ⏳ Future |
 

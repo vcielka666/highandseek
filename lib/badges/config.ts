@@ -109,6 +109,27 @@ export const BADGES = {
     condition: 'Perfect score on Light & Environment topic',
     category: 'academy',
   },
+  // Tours
+  canna_tourist: {
+    name: 'Canna Tourist', icon: '✈️',
+    condition: 'Book any City Canna Tour',
+    category: 'tours',
+  },
+  prague_explorer: {
+    name: 'Praha Explorer', icon: '🧭',
+    condition: 'Complete the Praha Cannabis Culture Walk',
+    category: 'tours',
+  },
+  spot_hunter: {
+    name: 'Spot Hunter', icon: '📍',
+    condition: 'Suggest 3 verified cannabis spots',
+    category: 'tours',
+  },
+  local_guide: {
+    name: 'Local Guide', icon: '🗺️',
+    condition: 'Become a verified tour host',
+    category: 'tours',
+  },
 } as const
 
 export type BadgeId = keyof typeof BADGES
