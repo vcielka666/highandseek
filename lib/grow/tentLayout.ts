@@ -27,6 +27,7 @@ export const EQUIP_IMGS = {
   circulation: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046841/fan-circulation_q6zbyi.png',
   filter:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046888/carbon-filter_zk4axj.png',
   mediumSoil:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046962/medium-soil_zbyoum.png',
+  sonoflex:    '/equip/sonoflex/sonoflex.png',
 } as const
 
 // ── Lamp ─────────────────────────────────────────────────────────────────────

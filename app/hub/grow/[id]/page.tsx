@@ -1298,6 +1298,29 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             />
           )}
 
+          {/* Sonoflex duct — vertical duct from tent top down to carbon filter, behind exhaust fan.
+              Image is horizontal so we rotate 90°: translate(x+w, y) rotate(90) with swapped w/h */}
+          {grow.setup.hasExhaustFan && (() => {
+            // tx = right edge of the sonoflex slot (rotate pivots here so image goes left = toward tent interior)
+            const tx = isMobile
+              ? TENT_LAYOUT.sonoflex.x + TENT_LAYOUT.sonoflex.w - 30
+              : TENT_LAYOUT.sonoflex.x + TENT_LAYOUT.sonoflex.w
+            const ty = TENT_LAYOUT.sonoflex.y
+            return (
+              <image
+                href={EQUIP_IMGS.sonoflex}
+                x={0} y={0}
+                width={TENT_LAYOUT.sonoflex.h}
+                height={TENT_LAYOUT.sonoflex.w}
+                transform={`translate(${tx},${ty}) rotate(90)`}
+                style={{
+                  opacity: 0.92,
+                  filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.7))',
+                }}
+              />
+            )
+          })()}
+
           {/* Exhaust fan — top right, draggable fan-speed slider */}
           {grow.setup.hasExhaustFan && (() => {
             const ex = isMobile ? 740 : TENT_LAYOUT.exhaust.x
