@@ -23,9 +23,9 @@ export const TENT_LAYOUT = {
 export const EQUIP_IMGS = {
   tentBg:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046694/tent-bg_tqvklk.png',
   tentBgDark:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775213761/tent-bg-dark_tdybst.png',
-  exhaust:     'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046842/fan-exhaust_d6cc5c.png',
+  exhaust:     '/equip/fan/exhaust fan.png',
   circulation: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046841/fan-circulation_q6zbyi.png',
-  filter:      'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046888/carbon-filter_zk4axj.png',
+  filter:      '/equip/filter/filter.png',
   mediumSoil:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046962/medium-soil_zbyoum.png',
   sonoflex:    '/equip/sonoflex/sonoflex.png',
 } as const
@@ -41,11 +41,11 @@ export function lampTopSVG(heightCm: number): number {
 
 // Lamp image dimensions in SVG units (+25% from original 120/160 × 200)
 export function getLampSVGWidth(lightType: string): number {
-  return lightType === 'cfl' ? 150 : 200
+  return lightType === 'cfl' ? 159 : 212
 }
 
 export function getLampSVGHeight(): number {
-  return 250
+  return 265
 }
 
 // Light image URL — HPS and CFL have separate on/off images

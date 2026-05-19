@@ -1270,23 +1270,22 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           <image href={EQUIP_IMGS.tentBgDark} x="0" y="0" width="1000" height="750" preserveAspectRatio="xMidYMid slice"
             style={{ opacity: isLight ? 0 : 0.85, transition: 'opacity 2s ease' }} />
 
-          {/* ── Layer 2: Equipment ── */}
+          {/* ── Layer 2: Equipment — dims when lights off ── */}
+          <g style={{
+            filter: isLight ? 'brightness(1) saturate(1)' : 'brightness(0.15) saturate(0.3)',
+            transition: 'filter 2s ease',
+          }}>
 
-          {/* Carbon filter — rotated */}
-          {grow.setup.hasCarbonFilter && (() => {
-            const fx = isMobile ? 750 : TENT_LAYOUT.filter.x
-            const cx = fx + TENT_LAYOUT.filter.w / 2
-            const cy = TENT_LAYOUT.filter.y + TENT_LAYOUT.filter.h / 2
-            return (
-              <image
-                href={EQUIP_IMGS.filter}
-                x={fx} y={TENT_LAYOUT.filter.y}
-                width={TENT_LAYOUT.filter.w} height={TENT_LAYOUT.filter.h}
-                transform={`rotate(55,${cx},${cy})`}
-                style={{ filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.5))' }}
-              />
-            )
-          })()}
+          {/* Carbon filter — top-right corner inside tent */}
+          <image
+            href={EQUIP_IMGS.filter}
+            x={isMobile ? 610 : 640}
+            y={115}
+            width={115}
+            height={115}
+            transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
+            style={{ filter: 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))' }}
+          />
 
           {/* Circulation fan — left wall */}
           {grow.setup.hasCirculationFan && (
@@ -1298,44 +1297,39 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             />
           )}
 
-          {/* Sonoflex duct — vertical duct from tent top down to carbon filter, behind exhaust fan.
-              Image is horizontal so we rotate 90°: translate(x+w, y) rotate(90) with swapped w/h */}
-          {grow.setup.hasExhaustFan && (() => {
-            // tx = right edge of the sonoflex slot (rotate pivots here so image goes left = toward tent interior)
-            const tx = isMobile
-              ? TENT_LAYOUT.sonoflex.x + TENT_LAYOUT.sonoflex.w - 30
-              : TENT_LAYOUT.sonoflex.x + TENT_LAYOUT.sonoflex.w
-            const ty = TENT_LAYOUT.sonoflex.y
-            return (
-              <image
-                href={EQUIP_IMGS.sonoflex}
-                x={0} y={0}
-                width={TENT_LAYOUT.sonoflex.h}
-                height={TENT_LAYOUT.sonoflex.w}
-                transform={`translate(${tx},${ty}) rotate(90)`}
-                style={{
-                  opacity: 0.92,
-                  filter: 'drop-shadow(-2px 0 8px rgba(0,0,0,0.7))',
-                }}
-              />
-            )
-          })()}
+          {/* Sonoflex duct — horizontal, laid across the tent top connecting filter to exhaust fan */}
+          {grow.setup.hasExhaustFan && (
+            <image
+              href={EQUIP_IMGS.sonoflex}
+              x={isMobile ? 510 : 520}
+              y={3}
+              width={308}
+              height={77}
+              style={{
+                opacity: 0.92,
+                filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))',
+              }}
+            />
+          )}
 
-          {/* Exhaust fan — top right, draggable fan-speed slider */}
+          </g>{/* end Layer 2 equipment */}
+
+          {/* Exhaust fan + badge — outside dimming group, always full brightness (fan runs independently of lights) */}
           {grow.setup.hasExhaustFan && (() => {
-            const ex = isMobile ? 740 : TENT_LAYOUT.exhaust.x
-            const ey = isMobile ? 8  : TENT_LAYOUT.exhaust.y
+            const sonoRight = (isMobile ? 530 : 540) + 308
+            const ex = sonoRight - 85
+            const ey = 3 + (77 - 127) / 2 - 19
             return (
               <image
                 href={EQUIP_IMGS.exhaust}
                 x={ex} y={ey}
-                width={TENT_LAYOUT.exhaust.w} height={TENT_LAYOUT.exhaust.h}
+                width={127} height={127}
                 style={{
-                  opacity: 0.88, cursor: fanSliderActive ? 'grabbing' : 'grab',
+                  opacity: 0.92, cursor: fanSliderActive ? 'grabbing' : 'grab',
                   touchAction: 'none',
                   filter: fanSliderActive
-                    ? 'drop-shadow(-2px 0 12px rgba(0,212,200,0.7))'
-                    : 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))',
+                    ? 'drop-shadow(0 0 12px rgba(0,212,200,0.7))'
+                    : 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
                   transition: 'filter 0.15s',
                 }}
                 onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
@@ -1344,9 +1338,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             )
           })()}
 
-          {/* Fan speed badge — left of exhaust, only when dragging */}
           {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (
-            <g transform={`translate(${(isMobile ? 740 : TENT_LAYOUT.exhaust.x) - 76},${(isMobile ? 8 : TENT_LAYOUT.exhaust.y) + 50})`}>
+            <g transform={`translate(${(isMobile ? 530 : 540) + 308 - 15 - 30}, ${3 + (77 - 85) / 2 + 90})`}>
               <rect x={0} y={0} width={62} height={40} rx={4}
                 fill="rgba(0,212,200,0.2)" stroke="rgba(0,212,200,0.6)" strokeWidth={0.5} />
               <text x={8} y={22} fontFamily="var(--font-orbitron), monospace" fontSize={13} fontWeight={700} fill="#00d4c8">
@@ -1386,7 +1379,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const lampH   = getLampSVGHeight()
             const lampX   = SVG_W / 2 - lampW / 2
             const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
-            const opacity = (lt === 'hps' || lt === 'cfl') ? 1 : (isLight ? 1 : 0.25)
             return (
               <>
                 <image
@@ -1396,10 +1388,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   style={{
                     cursor: lampSliderActive ? 'grabbing' : 'grab',
                     touchAction: 'none',
-                    filter: isLight ? `url(#${glowId})` : 'none',
-                    opacity,
+                    filter: isLight ? `url(#${glowId})` : 'brightness(0.15) saturate(0.3)',
+                    opacity: 1,
                     animation: lt !== 'led' && isLight ? 'hps-flicker 8s ease-in-out infinite' : 'none',
-                    transition: 'filter 0.15s, opacity 0.15s',
+                    transition: 'filter 2s ease, opacity 2s ease',
                     userSelect: 'none',
                   }}
                   onMouseDown={(e) => { e.preventDefault(); startLampDrag(e.clientY) }}
