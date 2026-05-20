@@ -42,7 +42,7 @@ export default function PillarsSection() {
 
       {/* Pillars */}
       <section
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 px-6 pb-16 md:px-12 md:pb-20"
+        className="grid grid-cols-1 md:grid-cols-3 gap-4 px-6 pb-16 md:px-12 md:pb-20"
         style={{ gridTemplateRows: 'auto auto auto' }}
       >
 
@@ -71,6 +71,31 @@ export default function PillarsSection() {
           </div>
         </div>
 
+        {/* Tours */}
+        <div style={{ gridRow: 'span 3', display: 'grid', gridTemplateRows: 'subgrid', borderRadius: '8px', overflow: 'hidden', border: '0.5px solid rgba(136,68,204,0.2)', background: 'linear-gradient(160deg, rgba(136,68,204,0.04) 0%, transparent 60%)' }}>
+          <div style={{ padding: '24px 24px 18px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(136,68,204,0.6)', marginBottom: '10px' }}>
+              {t.tours.pillarNum}
+            </div>
+            <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '22px', letterSpacing: '-0.5px', color: '#8844cc', marginBottom: '8px' }}>
+              {t.tours.title}
+            </div>
+            <div style={{ fontSize: '13px', color: '#4a6066', lineHeight: 1.6, marginBottom: '12px' }}>
+              {t.tours.desc}
+            </div>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', borderRadius: '3px', padding: '3px 9px', background: 'rgba(136,68,204,0.06)', color: 'rgba(136,68,204,0.7)', border: '0.5px solid rgba(136,68,204,0.2)' }}>
+              {t.tours.tag}
+            </span>
+          </div>
+          <FeatureGrid features={t.tours.features} dotColor="#8844cc" />
+          <div style={{ padding: '0 16px 16px' }}>
+            <Link href="/tours" style={{ display: 'block', width: '100%', padding: '11px', textAlign: 'center', borderRadius: '4px', textDecoration: 'none', fontFamily: 'var(--font-cacha)', fontSize: '13px', letterSpacing: '1.5px', textTransform: 'uppercase', background: 'rgba(136,68,204,0.08)', color: '#8844cc', border: '0.5px solid rgba(136,68,204,0.3)', transition: 'all 0.2s' }}
+              className="hover:bg-[rgba(136,68,204,0.16)] hover:shadow-[0_0_16px_rgba(136,68,204,0.2)]">
+              {t.tours.cta}
+            </Link>
+          </div>
+        </div>
+
         {/* Hub */}
         <div id="hub" style={{ gridRow: 'span 3', display: 'grid', gridTemplateRows: 'subgrid', borderRadius: '8px', overflow: 'hidden', border: '0.5px solid rgba(204,0,170,0.2)', background: 'linear-gradient(160deg, rgba(204,0,170,0.04) 0%, transparent 60%)' }}>
           <div style={{ padding: '24px 24px 18px', borderBottom: '0.5px solid rgba(255,255,255,0.05)' }}>
@@ -95,6 +120,7 @@ export default function PillarsSection() {
             </Link>
           </div>
         </div>
+
       </section>
     </>
   )

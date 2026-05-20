@@ -1312,9 +1312,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             />
           )}
 
-          </g>{/* end Layer 2 equipment */}
-
-          {/* Exhaust fan + badge — outside dimming group, always full brightness (fan runs independently of lights) */}
+          {/* Exhaust fan image — inside dimming group so it darkens with lights off */}
           {grow.setup.hasExhaustFan && (() => {
             const sonoRight = (isMobile ? 530 : 540) + 308
             const ex = sonoRight - 85
@@ -1338,18 +1336,29 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             )
           })()}
 
-          {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (
-            <g transform={`translate(${(isMobile ? 530 : 540) + 308 - 15 - 30}, ${3 + (77 - 85) / 2 + 90})`}>
-              <rect x={0} y={0} width={62} height={40} rx={4}
-                fill="rgba(0,212,200,0.2)" stroke="rgba(0,212,200,0.6)" strokeWidth={0.5} />
-              <text x={8} y={22} fontFamily="var(--font-orbitron), monospace" fontSize={13} fontWeight={700} fill="#00d4c8">
-                {currentFanSpeed}%
-              </text>
-              <text x={8} y={35} fontFamily="DM Mono, monospace" fontSize={7} fill="#4a6066">
-                {fanSpeedLabel}
-              </text>
-            </g>
-          )}
+          </g>{/* end Layer 2 equipment */}
+
+          {/* Fan speed badge — outside dimming group, always full brightness, left of fan */}
+          {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (() => {
+            const sonoRight = (isMobile ? 530 : 540) + 308
+            const fanX = sonoRight - 85
+            const fanCenterY = 3 + (77 - 127) / 2 - 19 + 63
+            const bw = 124, bh = 80
+            const bx = fanX - bw - 8
+            const by = fanCenterY - bh / 2 + 100
+            return (
+              <g transform={`translate(${bx}, ${by})`}>
+                <rect x={0} y={0} width={bw} height={bh} rx={6}
+                  fill="rgba(0,212,200,0.2)" stroke="rgba(0,212,200,0.6)" strokeWidth={0.5} />
+                <text x={16} y={44} fontFamily="var(--font-orbitron), monospace" fontSize={26} fontWeight={700} fill="#00d4c8">
+                  {currentFanSpeed}%
+                </text>
+                <text x={16} y={66} fontFamily="DM Mono, monospace" fontSize={14} fill="#4a6066">
+                  {fanSpeedLabel}
+                </text>
+              </g>
+            )
+          })()}
 
           {/* ── Layer 3: Light cone + Lamp ── */}
 
