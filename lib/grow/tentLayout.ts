@@ -52,7 +52,7 @@ export function getLampSVGHeight(): number {
 export function getLightImageUrl(lightType: string, isOn: boolean): string {
   if (lightType === 'hps') return isOn ? '/equip/lights/tent/hps on.png' : '/equip/lights/tent/hps.png'
   if (lightType === 'cfl') return isOn ? '/equip/lights/tent/cfl on.png' : '/equip/lights/tent/cfl.png'
-  if (lightType === 'led') return 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046794/light-led_o3w4p6.png'
+  if (lightType === 'led') return isOn ? '/equip/lights/tent/led on.png' : '/equip/lights/tent/led.png'
   return '/equip/lights/cmh.png'
 }
 

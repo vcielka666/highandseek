@@ -404,17 +404,18 @@ export default function PlantImage({
 // ── Native SVG version — avoids foreignObject (unreliable in production) ─────
 
 export interface PlantSVGLayerProps {
-  foX:        number
-  containerW: number
-  isLight:    boolean
-  day:        number
-  stage:      string
-  health:     number
-  strainType: 'indica' | 'sativa' | 'hybrid'
-  potCount?:  number
-  potSize?:   'small' | 'medium' | 'large'
-  techniques?: PlantTechniques
-  tentSize?:  string
+  foX:          number
+  containerW:   number
+  isLight:      boolean
+  day:          number
+  stage:        string
+  health:       number
+  strainType:   'indica' | 'sativa' | 'hybrid'
+  potCount?:    number
+  potSize?:     'small' | 'medium' | 'large'
+  techniques?:  PlantTechniques
+  tentSize?:    string
+  mediumStatus?: 'optimal' | 'warning' | 'critical'
 }
 
 const TENT_FLOOR_SVG = 640
@@ -467,7 +468,7 @@ export function PlantSVGLayer({
   foX, containerW, isLight,
   day, stage, health,
   potCount = 1, potSize = 'medium',
-  tentSize,
+  tentSize, mediumStatus = 'optimal',
 }: PlantSVGLayerProps) {
   const clampedCount  = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
   const slots         = PERSPECTIVE_LAYOUTS[clampedCount]
@@ -477,6 +478,12 @@ export function PlantSVGLayer({
   const seedlingScale = day <= 3 ? 0.45 : day <= 7 ? 0.65 : 1.0
   const potImg        = POT_IMGS[potSize]
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
+
+  const potAlertAnim = mediumStatus === 'critical'
+    ? 'equip-crit 0.75s ease-in-out infinite'
+    : mediumStatus === 'warning'
+    ? 'equip-warn 1.6s ease-in-out infinite'
+    : undefined
 
   // Multi plants: use same reference width as single plant (full size), −2% global scale
   const refW = isMulti ? Math.min(264, Math.round(264 * tentMult * 0.93)) : Math.round(containerW * 0.93)
@@ -515,7 +522,8 @@ export function PlantSVGLayer({
 
         return (
           <g key={i} style={{ filter: depthFilter }}>
-            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet" />
+            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet"
+              style={potAlertAnim ? { animation: potAlertAnim } : undefined} />
             <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMax meet" />
           </g>
         )

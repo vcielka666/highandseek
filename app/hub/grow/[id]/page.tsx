@@ -957,6 +957,25 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     return !attr || attr.status !== 'optimal'
   })
   const criticalCount  = activeWarnings.filter(w => w.severity === 'critical').length
+
+  // Equipment alert styles — blink red on critical, orange on warning
+  function equipAlertStyle(status: 'optimal' | 'warning' | 'critical', base = ''): React.CSSProperties {
+    if (status === 'critical') return { filter: base || undefined, animation: 'equip-crit 0.75s ease-in-out infinite' }
+    if (status === 'warning')  return { filter: base || undefined, animation: 'equip-warn 1.6s ease-in-out infinite' }
+    return base ? { filter: base } : {}
+  }
+
+  const fanStatus  = (['critical','warning'] as const).find(s =>
+    grow.attributes.ventilation.status === s ||
+    grow.attributes.temperature.status === s ||
+    grow.attributes.humidity.status    === s
+  ) ?? grow.attributes.ventilation.status
+  const lightStatus = grow.attributes.light.status
+  const mediumStatus = (['critical','warning'] as const).find(s =>
+    grow.attributes.watering.status  === s ||
+    grow.attributes.nutrients.status === s
+  ) ?? grow.attributes.watering.status
+
   const lightImg       = getLightImageUrl(grow.setup.lightType, isLight)
   const currentHeight  = lampSliderActive ? dragHeight : (committedHeight ?? grow.environment.lightHeight ?? 67)
   const lampTop        = lampTopSVG(currentHeight)  // SVG Y coordinate
@@ -1284,7 +1303,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             width={115}
             height={115}
             transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
-            style={{ filter: 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))' }}
+            style={equipAlertStyle(fanStatus, 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))')}
           />
 
           {/* Circulation fan — left wall */}
@@ -1293,7 +1312,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               href={EQUIP_IMGS.circulation}
               x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
-              style={{ opacity: 0.85, filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
+              style={{ opacity: 0.85, ...equipAlertStyle(fanStatus, 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))') }}
             />
           )}
 
@@ -1307,7 +1326,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               height={77}
               style={{
                 opacity: 0.92,
-                filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))',
+                ...equipAlertStyle(fanStatus, 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))'),
               }}
             />
           )}
@@ -1317,6 +1336,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const sonoRight = (isMobile ? 530 : 540) + 308
             const ex = sonoRight - 85
             const ey = 3 + (77 - 127) / 2 - 19
+            const fanAlert = !fanSliderActive ? equipAlertStyle(fanStatus, 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))') : {}
             return (
               <image
                 href={EQUIP_IMGS.exhaust}
@@ -1327,8 +1347,9 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   touchAction: 'none',
                   filter: fanSliderActive
                     ? 'drop-shadow(0 0 12px rgba(0,212,200,0.7))'
-                    : 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
-                  transition: 'filter 0.15s',
+                    : fanAlert.filter,
+                  animation: fanAlert.animation,
+                  transition: fanStatus === 'optimal' ? 'filter 0.15s' : undefined,
                 }}
                 onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
                 onTouchStart={(e) => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
@@ -1390,6 +1411,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
             return (
               <>
+                <g style={isLight && lightStatus !== 'optimal' ? equipAlertStyle(lightStatus) : {}}>
                 <image
                   href={lightImg}
                   x={lampX} y={lampTop}
@@ -1399,13 +1421,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                     touchAction: 'none',
                     filter: isLight ? `url(#${glowId})` : 'brightness(0.15) saturate(0.3)',
                     opacity: 1,
-                    animation: lt !== 'led' && isLight ? 'hps-flicker 8s ease-in-out infinite' : 'none',
+                    animation: lt !== 'led' && isLight && lightStatus === 'optimal' ? 'hps-flicker 8s ease-in-out infinite' : 'none',
                     transition: 'filter 2s ease, opacity 2s ease',
                     userSelect: 'none',
                   }}
                   onMouseDown={(e) => { e.preventDefault(); startLampDrag(e.clientY) }}
                   onTouchStart={(e) => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
                 />
+                </g>
                 {/* Drag hint — left of lamp, visible when not dragging */}
                 {!lampSliderActive && committedHeight === null && (
                   <g transform={`translate(${lampX - 58},${lampTop + lampH / 2 - 12})`} style={{ pointerEvents: 'none', opacity: 0.45 }}>
@@ -1454,6 +1477,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 potCount={pc}
                 potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
                 tentSize={grow.setup.tentSize}
+                mediumStatus={mediumStatus}
               />
             )
           })()}

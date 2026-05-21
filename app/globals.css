@@ -219,6 +219,16 @@ body::after {
   to   { opacity: 1; transform: translateY(0)   scale(1);    }
 }
 
+@keyframes equip-crit {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(255,64,64,0)); }
+  50%       { filter: drop-shadow(0 0 18px rgba(255,64,64,1)) drop-shadow(0 0 36px rgba(255,64,64,0.5)); }
+}
+
+@keyframes equip-warn {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(240,168,48,0)); }
+  50%       { filter: drop-shadow(0 0 14px rgba(240,168,48,1)) drop-shadow(0 0 28px rgba(240,168,48,0.45)); }
+}
+
 :root {
   --background:     oklch(1 0 0);
   --foreground:     oklch(0.145 0 0);
