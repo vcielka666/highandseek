@@ -100,6 +100,14 @@ const KEYFRAMES = `
   50%  { transform: translateY(-18px) scale(1.3); opacity: 0.5; }
   100% { transform: translateY(-36px) scale(0.8); opacity: 0; }
 }
+@keyframes pot-crit {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
+}
+@keyframes pot-warn {
+  0%, 100% { opacity: 0.1; }
+  50%      { opacity: 0.85; }
+}
 `
 
 let keyframesInjected = false
@@ -479,11 +487,12 @@ export function PlantSVGLayer({
   const potImg        = POT_IMGS[potSize]
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
-  const potAlertAnim = mediumStatus === 'critical'
-    ? 'equip-crit 0.75s ease-in-out infinite'
+  const potAlertColor = mediumStatus === 'critical' ? '#ff4040' : mediumStatus === 'warning' ? '#f0a830' : null
+  const potAlertAnim  = mediumStatus === 'critical'
+    ? 'pot-crit 0.75s ease-in-out infinite'
     : mediumStatus === 'warning'
-    ? 'equip-warn 1.6s ease-in-out infinite'
-    : undefined
+    ? 'pot-warn 1.6s ease-in-out infinite'
+    : null
 
   // Multi plants: use same reference width as single plant (full size), −2% global scale
   const refW = isMulti ? Math.min(264, Math.round(264 * tentMult * 0.93)) : Math.round(containerW * 0.93)
@@ -522,8 +531,18 @@ export function PlantSVGLayer({
 
         return (
           <g key={i} style={{ filter: depthFilter }}>
-            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet"
-              style={potAlertAnim ? { animation: potAlertAnim } : undefined} />
+            <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet" />
+            {potAlertAnim && potAlertColor && (
+              <rect
+                x={potSVGX - 2} y={potSVGY - 2}
+                width={potW + 4} height={potH + 4}
+                rx={5}
+                fill="none"
+                stroke={potAlertColor}
+                strokeWidth={2.5}
+                style={{ animation: potAlertAnim, pointerEvents: 'none' }}
+              />
+            )}
             <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMax meet" />
           </g>
         )
