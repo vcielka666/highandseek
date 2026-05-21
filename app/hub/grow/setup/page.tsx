@@ -56,7 +56,7 @@ const DEFAULT_SETUP: Setup = {
   hasExhaustFan:     true,
   exhaustCFM:        200,
   hasCirculationFan: true,
-  hasCarbonFilter:   false,
+  hasCarbonFilter:   true,
   hasPHMeter:        false,
   hasECMeter:        false,
   hasHygrometer:     true,
@@ -119,7 +119,7 @@ const PRESET_BEGINNER: Setup = {
   hasExhaustFan:     true,
   exhaustCFM:        200,
   hasCirculationFan: true,
-  hasCarbonFilter:   false,
+  hasCarbonFilter:   true,
   hasPHMeter:        false,
   hasECMeter:        false,
   hasHygrometer:     true,
@@ -161,7 +161,7 @@ function randomSetup(): Setup {
     hasExhaustFan:     Math.random() > 0.2,
     exhaustCFM:        pick([100, 150, 200, 300, 400]),
     hasCirculationFan: Math.random() > 0.25,
-    hasCarbonFilter:   Math.random() > 0.5,
+    hasCarbonFilter:   true,
     hasPHMeter:        Math.random() > 0.5,
     hasECMeter:        medium !== 'living_soil' ? Math.random() > 0.4 : false,
     hasHygrometer:     Math.random() > 0.15,
@@ -1145,14 +1145,16 @@ function SetupWizardInner() {
               </div>
             </div>
 
-            {/* Carbon filter */}
-            <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', marginBottom: '6px' }}>
-                <input type="checkbox" checked={setup.hasCarbonFilter} onChange={e => set('hasCarbonFilter', e.target.checked)} />
+            {/* Carbon filter — always included */}
+            <div style={{ padding: '12px 14px', background: 'rgba(0,212,200,0.04)', border: '0.5px solid rgba(0,212,200,0.14)', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '5px' }}>
                 <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#e8f0ef' }}>{g.carbonFilter}</span>
-              </label>
-              <div style={{ marginLeft: '28px', fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
-                {g.carbonFilterDesc}
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', letterSpacing: '1px', textTransform: 'uppercase', padding: '2px 7px', background: 'rgba(0,212,200,0.1)', color: '#00d4c8', border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '3px', flexShrink: 0 }}>
+                  always included
+                </span>
+              </div>
+              <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '11px', color: '#4a6066', lineHeight: 1.5 }}>
+                {g.carbonFilterAlwaysInfo}
               </div>
             </div>
           </div>

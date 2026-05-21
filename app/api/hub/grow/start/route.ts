@@ -39,7 +39,7 @@ const SetupSchema = z.object({
   hasExhaustFan:     z.boolean().default(false),
   exhaustCFM:        z.number().min(0).default(0),
   hasCirculationFan: z.boolean().default(false),
-  hasCarbonFilter:   z.boolean().default(false),
+  hasCarbonFilter:   z.boolean().default(true),
   hasPHMeter:        z.boolean().default(false),
   hasECMeter:        z.boolean().default(false),
   hasHygrometer:     z.boolean().default(false),

@@ -66,7 +66,7 @@ const VirtualGrowSchema = new mongoose.Schema({
     hasExhaustFan:       { type: Boolean, default: false },
     exhaustCFM:          { type: Number, default: 0 },
     hasCirculationFan:   { type: Boolean, default: false },
-    hasCarbonFilter:     { type: Boolean, default: false },
+    hasCarbonFilter:     { type: Boolean, default: true },
     hasPHMeter:          { type: Boolean, default: false },
     hasECMeter:          { type: Boolean, default: false },
     hasHygrometer:       { type: Boolean, default: false },

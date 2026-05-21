@@ -108,6 +108,14 @@ const KEYFRAMES = `
   0%, 100% { opacity: 0; }
   50%      { opacity: 0.85; }
 }
+@keyframes overlay-crit {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 1; }
+}
+@keyframes overlay-warn {
+  0%, 100% { opacity: 0; }
+  50%      { opacity: 0.85; }
+}
 `
 
 let keyframesInjected = false
@@ -425,6 +433,7 @@ export interface PlantSVGLayerProps {
   tentSize?:    string
   mediumStatus?: 'optimal' | 'warning' | 'critical'
   onPotClick?: () => void
+  isPotHighlighted?: boolean
 }
 
 const TENT_FLOOR_SVG = 640
@@ -479,6 +488,7 @@ export function PlantSVGLayer({
   potCount = 1, potSize = 'medium',
   tentSize, mediumStatus = 'optimal',
   onPotClick,
+  isPotHighlighted = false,
 }: PlantSVGLayerProps) {
   useEffect(() => { injectKeyframes() }, [])
 
@@ -547,6 +557,16 @@ export function PlantSVGLayer({
                   ? 'drop-shadow(0 0 16px rgba(255,64,64,1)) drop-shadow(0 0 32px rgba(255,64,64,0.6))'
                   : 'drop-shadow(0 0 12px rgba(240,168,48,1)) drop-shadow(0 0 24px rgba(240,168,48,0.5))' }} />
             </g>
+          ))}
+        </g>
+      )}
+      {/* Teal highlight overlay — when pot popup is open */}
+      {isPotHighlighted && (
+        <g style={{ pointerEvents: 'none' }}>
+          {slotData.map(({ potSVGX, potSVGY, potW, potH }, i) => (
+            <image key={i} href={potImg} x={potSVGX} y={potSVGY} width={potW} height={potH}
+              preserveAspectRatio="xMidYMax meet"
+              style={{ filter: 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 28px rgba(0,212,200,0.5))' }} />
           ))}
         </g>
       )}

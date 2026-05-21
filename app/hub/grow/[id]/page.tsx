@@ -540,6 +540,19 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   // Equipment info popup
   const [equipPopup, setEquipPopup] = useState<'lamp' | 'fan' | 'filter' | 'pot' | 'circ' | null>(null)
+  const tentRef = useRef<HTMLDivElement>(null)
+
+  // Close popup on any click outside the tent+popup area
+  useEffect(() => {
+    if (!equipPopup) return
+    const handler = (e: MouseEvent) => {
+      if (tentRef.current && !tentRef.current.contains(e.target as Node)) {
+        setEquipPopup(null)
+      }
+    }
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
+  }, [equipPopup])
 
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
@@ -547,6 +560,19 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     check()
     window.addEventListener('resize', check)
     return () => window.removeEventListener('resize', check)
+  }, [])
+
+  // Inject SVG-compatible keyframes for equipment alert overlays
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+    if (document.getElementById('hs-overlay-keyframes')) return
+    const el = document.createElement('style')
+    el.id = 'hs-overlay-keyframes'
+    el.textContent = `
+      @keyframes overlay-crit { 0%,100%{opacity:0} 50%{opacity:1} }
+      @keyframes overlay-warn { 0%,100%{opacity:0} 50%{opacity:0.85} }
+    `
+    document.head.appendChild(el)
   }, [])
 
   useEffect(() => {
@@ -668,7 +694,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       if (!isDragging.current) return
       isDragging.current = false
       if (!dragMovedRef.current) {
-        setEquipPopup('lamp')
+        setEquipPopup(prev => prev === 'lamp' ? null : 'lamp')
         return
       }
       const h = dragHeightRef.current
@@ -732,7 +758,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       if (!isFanDragging.current) return
       isFanDragging.current = false
       if (!fanDragMovedRef.current) {
-        setEquipPopup('fan')
+        setEquipPopup(prev => prev === 'fan' ? null : 'fan')
         return
       }
       const s = fanDragSpeedRef.current
@@ -1266,7 +1292,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         {/* ── SVG Tent — viewBox 0 0 1000 750, all positions in TENT_LAYOUT ── */}
         {/* On mobile: bleed edge-to-edge (override 16px page padding) */}
         <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } .grow-tent-svg { display: block; width: 100%; height: auto; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } .grow-tent-svg { height: 100vw; } .hb { transform: scale(1.7); transform-origin: 128px 12px; } }`}</style>
-        <div style={{ position: 'relative' }} onClick={() => setEquipPopup(null)}>
+        <div ref={tentRef} style={{ position: 'relative' }} onClick={() => setEquipPopup(null)}>
         <div className="grow-tent-wrap">
         <svg
           viewBox="0 0 1000 750"
@@ -1329,7 +1355,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             height={115}
             transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
             style={{ cursor: 'pointer', filter: 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))' }}
-            onClick={(e) => { e.stopPropagation(); setEquipPopup('filter') }}
+            onClick={(e) => { e.stopPropagation(); setEquipPopup(prev => prev === 'filter' ? null : 'filter') }}
           />
 
           {/* Circulation fan — left wall */}
@@ -1339,7 +1365,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
               style={{ opacity: 0.85, cursor: 'pointer', filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
-              onClick={(e) => { e.stopPropagation(); setEquipPopup('circ') }}
+              onClick={(e) => { e.stopPropagation(); setEquipPopup(prev => prev === 'circ' ? null : 'circ') }}
             />
           )}
 
@@ -1352,7 +1378,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               width={308}
               height={77}
               style={{ opacity: 0.92, cursor: 'pointer', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))' }}
-              onClick={(e) => { e.stopPropagation(); setEquipPopup('fan') }}
+              onClick={(e) => { e.stopPropagation(); setEquipPopup(prev => prev === 'fan' ? null : 'fan') }}
             />
           )}
 
@@ -1384,13 +1410,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           </g>{/* end Layer 2 equipment */}
 
           {/* ── Equipment alert overlays — outside dimming group, visible in dark too ── */}
-          {(() => {
+          {grow.setup.hasExhaustFan && fanStatus !== 'optimal' && (() => {
             const fanAnim = fanStatus === 'critical'
-              ? 'overlay-crit 0.75s ease-in-out infinite'
-              : fanStatus === 'warning'
-              ? 'overlay-warn 1.6s ease-in-out infinite'
-              : null
-            if (!fanAnim) return null
+              ? 'overlay-crit 1.5s ease-in-out infinite'
+              : 'overlay-warn 2.5s ease-in-out infinite'
             const glowFilter = fanStatus === 'critical'
               ? 'drop-shadow(0 0 20px rgba(255,64,64,1)) drop-shadow(0 0 40px rgba(255,64,64,0.6))'
               : 'drop-shadow(0 0 16px rgba(240,168,48,1)) drop-shadow(0 0 30px rgba(240,168,48,0.5))'
@@ -1400,23 +1423,9 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             return (
               <g style={{ pointerEvents: 'none' }}>
                 <g style={{ animation: fanAnim }}>
-                  <image href={EQUIP_IMGS.filter}
-                    x={isMobile ? 610 : 640} y={115} width={115} height={115}
-                    transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
+                  <image href={EQUIP_IMGS.exhaust} x={ex} y={ey} width={127} height={127}
                     style={{ filter: glowFilter }} />
                 </g>
-                {grow.setup.hasExhaustFan && (
-                  <>
-                    <g style={{ animation: fanAnim }}>
-                      <image href={EQUIP_IMGS.sonoflex} x={isMobile ? 510 : 520} y={3} width={308} height={77}
-                        style={{ filter: glowFilter }} />
-                    </g>
-                    <g style={{ animation: fanAnim }}>
-                      <image href={EQUIP_IMGS.exhaust} x={ex} y={ey} width={127} height={127}
-                        style={{ filter: glowFilter }} />
-                    </g>
-                  </>
-                )}
               </g>
             )
           })()}
@@ -1472,7 +1481,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const lampX   = SVG_W / 2 - lampW / 2
             const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
             const lampAlertAnim = isLight && lightStatus !== 'optimal'
-              ? (lightStatus === 'critical' ? 'overlay-crit 0.75s ease-in-out infinite' : 'overlay-warn 1.6s ease-in-out infinite')
+              ? (lightStatus === 'critical' ? 'overlay-crit 1.5s ease-in-out infinite' : 'overlay-warn 2.5s ease-in-out infinite')
               : null
             return (
               <>
@@ -1550,7 +1559,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
                 tentSize={grow.setup.tentSize}
                 mediumStatus={mediumStatus}
-                onPotClick={() => setEquipPopup('pot')}
+                onPotClick={() => setEquipPopup(prev => prev === 'pot' ? null : 'pot')}
+                isPotHighlighted={equipPopup === 'pot'}
               />
             )
           })()}
@@ -1599,6 +1609,42 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             )
           })()}
 
+          {/* ── Equipment highlight overlays — teal glow when popup is open ── */}
+          {equipPopup === 'lamp' && lightImg && (() => {
+            const lt   = grow.setup.lightType
+            const lampW = getLampSVGWidth(lt)
+            const lampH = getLampSVGHeight()
+            const lampX = SVG_W / 2 - lampW / 2
+            return (
+              <image href={lightImg} x={lampX} y={lampTop} width={lampW} height={lampH}
+                style={{ filter: 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 30px rgba(0,212,200,0.5))', pointerEvents: 'none' }} />
+            )
+          })()}
+          {equipPopup === 'fan' && grow.setup.hasExhaustFan && (() => {
+            const sonoRight = (isMobile ? 530 : 540) + 308
+            const ex = sonoRight - 85
+            const ey = 3 + (77 - 127) / 2 - 19
+            const TEAL = 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 30px rgba(0,212,200,0.5))'
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <image href={EQUIP_IMGS.sonoflex} x={isMobile ? 510 : 520} y={3} width={308} height={77} style={{ filter: TEAL }} />
+                <image href={EQUIP_IMGS.exhaust} x={ex} y={ey} width={127} height={127} style={{ filter: TEAL }} />
+              </g>
+            )
+          })()}
+          {equipPopup === 'filter' && (
+            <image href={EQUIP_IMGS.filter}
+              x={isMobile ? 610 : 640} y={115} width={115} height={115}
+              transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
+              style={{ filter: 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 30px rgba(0,212,200,0.5))', pointerEvents: 'none' }} />
+          )}
+          {equipPopup === 'circ' && grow.setup.hasCirculationFan && (
+            <image href={EQUIP_IMGS.circulation}
+              x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
+              width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
+              style={{ filter: 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 30px rgba(0,212,200,0.5))', pointerEvents: 'none' }} />
+          )}
+
         </svg>
         </div>{/* /SVG border-radius wrapper */}
 
@@ -1611,6 +1657,17 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           const medNames: Record<string,string> = { soil: 'Soil', coco: 'Coco Coir', hydro: 'Hydro', living_soil: 'Living Soil', perlite: 'Perlite Mix' }
           const waterNames: Record<string,string> = { hand: 'Hand watering', drip: 'Drip system', flood: 'Flood & drain', wick: 'Wick system' }
           const potNames: Record<string,string> = { small: 'Small (5–7L)', medium: 'Medium (11–15L)', large: 'Large (18–25L)' }
+
+          // Each popup appears on the opposite side from its element so the highlight is always visible.
+          // Width is included here so it can be narrower for side-anchored cards.
+          const POPUP_POS: Record<string, React.CSSProperties> = {
+            lamp:   { bottom: '3%',  left: '50%', transform: 'translateX(-50%)', width: 'min(300px, 90%)' }, // lamp=top  → popup at bottom
+            fan:    { top: '22%',    left: '50%', transform: 'translateX(-50%)', width: 'min(300px, 90%)' }, // fan=top   → popup below, centered
+            filter: { top: '14%',    left: '2%',  width: 'min(280px, 58%)'     },                           // filter=right → popup at left
+            circ:   { top: '33%',    right: '2%', width: 'min(280px, 58%)'     },                           // circ=left  → popup at right
+            pot:    { top: '6%',     left: '50%', transform: 'translateX(-50%)', width: 'min(300px, 90%)' }, // pots=bottom → popup near top
+          }
+          const posStyle = POPUP_POS[equipPopup] ?? { bottom: '12px', left: '50%', transform: 'translateX(-50%)', width: 'min(300px, 90%)' }
 
           if (equipPopup === 'lamp') {
             title = 'Light Setup'
@@ -1633,11 +1690,15 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             )
           } else if (equipPopup === 'filter') {
             title = 'Carbon Filter'
+            const cfm = grow.setup.exhaustCFM || 0
+            const filterSize = cfm >= 400 ? '8"' : cfm >= 200 ? '6"' : '4"'
             rows.push(
-              { label: 'Filter', value: grow.setup.hasCarbonFilter ? 'Installed' : 'Not installed' },
+              { label: 'Size', value: filterSize },
+              { label: 'Matched CFM', value: cfm > 0 ? `${cfm} CFM` : 'No fan connected' },
+              { label: 'Tent', value: grow.setup.tentSize },
+              { label: 'Type', value: 'Activated carbon' },
+              { label: 'Function', value: 'Odor + air scrubbing' },
               { label: 'Ventilation', value: `${grow.attributes.ventilation.status} · ${Math.round(grow.attributes.ventilation.value)}`, status: grow.attributes.ventilation.status },
-              { label: 'Temperature', value: `${grow.environment.temperature}°C`, status: grow.attributes.temperature.status },
-              { label: 'Humidity', value: `${grow.environment.humidity}%`, status: grow.attributes.humidity.status },
             )
           } else if (equipPopup === 'pot') {
             title = 'Medium & Pot'
@@ -1645,7 +1706,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               { label: 'Medium', value: medNames[grow.setup.medium] ?? grow.setup.medium },
               { label: 'Pot size', value: potNames[grow.setup.potSize] ?? grow.setup.potSize },
               { label: 'Watering', value: waterNames[grow.setup.watering] ?? grow.setup.watering },
-              { label: 'Nutrients', value: grow.setup.nutrients || '—' },
               { label: 'pH', value: `${grow.environment.ph}`, status: grow.attributes.watering.status },
               { label: 'EC', value: `${grow.environment.ec}` },
               { label: 'Water attr', value: `${grow.attributes.watering.status} · ${Math.round(grow.attributes.watering.value)}`, status: grow.attributes.watering.status },
@@ -1663,16 +1723,17 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
           return (
             <div
               style={{
-                position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
-                width: 'min(320px, 90%)', zIndex: 20,
-                background: 'rgba(5,5,8,0.95)', backdropFilter: 'blur(12px)',
+                position: 'absolute', zIndex: 20,
+                background: 'rgba(5,5,8,0.96)', backdropFilter: 'blur(14px)',
                 border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '8px',
-                padding: '16px',
+                padding: '14px 16px',
+                boxShadow: '0 4px 24px rgba(0,0,0,0.6)',
+                ...posStyle,
               }}
               onClick={e => e.stopPropagation()}
             >
               {/* Header */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                 <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4c8' }}>
                   {title}
                 </span>
@@ -1684,13 +1745,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 </button>
               </div>
               {/* Rows */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 {rows.map(({ label, value, status }) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066', flexShrink: 0 }}>
                       {label}
                     </span>
-                    <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: status ? statusCol(status) : '#e8f0ef' }}>
+                    <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: status ? statusCol(status) : '#e8f0ef', textAlign: 'right' }}>
                       {value}
                     </span>
                   </div>
@@ -2383,7 +2444,6 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                       ] : null,
                     },
                     { key: 'hasCirculationFan', group: 'circulationFan', label: 'Circulation fan', subOptions: null, cfmOptions: null },
-                    { key: 'hasCarbonFilter',   group: 'carbonFilter',   label: 'Carbon filter',   subOptions: null, cfmOptions: null },
                     { key: 'hasPHMeter',        group: 'phMeter',        label: 'pH meter',        subOptions: null, cfmOptions: null },
                     { key: 'hasECMeter',        group: 'ecMeter',        label: 'EC meter',        subOptions: null, cfmOptions: null },
                     { key: 'hasHygrometer',     group: 'hygrometer',     label: 'Hygrometer',      subOptions: null, cfmOptions: null },
