@@ -105,7 +105,7 @@ const KEYFRAMES = `
   50%      { opacity: 1; }
 }
 @keyframes pot-warn {
-  0%, 100% { opacity: 0.1; }
+  0%, 100% { opacity: 0; }
   50%      { opacity: 0.85; }
 }
 `
@@ -424,6 +424,7 @@ export interface PlantSVGLayerProps {
   techniques?:  PlantTechniques
   tentSize?:    string
   mediumStatus?: 'optimal' | 'warning' | 'critical'
+  onPotClick?: () => void
 }
 
 const TENT_FLOOR_SVG = 640
@@ -477,7 +478,10 @@ export function PlantSVGLayer({
   day, stage, health,
   potCount = 1, potSize = 'medium',
   tentSize, mediumStatus = 'optimal',
+  onPotClick,
 }: PlantSVGLayerProps) {
+  useEffect(() => { injectKeyframes() }, [])
+
   const clampedCount  = Math.min(4, Math.max(1, potCount)) as 1 | 2 | 3 | 4
   const slots         = PERSPECTIVE_LAYOUTS[clampedCount]
   const isMulti       = clampedCount > 1
@@ -487,66 +491,78 @@ export function PlantSVGLayer({
   const potImg        = POT_IMGS[potSize]
   const plantFrame    = PLANT_FRAMES[getPlantFrame(day, stage)]
 
-  const potAlertColor = mediumStatus === 'critical' ? '#ff4040' : mediumStatus === 'warning' ? '#f0a830' : null
-  const potAlertAnim  = mediumStatus === 'critical'
-    ? 'pot-crit 0.75s ease-in-out infinite'
+  const potAlertAnim = mediumStatus === 'critical'
+    ? 'pot-crit 1.5s ease-in-out infinite'
     : mediumStatus === 'warning'
-    ? 'pot-warn 1.6s ease-in-out infinite'
+    ? 'pot-warn 2.5s ease-in-out infinite'
     : null
 
   // Multi plants: use same reference width as single plant (full size), −2% global scale
   const refW = isMulti ? Math.min(264, Math.round(264 * tentMult * 0.93)) : Math.round(containerW * 0.93)
   const refH = Math.round(refW * 1.6)
 
+  // Pre-compute all slot positions so we can render two passes (main + alert overlay)
+  const slotData = slots.map((slot) => {
+    const depthScale    = slot.bottomFrac > 0 ? 0.88 : 1.0
+    const seedlingShift = day <= 7 ? -15 : 0
+    const plantW = Math.round(
+      (isMulti ? refW * MULTI_PLANT_FRAC : containerW * BASE_FRACS[clampedCount])
+      * slot.scale * (isMulti ? 1 : tentMult) * healthScale * seedlingScale
+    )
+    const plantH    = Math.round(refH * 0.88 * slot.scale * healthScale * seedlingScale)
+    const potBaseW  = isMulti ? refW * MULTI_POT_FRAC : containerW * (clampedCount === 1 ? 0.68 : 0.54)
+    const potW      = Math.round(potBaseW * depthScale * slot.scale)
+    const potH      = Math.round(potW * 0.85)
+    const floorY    = Math.round(refH * slot.bottomFrac)
+    const plantBottom = floorY + Math.round(potH * 0.62) + 20 + seedlingShift
+    const potSVGY   = TENT_FLOOR_SVG - floorY - potH
+    const plantSVGY = TENT_FLOOR_SVG - plantBottom - plantH
+    const centerX   = isMulti
+      ? (MULTI_SVG_CX[clampedCount]?.[slots.indexOf(slot)] ?? 500)
+      : (foX + Math.round(containerW * slot.xFrac))
+    const potSVGX   = centerX - Math.round(potW / 2)
+    const plantSVGX = centerX - Math.round(plantW / 2)
+    const depthFilter = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined
+    return { potSVGX, potSVGY, potW, potH, plantSVGX, plantSVGY, plantW, plantH, depthFilter }
+  })
+
   return (
-    <g style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}>
-      {slots.map((slot, i) => {
-        const depthScale   = slot.bottomFrac > 0 ? 0.88 : 1.0
-        const seedlingShift = day <= 7 ? -15 : 0
-
-        // ── Sizing ──
-        const plantW = Math.round(
-          (isMulti ? refW * MULTI_PLANT_FRAC : containerW * BASE_FRACS[clampedCount])
-          * slot.scale * (isMulti ? 1 : tentMult) * healthScale * seedlingScale
-        )
-        const plantH = Math.round(refH * 0.88 * slot.scale * healthScale * seedlingScale)
-        const potBaseW = isMulti ? refW * MULTI_POT_FRAC : containerW * (clampedCount === 1 ? 0.68 : 0.54)
-        const potW = Math.round(potBaseW * depthScale * slot.scale)
-        const potH = Math.round(potW * 0.85)
-
-        // ── Y position ──
-        const floorY      = Math.round(refH * slot.bottomFrac)
-        const plantBottom = floorY + Math.round(potH * 0.62) + 20 + seedlingShift
-        const potSVGY     = TENT_FLOOR_SVG - floorY - potH
-        const plantSVGY   = TENT_FLOOR_SVG - plantBottom - plantH
-
-        // ── X position: absolute SVG center for multi, containerW-relative for single ──
-        const centerX  = isMulti
-          ? (MULTI_SVG_CX[clampedCount]?.[i] ?? 500)
-          : (foX + Math.round(containerW * slot.xFrac))
-        const potSVGX   = centerX - Math.round(potW / 2)
-        const plantSVGX = centerX - Math.round(plantW / 2)
-
-        const depthFilter = slot.brightness < 1 ? `brightness(${slot.brightness})` : undefined
-
-        return (
+    <>
+      {/* Main layer — dims with lights off */}
+      <g style={{ filter: isLight ? 'none' : 'brightness(0.12)', transition: 'filter 2s ease', pointerEvents: 'none' }}>
+        {slotData.map(({ potSVGX, potSVGY, potW, potH, plantSVGX, plantSVGY, plantW, plantH, depthFilter }, i) => (
           <g key={i} style={{ filter: depthFilter }}>
             <image href={potImg}     x={potSVGX}   y={potSVGY}   width={potW}   height={potH}   preserveAspectRatio="xMidYMax meet" />
-            {potAlertAnim && potAlertColor && (
-              <rect
-                x={potSVGX - 2} y={potSVGY - 2}
-                width={potW + 4} height={potH + 4}
-                rx={5}
-                fill="none"
-                stroke={potAlertColor}
-                strokeWidth={2.5}
-                style={{ animation: potAlertAnim, pointerEvents: 'none' }}
-              />
-            )}
             <image href={plantFrame} x={plantSVGX} y={plantSVGY} width={plantW} height={plantH} preserveAspectRatio="xMidYMax meet" />
           </g>
-        )
-      })}
-    </g>
+        ))}
+      </g>
+      {/* Alert glow overlay — outside dimming group, always visible even in dark */}
+      {potAlertAnim && (
+        <g style={{ pointerEvents: 'none' }}>
+          {slotData.map(({ potSVGX, potSVGY, potW, potH }, i) => (
+            <g key={i} style={{ animation: potAlertAnim }}>
+              <image href={potImg} x={potSVGX} y={potSVGY} width={potW} height={potH} preserveAspectRatio="xMidYMax meet"
+                style={{ filter: mediumStatus === 'critical'
+                  ? 'drop-shadow(0 0 16px rgba(255,64,64,1)) drop-shadow(0 0 32px rgba(255,64,64,0.6))'
+                  : 'drop-shadow(0 0 12px rgba(240,168,48,1)) drop-shadow(0 0 24px rgba(240,168,48,0.5))' }} />
+            </g>
+          ))}
+        </g>
+      )}
+      {/* Pot click hit targets */}
+      {onPotClick && (
+        <g style={{ cursor: 'pointer' }} onClick={(e) => { e.stopPropagation(); onPotClick?.() }}>
+          {slotData.map(({ potSVGX, potSVGY, potW, potH }, i) => (
+            <rect
+              key={i}
+              x={potSVGX} y={potSVGY}
+              width={potW} height={potH}
+              fill="transparent"
+            />
+          ))}
+        </g>
+      )}
+    </>
   )
 }

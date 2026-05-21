@@ -534,6 +534,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const fanDragSpeedRef = useRef(100)
   const isFanDragging   = useRef(false)
 
+  // Click vs drag threshold refs
+  const dragMovedRef    = useRef(false)   // did lamp drag move past threshold?
+  const fanDragMovedRef = useRef(false)   // did fan drag move past threshold?
+
+  // Equipment info popup
+  const [equipPopup, setEquipPopup] = useState<'lamp' | 'fan' | 'filter' | 'pot' | 'circ' | null>(null)
+
   const [isMobile, setIsMobile] = useState(false)
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -635,9 +642,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     dragStartY.current    = clientY
     dragStartH.current    = h
     dragHeightRef.current = h
-    setDragHeight(h)
-    setLampSliderActive(true)
     isDragging.current    = true
+    dragMovedRef.current  = false
   }
 
   // Always-on listeners — guards via isDragging ref so no stale closures needed.
@@ -647,6 +653,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       if (!isDragging.current) return
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       const delta = dragStartY.current - clientY
+      if (!dragMovedRef.current && Math.abs(delta) >= 8) {
+        dragMovedRef.current = true
+        setDragHeight(dragStartH.current)
+        setLampSliderActive(true)
+      }
+      if (!dragMovedRef.current) return
       const newH  = Math.min(67, Math.max(30, Math.round(dragStartH.current + delta * 0.5)))
       dragHeightRef.current = newH
       setDragHeight(newH)
@@ -655,6 +667,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     const onEnd = async () => {
       if (!isDragging.current) return
       isDragging.current = false
+      if (!dragMovedRef.current) {
+        setEquipPopup('lamp')
+        return
+      }
       const h = dragHeightRef.current
       setLampSliderActive(false)
       setCommittedHeight(h)
@@ -691,19 +707,22 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     fanDragStartY.current   = clientY
     fanDragStartS.current   = s
     fanDragSpeedRef.current = s
-    setDragFanSpeed(s)
-    setFanSliderActive(true)
     isFanDragging.current   = true
+    fanDragMovedRef.current = false
   }
 
   useEffect(() => {
-    if (!fanSliderActive) return
-
     const onMove = (e: MouseEvent | TouchEvent) => {
       if (!isFanDragging.current) return
       const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
       // dragging up = higher speed, dragging down = lower speed
       const delta = fanDragStartY.current - clientY
+      if (!fanDragMovedRef.current && Math.abs(delta) >= 8) {
+        fanDragMovedRef.current = true
+        setDragFanSpeed(fanDragStartS.current)
+        setFanSliderActive(true)
+      }
+      if (!fanDragMovedRef.current) return
       const newS  = Math.min(100, Math.max(0, Math.round(fanDragStartS.current + delta * 0.8)))
       fanDragSpeedRef.current = newS
       setDragFanSpeed(newS)
@@ -712,6 +731,10 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     const onEnd = async () => {
       if (!isFanDragging.current) return
       isFanDragging.current = false
+      if (!fanDragMovedRef.current) {
+        setEquipPopup('fan')
+        return
+      }
       const s = fanDragSpeedRef.current
       setFanSliderActive(false)
       setCommittedFanSpeed(s)
@@ -733,13 +756,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     window.addEventListener('mouseup', onEnd)
     window.addEventListener('touchend', onEnd)
     return () => {
+      isFanDragging.current = false
       window.removeEventListener('mousemove', onMove)
       window.removeEventListener('touchmove', onMoveTouch)
       window.removeEventListener('mouseup', onEnd)
       window.removeEventListener('touchend', onEnd)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fanSliderActive])
+  }, [])
 
   // ── Actions ────────────────────────────────────────────────────────────────
 
@@ -1242,6 +1266,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
         {/* ── SVG Tent — viewBox 0 0 1000 750, all positions in TENT_LAYOUT ── */}
         {/* On mobile: bleed edge-to-edge (override 16px page padding) */}
         <style>{`.grow-tent-wrap { border-radius: 8px; overflow: hidden; } .grow-tent-svg { display: block; width: 100%; height: auto; } @media(max-width:767px){ .grow-tent-wrap { margin: 0 -16px; border-radius: 0; } .grow-tent-svg { height: 100vw; } .hb { transform: scale(1.7); transform-origin: 128px 12px; } }`}</style>
+        <div style={{ position: 'relative' }} onClick={() => setEquipPopup(null)}>
         <div className="grow-tent-wrap">
         <svg
           viewBox="0 0 1000 750"
@@ -1303,7 +1328,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             width={115}
             height={115}
             transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
-            style={equipAlertStyle(fanStatus, 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))')}
+            style={{ cursor: 'pointer', filter: 'drop-shadow(-2px 2px 10px rgba(0,0,0,0.6))' }}
+            onClick={(e) => { e.stopPropagation(); setEquipPopup('filter') }}
           />
 
           {/* Circulation fan — left wall */}
@@ -1312,11 +1338,12 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               href={EQUIP_IMGS.circulation}
               x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
-              style={{ opacity: 0.85, ...equipAlertStyle(fanStatus, 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))') }}
+              style={{ opacity: 0.85, cursor: 'pointer', filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
+              onClick={(e) => { e.stopPropagation(); setEquipPopup('circ') }}
             />
           )}
 
-          {/* Sonoflex duct — horizontal, laid across the tent top connecting filter to exhaust fan */}
+          {/* Sonoflex duct — clicking it opens fan popup */}
           {grow.setup.hasExhaustFan && (
             <image
               href={EQUIP_IMGS.sonoflex}
@@ -1324,19 +1351,16 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
               y={3}
               width={308}
               height={77}
-              style={{
-                opacity: 0.92,
-                ...equipAlertStyle(fanStatus, 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))'),
-              }}
+              style={{ opacity: 0.92, cursor: 'pointer', filter: 'drop-shadow(0 2px 8px rgba(0,0,0,0.7))' }}
+              onClick={(e) => { e.stopPropagation(); setEquipPopup('fan') }}
             />
           )}
 
-          {/* Exhaust fan image — inside dimming group so it darkens with lights off */}
+          {/* Exhaust fan image */}
           {grow.setup.hasExhaustFan && (() => {
             const sonoRight = (isMobile ? 530 : 540) + 308
             const ex = sonoRight - 85
             const ey = 3 + (77 - 127) / 2 - 19
-            const fanAlert = !fanSliderActive ? equipAlertStyle(fanStatus, 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))') : {}
             return (
               <image
                 href={EQUIP_IMGS.exhaust}
@@ -1347,17 +1371,55 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   touchAction: 'none',
                   filter: fanSliderActive
                     ? 'drop-shadow(0 0 12px rgba(0,212,200,0.7))'
-                    : fanAlert.filter,
-                  animation: fanAlert.animation,
-                  transition: fanStatus === 'optimal' ? 'filter 0.15s' : undefined,
+                    : 'drop-shadow(0 2px 6px rgba(0,0,0,0.6))',
+                  transition: 'filter 0.15s',
                 }}
                 onMouseDown={(e) => { e.preventDefault(); startFanDrag(e.clientY) }}
                 onTouchStart={(e) => { e.preventDefault(); startFanDrag(e.touches[0].clientY) }}
+                onClick={(e) => e.stopPropagation()}
               />
             )
           })()}
 
           </g>{/* end Layer 2 equipment */}
+
+          {/* ── Equipment alert overlays — outside dimming group, visible in dark too ── */}
+          {(() => {
+            const fanAnim = fanStatus === 'critical'
+              ? 'overlay-crit 0.75s ease-in-out infinite'
+              : fanStatus === 'warning'
+              ? 'overlay-warn 1.6s ease-in-out infinite'
+              : null
+            if (!fanAnim) return null
+            const glowFilter = fanStatus === 'critical'
+              ? 'drop-shadow(0 0 20px rgba(255,64,64,1)) drop-shadow(0 0 40px rgba(255,64,64,0.6))'
+              : 'drop-shadow(0 0 16px rgba(240,168,48,1)) drop-shadow(0 0 30px rgba(240,168,48,0.5))'
+            const sonoRight = (isMobile ? 530 : 540) + 308
+            const ex = sonoRight - 85
+            const ey = 3 + (77 - 127) / 2 - 19
+            return (
+              <g style={{ pointerEvents: 'none' }}>
+                <g style={{ animation: fanAnim }}>
+                  <image href={EQUIP_IMGS.filter}
+                    x={isMobile ? 610 : 640} y={115} width={115} height={115}
+                    transform={`rotate(-30, ${640 + 57}, ${115 + 57})`}
+                    style={{ filter: glowFilter }} />
+                </g>
+                {grow.setup.hasExhaustFan && (
+                  <>
+                    <g style={{ animation: fanAnim }}>
+                      <image href={EQUIP_IMGS.sonoflex} x={isMobile ? 510 : 520} y={3} width={308} height={77}
+                        style={{ filter: glowFilter }} />
+                    </g>
+                    <g style={{ animation: fanAnim }}>
+                      <image href={EQUIP_IMGS.exhaust} x={ex} y={ey} width={127} height={127}
+                        style={{ filter: glowFilter }} />
+                    </g>
+                  </>
+                )}
+              </g>
+            )
+          })()}
 
           {/* Fan speed badge — outside dimming group, always full brightness, left of fan */}
           {grow.setup.hasExhaustFan && (fanSliderActive || committedFanSpeed !== null) && (() => {
@@ -1409,9 +1471,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const lampH   = getLampSVGHeight()
             const lampX   = SVG_W / 2 - lampW / 2
             const glowId  = lt === 'led' ? 'glow-led' : lt === 'cfl' ? 'glow-cfl' : 'glow-hps'
+            const lampAlertAnim = isLight && lightStatus !== 'optimal'
+              ? (lightStatus === 'critical' ? 'overlay-crit 0.75s ease-in-out infinite' : 'overlay-warn 1.6s ease-in-out infinite')
+              : null
             return (
               <>
-                <g style={isLight && lightStatus !== 'optimal' ? equipAlertStyle(lightStatus) : {}}>
                 <image
                   href={lightImg}
                   x={lampX} y={lampTop}
@@ -1427,8 +1491,16 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                   }}
                   onMouseDown={(e) => { e.preventDefault(); startLampDrag(e.clientY) }}
                   onTouchStart={(e) => { e.preventDefault(); startLampDrag(e.touches[0].clientY) }}
+                  onClick={(e) => e.stopPropagation()}
                 />
-                </g>
+                {lampAlertAnim && (
+                  <g style={{ animation: lampAlertAnim, pointerEvents: 'none' }}>
+                    <image href={lightImg} x={lampX} y={lampTop} width={lampW} height={lampH}
+                      style={{ filter: lightStatus === 'critical'
+                        ? 'drop-shadow(0 0 20px rgba(255,64,64,1)) drop-shadow(0 0 40px rgba(255,64,64,0.6))'
+                        : 'drop-shadow(0 0 16px rgba(240,168,48,1)) drop-shadow(0 0 30px rgba(240,168,48,0.5))' }} />
+                  </g>
+                )}
                 {/* Drag hint — left of lamp, visible when not dragging */}
                 {!lampSliderActive && committedHeight === null && (
                   <g transform={`translate(${lampX - 58},${lampTop + lampH / 2 - 12})`} style={{ pointerEvents: 'none', opacity: 0.45 }}>
@@ -1478,6 +1550,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                 potSize={grow.setup.potSize as 'small' | 'medium' | 'large'}
                 tentSize={grow.setup.tentSize}
                 mediumStatus={mediumStatus}
+                onPotClick={() => setEquipPopup('pot')}
               />
             )
           })()}
@@ -1528,6 +1601,105 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         </svg>
         </div>{/* /SVG border-radius wrapper */}
+
+        {/* Equipment info popup */}
+        {equipPopup && (() => {
+          const rows: { label: string; value: string; status?: string }[] = []
+          let title = ''
+
+          const statusCol = (s: string) => s === 'optimal' ? '#56c254' : s === 'warning' ? '#f0a830' : '#ff4040'
+          const medNames: Record<string,string> = { soil: 'Soil', coco: 'Coco Coir', hydro: 'Hydro', living_soil: 'Living Soil', perlite: 'Perlite Mix' }
+          const waterNames: Record<string,string> = { hand: 'Hand watering', drip: 'Drip system', flood: 'Flood & drain', wick: 'Wick system' }
+          const potNames: Record<string,string> = { small: 'Small (5–7L)', medium: 'Medium (11–15L)', large: 'Large (18–25L)' }
+
+          if (equipPopup === 'lamp') {
+            title = 'Light Setup'
+            rows.push(
+              { label: 'Type', value: grow.setup.lightType.toUpperCase() },
+              { label: 'Power', value: `${grow.setup.lightWatts}W` },
+              { label: 'Brand', value: grow.setup.lightBrand || '—' },
+              { label: 'Schedule', value: `${grow.environment.lightHours}h on / ${24 - grow.environment.lightHours}h off` },
+              { label: 'Height', value: `${grow.environment.lightHeight}cm from canopy` },
+              { label: 'Light attr', value: `${grow.attributes.light.status} · ${Math.round(grow.attributes.light.value)}`, status: grow.attributes.light.status },
+            )
+          } else if (equipPopup === 'fan') {
+            title = 'Exhaust Fan'
+            rows.push(
+              { label: 'CFM', value: `${grow.setup.exhaustCFM}` },
+              { label: 'Speed', value: `${grow.environment.exhaustFanSpeed}%` },
+              { label: 'Ventilation', value: `${grow.attributes.ventilation.status} · ${Math.round(grow.attributes.ventilation.value)}`, status: grow.attributes.ventilation.status },
+              { label: 'Temperature', value: `${grow.environment.temperature}°C · ${grow.attributes.temperature.status}`, status: grow.attributes.temperature.status },
+              { label: 'Humidity', value: `${grow.environment.humidity}% · ${grow.attributes.humidity.status}`, status: grow.attributes.humidity.status },
+            )
+          } else if (equipPopup === 'filter') {
+            title = 'Carbon Filter'
+            rows.push(
+              { label: 'Filter', value: grow.setup.hasCarbonFilter ? 'Installed' : 'Not installed' },
+              { label: 'Ventilation', value: `${grow.attributes.ventilation.status} · ${Math.round(grow.attributes.ventilation.value)}`, status: grow.attributes.ventilation.status },
+              { label: 'Temperature', value: `${grow.environment.temperature}°C`, status: grow.attributes.temperature.status },
+              { label: 'Humidity', value: `${grow.environment.humidity}%`, status: grow.attributes.humidity.status },
+            )
+          } else if (equipPopup === 'pot') {
+            title = 'Medium & Pot'
+            rows.push(
+              { label: 'Medium', value: medNames[grow.setup.medium] ?? grow.setup.medium },
+              { label: 'Pot size', value: potNames[grow.setup.potSize] ?? grow.setup.potSize },
+              { label: 'Watering', value: waterNames[grow.setup.watering] ?? grow.setup.watering },
+              { label: 'Nutrients', value: grow.setup.nutrients || '—' },
+              { label: 'pH', value: `${grow.environment.ph}`, status: grow.attributes.watering.status },
+              { label: 'EC', value: `${grow.environment.ec}` },
+              { label: 'Water attr', value: `${grow.attributes.watering.status} · ${Math.round(grow.attributes.watering.value)}`, status: grow.attributes.watering.status },
+              { label: 'Nutrients attr', value: `${grow.attributes.nutrients.status} · ${Math.round(grow.attributes.nutrients.value)}`, status: grow.attributes.nutrients.status },
+            )
+          } else if (equipPopup === 'circ') {
+            title = 'Circulation Fan'
+            rows.push(
+              { label: 'Status', value: grow.setup.hasCirculationFan ? 'Installed' : 'Not installed' },
+              { label: 'Temperature', value: `${grow.environment.temperature}°C · ${grow.attributes.temperature.status}`, status: grow.attributes.temperature.status },
+              { label: 'Humidity', value: `${grow.environment.humidity}% · ${grow.attributes.humidity.status}`, status: grow.attributes.humidity.status },
+            )
+          }
+
+          return (
+            <div
+              style={{
+                position: 'absolute', bottom: '12px', left: '50%', transform: 'translateX(-50%)',
+                width: 'min(320px, 90%)', zIndex: 20,
+                background: 'rgba(5,5,8,0.95)', backdropFilter: 'blur(12px)',
+                border: '0.5px solid rgba(0,212,200,0.25)', borderRadius: '8px',
+                padding: '16px',
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '2px', textTransform: 'uppercase', color: '#00d4c8' }}>
+                  {title}
+                </span>
+                <button
+                  onClick={() => setEquipPopup(null)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4a6066', fontSize: '16px', lineHeight: 1, padding: '0 0 0 8px' }}
+                >
+                  ×
+                </button>
+              </div>
+              {/* Rows */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                {rows.map(({ label, value, status }) => (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', textTransform: 'uppercase', color: '#4a6066' }}>
+                      {label}
+                    </span>
+                    <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: status ? statusCol(status) : '#e8f0ef' }}>
+                      {value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+        </div>{/* /relative popup container */}
 
         {/* ── Actions ── */}
         <div ref={actionBtnRef} style={{ marginTop: '6px', padding: '12px 14px', background: 'rgba(13,0,20,0.6)', border: '0.5px solid rgba(74,96,102,0.15)', borderRadius: '8px', position: 'relative' }}>
