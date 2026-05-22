@@ -169,12 +169,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
 
-  // Handle defoliation — stage-aware yield consequences
+  // Handle defoliation — stage-aware yield consequences, 3-day cooldown
   if (type === 'defoliate') {
     const stage = grow.stage as GrowStage
     const seedlingEnd = (grow as typeof grow & { isClone?: boolean }).isClone ? 4 : 7
     const vegDays = grow.currentDay - seedlingEnd
-    const prevDefoCount = grow.actions.filter((a: { type: string }) => a.type === 'defoliate').length
+    const defoActions = (grow.actions as Array<{ type: string; timestamp: Date }>).filter(a => a.type === 'defoliate')
+    const prevDefoCount = defoActions.length
+
+    if (prevDefoCount > 0 && stage !== 'seedling') {
+      const dayDurationMs = ((grow as typeof grow & { dayDurationSeconds?: number }).dayDurationSeconds ?? 86400) * 1000
+      const minGapMs      = 3 * dayDurationMs
+      const lastDefoTime  = new Date(defoActions[defoActions.length - 1].timestamp).getTime()
+      const msSinceLast   = Date.now() - lastDefoTime
+      if (msSinceLast < minGapMs) {
+        const daysLeft = Math.ceil((minGapMs - msSinceLast) / dayDurationMs)
+        return NextResponse.json({
+          error: `Defoliation cooldown — plant needs ${daysLeft} more day${daysLeft !== 1 ? 's' : ''} to recover`,
+        }, { status: 400 })
+      }
+    }
 
     let humidityDelta = 0
     let xpEarned = 15
@@ -281,6 +295,51 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
   }
 
+  // Handle LST — max 3 applications, 4-day cooldown between each
+  if (type === 'lst') {
+    const stage = grow.stage as GrowStage
+    if (stage !== 'veg' && stage !== 'seedling') {
+      return NextResponse.json({ error: 'LST only works during veg' }, { status: 400 })
+    }
+
+    const lstActions = (grow.actions as Array<{ type: string; timestamp: Date }>).filter(a => a.type === 'lst')
+
+    if (lstActions.length >= 3) {
+      return NextResponse.json({ error: 'LST already applied 3 times — maximum for this grow' }, { status: 400 })
+    }
+
+    if (lstActions.length > 0) {
+      const dayDurationMs = ((grow as typeof grow & { dayDurationSeconds?: number }).dayDurationSeconds ?? 86400) * 1000
+      const minGapMs      = 4 * dayDurationMs
+      const lastLstTime   = new Date(lstActions[lstActions.length - 1].timestamp).getTime()
+      const msSinceLast   = Date.now() - lastLstTime
+      if (msSinceLast < minGapMs) {
+        const daysLeft = Math.ceil((minGapMs - msSinceLast) / dayDurationMs)
+        return NextResponse.json({
+          error: `LST cooldown — wait ${daysLeft} more day${daysLeft !== 1 ? 's' : ''} before re-applying`,
+        }, { status: 400 })
+      }
+    }
+
+    // Diminishing returns: 1st +10%, 2nd +6%, 3rd +3%
+    const n          = lstActions.length
+    const yieldBonus = n === 0 ? 0.10 : n === 1 ? 0.06 : 0.03
+    const xpEarned   = n === 0 ? 25   : n === 1 ? 15   : 8
+    const label      = n === 0 ? '1st' : n === 1 ? '2nd' : '3rd'
+    const pct        = n === 0 ? 10    : n === 1 ? 6     : 3
+
+    grow.yieldProjection = Math.round(grow.yieldProjection * (1 + yieldBonus))
+    const effectMsg = `LST applied (${label}) — canopy spread, yield +${pct}%`
+
+    grow.actions.push({ type, timestamp: new Date(), xpEarned, effect: effectMsg })
+    if (xpEarned > 0) {
+      await awardXP(session.user.id, 'LST_APPLIED', xpEarned)
+      grow.xpEarned += xpEarned
+    }
+    await grow.save()
+    return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
+  }
+
   const effect = getActionEffect(type, grow.stage as GrowStage)
 
   // Capture BEFORE status for smart XP comparison
@@ -324,10 +383,6 @@ export async function POST(req: NextRequest) {
   } else if (type === 'flush') {
     // Flush removes nutrients: reward only when nutrients were too high
     xpDelta = smartXP(beforeNutrients, afterNutrients)
-  } else if (type === 'lst') {
-    // Diminishing returns: first 2 get full XP, after that 0
-    const lstCount = grow.actions.filter((a: { type: string }) => a.type === 'lst').length
-    xpDelta = lstCount === 0 ? 25 : lstCount === 1 ? 10 : 0
   } else {
     // top, ph_check, and others keep effect.xp
     xpDelta = effect.xp
