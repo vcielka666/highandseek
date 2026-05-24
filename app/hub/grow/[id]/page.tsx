@@ -1667,7 +1667,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         {/* ── First-time tutorial hints — amber, shown once when attribute goes critical ── */}
         {grow.setup.hasExhaustFan && fanStatus === 'critical' && !seenHints.has('fan') && (
-          <div style={{ position: 'absolute', top: '2%', right: '2%', pointerEvents: 'none', zIndex: 15 }}>
+          <div style={{ position: 'absolute', top: '2%', right: 'calc(2% + 100px)', pointerEvents: 'none', zIndex: 15 }}>
             <div style={{
               background: 'rgba(240,168,48,0.12)', border: '0.5px solid rgba(240,168,48,0.5)',
               borderRadius: '6px', padding: '7px 10px',
