@@ -298,8 +298,8 @@ export async function POST(req: NextRequest) {
   // Handle LST — max 3 applications, 4-day cooldown between each
   if (type === 'lst') {
     const stage = grow.stage as GrowStage
-    if (stage !== 'veg' && stage !== 'seedling') {
-      return NextResponse.json({ error: 'LST only works during veg' }, { status: 400 })
+    if (stage !== 'veg') {
+      return NextResponse.json({ error: stage === 'seedling' ? 'LST not suitable for seedlings — wait until veg stage' : 'LST only works during veg' }, { status: 400 })
     }
 
     const lstActions = (grow.actions as Array<{ type: string; timestamp: Date }>).filter(a => a.type === 'lst')

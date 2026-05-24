@@ -1667,19 +1667,18 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
         {/* ── First-time tutorial hints — amber, shown once when attribute goes critical ── */}
         {grow.setup.hasExhaustFan && fanStatus === 'critical' && !seenHints.has('fan') && (
-          <div style={{ position: 'absolute', top: '2%', right: 'calc(2% + 100px)', pointerEvents: 'none', zIndex: 15 }}>
+          <div style={{ position: 'absolute', top: 'calc(2% - 10px)', right: 'calc(2% + 100px)', pointerEvents: 'none', zIndex: 15, display: 'flex', alignItems: 'center' }}>
             <div style={{
               background: 'rgba(240,168,48,0.12)', border: '0.5px solid rgba(240,168,48,0.5)',
               borderRadius: '6px', padding: '7px 10px',
               fontFamily: 'var(--font-dm-mono)', fontSize: '9px', color: '#f0a830',
               lineHeight: 1.5, letterSpacing: '0.3px',
-              animation: 'floatY 2s ease-in-out infinite',
               boxShadow: '0 0 12px rgba(240,168,48,0.2)',
             }}>
               <div style={{ fontWeight: 700, marginBottom: '2px' }}>⇕ hold & drag the fan</div>
               <div style={{ color: 'rgba(240,168,48,0.65)' }}>adjust exhaust speed</div>
             </div>
-            <div style={{ width: 0, height: 0, borderLeft: '6px solid transparent', borderRight: '6px solid transparent', borderBottom: '6px solid rgba(240,168,48,0.4)', marginLeft: 'auto', marginRight: '18px' }} />
+            <div style={{ width: 0, height: 0, borderTop: '6px solid transparent', borderBottom: '6px solid transparent', borderLeft: '6px solid rgba(240,168,48,0.5)', flexShrink: 0 }} />
           </div>
         )}
         {lightStatus === 'critical' && !seenHints.has('lamp') && (
@@ -1843,8 +1842,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const lstLastMs    = lstCount > 0 ? new Date(lstActions[lstActions.length - 1].timestamp).getTime() : 0
             const lstCooldownMs = lstCount > 0 ? Math.max(0, 4 * dayMs - (Date.now() - lstLastMs)) : 0
             const lstCooldownDays = Math.ceil(lstCooldownMs / dayMs)
-            const lstDisabled  = lstMaxed || lstCooldownMs > 0
-            const lstLabel     = lstMaxed
+            const lstSeedling  = grow.stage === 'seedling'
+            const lstDisabled  = lstSeedling || lstMaxed || lstCooldownMs > 0
+            const lstLabel     = lstSeedling
+              ? `${g.actionLst as string} (too young)`
+              : lstMaxed
               ? `${g.actionLst as string} ✓`
               : lstCooldownDays > 0
               ? `${g.actionLst as string} (−${lstCooldownDays}d)`
