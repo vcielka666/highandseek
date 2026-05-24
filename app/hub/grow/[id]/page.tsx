@@ -1375,13 +1375,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             onClick={(e) => { e.stopPropagation(); setEquipPopup(prev => prev === 'filter' ? null : 'filter') }}
           />
 
-          {/* Circulation fan — left wall */}
+          {/* Circulation fan — left wall, flipped horizontally to face inward */}
           {grow.setup.hasCirculationFan && (
             <image
               href={EQUIP_IMGS.circulation}
               x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
-              style={{ opacity: 0.85, cursor: 'pointer', filter: 'drop-shadow(2px 0 6px rgba(0,0,0,0.5))' }}
+              transform={`rotate(20, ${TENT_LAYOUT.circ.x + 40 + TENT_LAYOUT.circ.w / 2}, ${TENT_LAYOUT.circ.y + TENT_LAYOUT.circ.h / 2}) translate(${TENT_LAYOUT.circ.x * 2 + TENT_LAYOUT.circ.w + 40}, 0) scale(-1, 1)`}
+              style={{ opacity: 0.85, cursor: 'pointer', filter: 'drop-shadow(-2px 0 6px rgba(0,0,0,0.5))' }}
               onClick={(e) => { e.stopPropagation(); setEquipPopup(prev => prev === 'circ' ? null : 'circ') }}
             />
           )}
@@ -1659,6 +1660,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             <image href={EQUIP_IMGS.circulation}
               x={TENT_LAYOUT.circ.x} y={TENT_LAYOUT.circ.y}
               width={TENT_LAYOUT.circ.w} height={TENT_LAYOUT.circ.h}
+              transform={`rotate(20, ${TENT_LAYOUT.circ.x + 40 + TENT_LAYOUT.circ.w / 2}, ${TENT_LAYOUT.circ.y + TENT_LAYOUT.circ.h / 2}) translate(${TENT_LAYOUT.circ.x * 2 + TENT_LAYOUT.circ.w + 40}, 0) scale(-1, 1)`}
               style={{ filter: 'drop-shadow(0 0 14px rgba(0,212,200,0.95)) drop-shadow(0 0 30px rgba(0,212,200,0.5))', pointerEvents: 'none' }} />
           )}
 
@@ -1841,15 +1843,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const dayMs        = (grow.dayDurationSeconds ?? 86400) * 1000
             const lstLastMs    = lstCount > 0 ? new Date(lstActions[lstActions.length - 1].timestamp).getTime() : 0
             const lstCooldownMs = lstCount > 0 ? Math.max(0, 4 * dayMs - (Date.now() - lstLastMs)) : 0
-            const lstCooldownDays = Math.ceil(lstCooldownMs / dayMs)
+            const lstProgress  = lstCooldownMs > 0 ? 1 - lstCooldownMs / (4 * dayMs) : 0
             const lstSeedling  = grow.stage === 'seedling'
             const lstDisabled  = lstSeedling || lstMaxed || lstCooldownMs > 0
             const lstLabel     = lstSeedling
               ? `${g.actionLst as string} (too young)`
               : lstMaxed
               ? `${g.actionLst as string} ✓`
-              : lstCooldownDays > 0
-              ? `${g.actionLst as string} (−${lstCooldownDays}d)`
               : lstCount > 0
               ? `${g.actionLst as string} ${lstCount}/3`
               : g.actionLst as string
@@ -1859,29 +1859,30 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             const defoCount       = defoActions.length
             const defoLastMs      = defoCount > 0 ? new Date(defoActions[defoActions.length - 1].timestamp).getTime() : 0
             const defoCooldownMs  = defoCount > 0 ? Math.max(0, 3 * dayMs - (Date.now() - defoLastMs)) : 0
-            const defoCooldownDays = Math.ceil(defoCooldownMs / dayMs)
+            const defoProgress    = defoCooldownMs > 0 ? 1 - defoCooldownMs / (3 * dayMs) : 0
             const defoDisabled    = defoCooldownMs > 0
-            const defoLabel       = defoCooldownDays > 0
-              ? `${g.actionDefoliate as string} (−${defoCooldownDays}d)`
-              : defoCount > 0
+            const defoLabel       = defoCount > 0
               ? `${g.actionDefoliate as string} ×${defoCount}`
               : g.actionDefoliate as string
 
             const actions = [
-              { type: 'water',     label: g.actionWater as string,    disabled: false },
-              { type: 'feed',      label: g.actionFeed as string,     disabled: false },
-              { type: 'ph_adjust', label: g.actionPhAdjust as string, disabled: false },
+              { type: 'water',     label: g.actionWater as string,    disabled: false,        cooldown: 0 },
+              { type: 'feed',      label: g.actionFeed as string,     disabled: false,        cooldown: 0 },
+              { type: 'ph_adjust', label: g.actionPhAdjust as string, disabled: false,        cooldown: 0 },
               isVeg
-                ? { type: 'lst',      label: lstLabel,               disabled: lstDisabled }
-                : { type: 'lollipop', label: g.actionLollipop as string, disabled: lollipopDone },
-              { type: 'defoliate', label: defoLabel, disabled: defoDisabled },
-              { type: 'topdress',  label: g.actionTopdress as string,  disabled: false },
+                ? { type: 'lst',      label: lstLabel,                    disabled: lstDisabled,  cooldown: lstProgress }
+                : { type: 'lollipop', label: g.actionLollipop as string,  disabled: lollipopDone, cooldown: 0 },
+              { type: 'defoliate', label: defoLabel, disabled: defoDisabled, cooldown: defoProgress },
+              { type: 'topdress',  label: g.actionTopdress as string,  disabled: false,        cooldown: 0 },
             ]
             return (
               <>
                 <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, 1fr)' : 'repeat(6, 1fr)', gap: isMobile ? '10px' : '7px' }}>
-                  {actions.map(({ type, label, disabled }) => {
+                  {actions.map(({ type, label, disabled, cooldown }) => {
                     const isArmed = type === 'water' || type === 'ph_adjust' ? subPanel === type : armedAction === type
+                    const isCooldown = cooldown > 0
+                    const deg = Math.round(cooldown * 360)
+                    const cooldownBg = `conic-gradient(from -90deg, rgba(0,212,200,0.35) 0deg, rgba(0,212,200,0.35) ${deg}deg, rgba(10,36,40,0.7) ${deg}deg)`
                     return (
                       <button
                         key={type}
@@ -1902,18 +1903,20 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
                         }}
                         disabled={pending || disabled}
                         style={{
-                          fontFamily: 'var(--font-dm-mono)', fontSize: isMobile ? '11px' : '9px',
-                          padding: isMobile ? '13px 6px' : '9px 4px', borderRadius: '4px',
-                          border: `0.5px solid ${isArmed ? 'rgba(0,212,200,0.6)' : disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
-                          background: isArmed ? 'rgba(0,212,200,0.1)' : 'rgba(10,36,40,0.5)',
-                          color: disabled ? '#3a4a50' : isArmed ? '#00d4c8' : '#e8f0ef',
+                          fontFamily: 'var(--font-dm-mono)', fontSize: isMobile ? '13px' : '11px',
+                          padding: '0 4px', borderRadius: '4px',
+                          height: isMobile ? '56px' : '46px',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                          border: `0.5px solid ${isCooldown ? 'rgba(0,212,200,0.3)' : isArmed ? 'rgba(0,212,200,0.6)' : disabled ? 'rgba(74,96,102,0.12)' : 'rgba(74,96,102,0.3)'}`,
+                          background: isCooldown ? cooldownBg : isArmed ? 'rgba(0,212,200,0.1)' : 'rgba(10,36,40,0.5)',
+                          color: isCooldown ? 'rgba(0,212,200,0.5)' : disabled ? '#3a4a50' : isArmed ? '#00d4c8' : '#e8f0ef',
                           cursor: (pending || disabled) ? 'not-allowed' : 'pointer',
                           opacity: pending ? 0.5 : 1, textAlign: 'center',
-                          transition: 'border-color 0.15s, background 0.15s, color 0.15s',
+                          transition: 'border-color 0.15s, color 0.15s',
                         }}
                       >
                         {label}
-                        {disabled && (
+                        {!isCooldown && disabled && (
                           <span style={{ display: 'block', fontSize: '8px', color: '#2a3a40', marginTop: '2px' }}>
                             {g.doneLbl}
                           </span>
