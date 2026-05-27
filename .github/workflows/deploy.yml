@@ -18,6 +18,7 @@ jobs:
           script: |
             cd /var/www/highandseek
             git pull
+            rm -rf .next
             NODE_OPTIONS="--max-old-space-size=1536" pnpm build
             pm2 restart highandseek
             echo "✅ H&S deployed"
