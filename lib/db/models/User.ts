@@ -52,7 +52,8 @@ const UserSchema = new mongoose.Schema({
       completedAt: { type: Date },
     }],
   },
-  walletAddress: { type: String, default: '' },
+  walletAddress:     { type: String, default: '' },
+  claimedTreasures:  { type: [mongoose.Schema.Types.Mixed], default: [] },
 }, { timestamps: true })
 
 export type IUser = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId }

@@ -18,10 +18,11 @@ export default async function HubPage() {
   await connectDB()
 
   const [userData, recentXP, activeGrow, recentListings, listingCount, topUsers, strains] = await Promise.all([
-    User.findById(session.user.id).select('xp level credits growsCompleted cloneBank avatar following').lean<{
+    User.findById(session.user.id).select('xp level credits growsCompleted cloneBank avatar following claimedTreasures').lean<{
       xp: number; level: number; credits: number; growsCompleted: number; avatar: string
       cloneBank: Array<{ strainSlug: string; strainName: string; strainType: string; floweringTime: number; takenAt: string }>
       following: mongoose.Types.ObjectId[]
+      claimedTreasures: unknown[]
     }>(),
     XPEvent.find({ userId: session.user.id })
       .sort({ createdAt: -1 }).limit(6)
@@ -95,7 +96,7 @@ export default async function HubPage() {
       : Promise.resolve(0),
     hasFollowing
       ? User.find({ _id: { $in: followingIds.slice(0, 4) } })
-          .select('username avatar')
+          .select('-_id username avatar')
           .lean<{ username: string; avatar: string }[]>()
       : Promise.resolve([] as { username: string; avatar: string }[]),
   ])
@@ -110,7 +111,7 @@ export default async function HubPage() {
       createdAt: p.createdAt.toISOString(),
     })),
     newPostsCount,
-    followerAvatars: followerAvatarUsers,
+    followerAvatars: followerAvatarUsers.map(u => ({ username: u.username, avatar: u.avatar })),
     totalFollowing: followingIds.length,
   }
 
@@ -165,6 +166,8 @@ export default async function HubPage() {
     })),
 
     feedPreview,
+
+    seekersTreasuresClaimed: userData?.claimedTreasures?.length ?? 0,
   }
 
   return <HubBentoGrid data={data} />

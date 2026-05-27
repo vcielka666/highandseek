@@ -191,17 +191,40 @@ RESEND_API_KEY=
 
 ## Deployment
 
+### High & Seek
 - **Server:** DigitalOcean VPS, 138.68.74.105, Ubuntu 24.04
 - **Path:** `/var/www/highandseek`, port 3001
-- **Process:** PM2 (`highandseek`), Nginx reverse proxy
+- **Process:** PM2 (`highandseek`), Nginx reverse proxy (`/etc/nginx/sites-available/highandseek`)
 - **Node options:** `NODE_OPTIONS="--max-old-space-size=1536"` (1 GB RAM)
 - **Build:** `NODE_OPTIONS="--max-old-space-size=1536" pnpm build`
 - **Restart:** `pm2 restart highandseek --update-env`
 - **Logs:** `pm2 logs highandseek`
-- **Domains:** highandseek.com, highandseek.cz — DNS not yet configured (A → 138.68.74.105)
+- **Domains:** highandseek.com, highandseek.cz — SSL active via Let's Encrypt
 - **`next.config.ts`:** `typescript: { ignoreBuildErrors: true }, eslint: { ignoreDuringBuilds: true }`
 - **`AUTH_URL`:** `http://138.68.74.105` (update to https once SSL configured)
 - Leading spaces in `.env.local` silently break vars — verify with `grep AUTH .env.local`
+- **Auto-deploy:** GitHub Actions → push to `main` triggers VPS deploy (secret: `VPS_SSH_KEY`)
+- **Manual deploy:** `~/deploy-has.sh` — commits, pushes, SSHs, builds, restarts PM2
+
+### Seekers
+- **Server:** same VPS, port 3000
+- **Path:** `/var/www/seekers` (cloned from `vcielka666/seekers2`)
+- **Process:** PM2 (`seekers`), Nginx reverse proxy (`/etc/nginx/sites-available/seekers`)
+- **Package manager:** npm (not pnpm — no pnpm-lock.yaml)
+- **Build:** `NODE_OPTIONS="--max-old-space-size=1536" npm run build`
+- **Install:** `npm install --legacy-peer-deps` (nodemailer/next-auth peer dep conflict)
+- **Restart:** `pm2 restart seekers`
+- **Logs:** `pm2 logs seekers`
+- **Domain:** seekers-game.com — DNS must point to 138.68.74.105 before certbot
+- **SSL:** run after DNS update: `certbot --nginx -d seekers-game.com -d www.seekers-game.com --non-interactive --agree-tos -m seekersmail@proton.me`
+- **Auto-deploy:** GitHub Actions → push to `main` (secret `VPS_SSH_KEY` same key as H&S)
+- **Manual deploy:** `~/deploy-seekers.sh`
+
+### Shared VPS setup
+- **PM2 ecosystem:** `/var/www/ecosystem.config.js` — manages both apps
+- **Swap:** 4GB (`/swapfile`)
+- **GitHub Actions SSH key:** `~/.ssh/github_actions` (private) / `~/.ssh/github_actions.pub` (public, added to VPS `authorized_keys`)
+- **Add private key to GitHub:** each repo → Settings → Secrets → `VPS_SSH_KEY`
 
 ---
 

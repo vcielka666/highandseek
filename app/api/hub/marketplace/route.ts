@@ -110,9 +110,10 @@ export async function POST(req: Request) {
 
   await connectDB()
 
-  // First listing is free; subsequent listings cost MARKETPLACE_POST credits
-  const existingCount = await Listing.countDocuments({ userId: session.user.id, status: { $ne: 'removed' } })
-  const cost = existingCount === 0 ? 0 : CREDIT_COSTS.MARKETPLACE_POST
+  // Admins post for free always; others: first listing free, subsequent cost MARKETPLACE_POST credits
+  const isAdmin = session.user.role === 'admin'
+  const existingCount = isAdmin ? 0 : await Listing.countDocuments({ userId: session.user.id, status: { $ne: 'removed' } })
+  const cost = isAdmin || existingCount === 0 ? 0 : CREDIT_COSTS.MARKETPLACE_POST
 
   if (cost > 0) {
     const userDoc = await User.findById(session.user.id).select('credits').lean<{ credits?: number }>()

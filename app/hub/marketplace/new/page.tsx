@@ -16,6 +16,7 @@ export default async function NewListingPage() {
   const { locale, t } = await getServerT()
   const m = t.marketplace
 
+  const isAdmin = session.user.role === 'admin'
   let userCredits = 0
   let isFirstListing = true
 
@@ -32,7 +33,7 @@ export default async function NewListingPage() {
     // Non-fatal — form will show with 0 credits, API will re-validate
   }
 
-  const costForUser = isFirstListing ? 0 : CREDIT_COSTS.MARKETPLACE_POST
+  const costForUser = isAdmin || isFirstListing ? 0 : CREDIT_COSTS.MARKETPLACE_POST
 
   return (
     <div style={{ maxWidth: '640px' }} className="px-4 pt-4 pb-20 md:px-7 md:pt-7">

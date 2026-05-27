@@ -34,8 +34,9 @@ export interface BentoData {
   listings:       ListingData[]
   listingCount:   number
   topUsers:       LeaderUser[]
-  xpEvents:       XPEventData[]
-  feedPreview:    FeedPreviewData | null
+  xpEvents:               XPEventData[]
+  feedPreview:            FeedPreviewData | null
+  seekersTreasuresClaimed: number
 }
 
 // ── Card config ───────────────────────────────────────────────────────────────
@@ -87,7 +88,7 @@ function CardPreview({ id, data, t, growAcknowledged }: { id: CardId; data: Bent
     case 'leaderboard':
       return <LeaderboardCard users={data.topUsers} currentId={data.userId} labels={{ title: d.leaderboardTitle, fullLink: d.fullLeaderboard, you: b.you, lv: b.lv }} />
     case 'seekers':
-      return <SeekersCard labels={{ title: d.seekers, desc: d.seekersConnect, comingSoon: b.comingSoon, openApp: d.openSeekers }} />
+      return <SeekersCard credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
   }
 }
 
@@ -115,7 +116,7 @@ function CardExpanded({ id, data, t, onGrowAcknowledge, growAcknowledged }: { id
     case 'leaderboard':
       return <LeaderboardCard users={data.topUsers} currentId={data.userId} expanded labels={{ title: d.leaderboardTitle, fullLink: d.fullLeaderboard, you: b.you, lv: b.lv }} />
     case 'seekers':
-      return <SeekersCard expanded labels={{ title: d.seekers, desc: d.seekersConnect, comingSoon: b.comingSoon, openApp: d.openSeekers }} />
+      return <SeekersCard expanded credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
   }
 }
 
@@ -125,6 +126,26 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
   const [selected, setSelected] = useState<CardId | null>(null)
   const [growAcknowledged, setGrowAcknowledged] = useState(false)
   const { t } = useLanguage()
+
+  const [seekersConfirm, setSeekersConfirm] = useState(false)
+  const [seekersLoading, setSeekersLoading] = useState(false)
+  const [seekersTransition, setSeekersTransition] = useState(false)
+  const [seekersTargetUrl, setSeekersTargetUrl] = useState('')
+
+  async function handleSeekersEnter() {
+    setSeekersLoading(true)
+    try {
+      const res = await fetch('/api/auth/seekers-token', { method: 'POST' })
+      if (!res.ok) throw new Error()
+      const { token } = await res.json()
+      const base = process.env.NEXT_PUBLIC_SEEKERS_URL || 'http://localhost:3000'
+      setSeekersTargetUrl(`${base}/cross-app?token=${encodeURIComponent(token)}`)
+      setSeekersConfirm(false)
+      setSeekersTransition(true)
+    } catch {
+      setSeekersLoading(false)
+    }
+  }
 
   function handleGrowAcknowledge() {
     setGrowAcknowledged(true)
@@ -153,7 +174,10 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
           <motion.div
             key={card.id}
             layoutId={`card-${card.id}`}
-            onClick={() => setSelected(card.id)}
+            onClick={() => {
+              if (card.id === 'seekers') { setSeekersConfirm(true); return }
+              setSelected(card.id)
+            }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: selected === card.id ? 0 : 1, y: 0 }}
             transition={{ delay: index * 0.06, duration: 0.4, ease: 'easeOut' }}
@@ -213,6 +237,102 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
           </div>
         </motion.a>
       </div>
+
+      {/* Seekers confirmation dialog */}
+      <AnimatePresence>
+        {seekersConfirm && (
+          <>
+            <motion.div
+              key="seekers-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={() => { if (!seekersLoading) setSeekersConfirm(false) }}
+              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 60, backdropFilter: 'blur(6px)' }}
+            />
+            <motion.div
+              key="seekers-dialog"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              style={{
+                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
+                zIndex: 61, width: 'min(320px, calc(100vw - 32px))',
+                background: '#08080d', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: 16,
+                padding: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
+                boxShadow: '0 0 60px rgba(240,168,48,0.1)',
+              }}
+            >
+              <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(240,168,48,0.3)', flexShrink: 0 }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: 13, fontWeight: 700, letterSpacing: '1.5px', color: '#f0a830', marginBottom: 8 }}>
+                  {t.hubDash.seekersEnterTitle}
+                </div>
+                <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: '#4a6066', lineHeight: 1.6 }}>
+                  {t.hubDash.seekersEnterDesc}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+                <button
+                  onClick={() => setSeekersConfirm(false)}
+                  disabled={seekersLoading}
+                  style={{
+                    flex: 1, height: 40, borderRadius: 6, cursor: 'pointer', border: '0.5px solid rgba(255,255,255,0.08)',
+                    background: 'rgba(255,255,255,0.04)', color: '#4a6066',
+                    fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                  }}
+                >
+                  {t.hubDash.seekersEnterCancel}
+                </button>
+                <button
+                  onClick={handleSeekersEnter}
+                  disabled={seekersLoading}
+                  style={{
+                    flex: 1, height: 40, borderRadius: 6, cursor: seekersLoading ? 'wait' : 'pointer',
+                    border: '0.5px solid rgba(240,168,48,0.4)',
+                    background: seekersLoading ? 'rgba(240,168,48,0.06)' : 'rgba(240,168,48,0.12)',
+                    color: '#f0a830',
+                    fontFamily: 'var(--font-orbitron)', fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
+                  }}
+                >
+                  {seekersLoading ? '...' : t.hubDash.seekersEnterConfirm}
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+
+      {/* Seekers portal transition overlay */}
+      <AnimatePresence>
+        {seekersTransition && (
+          <motion.div
+            key="seekers-transition"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
+            onAnimationComplete={() => { window.location.href = seekersTargetUrl }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 999,
+              background: 'linear-gradient(135deg, #06060a 0%, #0d0810 100%)',
+              display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20,
+            }}
+          >
+            <div style={{ width: 80, height: 80, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(240,168,48,0.4)', boxShadow: '0 0 40px rgba(240,168,48,0.15)' }}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
+            </div>
+            <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: 10, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.7)' }}>
+              {t.hubDash.seekersEnterLoading}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Expanded overlay */}
       <AnimatePresence>

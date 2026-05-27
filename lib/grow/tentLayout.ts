@@ -25,7 +25,7 @@ export const EQUIP_IMGS = {
   tentBgDark:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775213761/tent-bg-dark_tdybst.png',
   exhaust:     '/equip/fan/exhaust fan.png',
   circulation: 'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046841/fan-circulation_q6zbyi.png',
-  filter:      '/equip/filter/filter.png',
+  filter:      '/equip/filter/filter2.png',
   mediumSoil:  'https://res.cloudinary.com/dbrbbjlp0/image/upload/v1775046962/medium-soil_zbyoum.png',
   sonoflex:    '/equip/sonoflex/sonoflex.png',
 } as const
