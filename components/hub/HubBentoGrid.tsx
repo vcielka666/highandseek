@@ -241,25 +241,29 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
       {/* Seekers confirmation dialog */}
       <AnimatePresence>
         {seekersConfirm && (
-          <>
-            <motion.div
-              key="seekers-backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              onClick={() => { if (!seekersLoading) setSeekersConfirm(false) }}
-              style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.72)', zIndex: 60, backdropFilter: 'blur(6px)' }}
-            />
+          <motion.div
+            key="seekers-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => { if (!seekersLoading) setSeekersConfirm(false) }}
+            style={{
+              position: 'fixed', inset: 0, zIndex: 60,
+              background: 'rgba(0,0,0,0.72)', backdropFilter: 'blur(6px)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              padding: '16px',
+            }}
+          >
             <motion.div
               key="seekers-dialog"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              initial={{ opacity: 0, scale: 0.92, y: 16 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 10 }}
+              exit={{ opacity: 0, scale: 0.92, y: 8 }}
               transition={{ duration: 0.25, ease: 'easeOut' }}
+              onClick={e => e.stopPropagation()}
               style={{
-                position: 'fixed', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
-                zIndex: 61, width: 'min(320px, calc(100vw - 32px))',
+                width: '100%', maxWidth: 320,
                 background: '#08080d', border: '0.5px solid rgba(240,168,48,0.3)', borderRadius: 16,
                 padding: '28px 24px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 16,
                 boxShadow: '0 0 60px rgba(240,168,48,0.1)',
@@ -282,7 +286,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
                   onClick={() => setSeekersConfirm(false)}
                   disabled={seekersLoading}
                   style={{
-                    flex: 1, height: 40, borderRadius: 6, cursor: 'pointer', border: '0.5px solid rgba(255,255,255,0.08)',
+                    flex: 1, height: 44, borderRadius: 6, cursor: 'pointer', border: '0.5px solid rgba(255,255,255,0.08)',
                     background: 'rgba(255,255,255,0.04)', color: '#4a6066',
                     fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1.5px', textTransform: 'uppercase',
                   }}
@@ -293,7 +297,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
                   onClick={handleSeekersEnter}
                   disabled={seekersLoading}
                   style={{
-                    flex: 1, height: 40, borderRadius: 6, cursor: seekersLoading ? 'wait' : 'pointer',
+                    flex: 1, height: 44, borderRadius: 6, cursor: seekersLoading ? 'wait' : 'pointer',
                     border: '0.5px solid rgba(240,168,48,0.4)',
                     background: seekersLoading ? 'rgba(240,168,48,0.06)' : 'rgba(240,168,48,0.12)',
                     color: '#f0a830',
@@ -304,7 +308,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
                 </button>
               </div>
             </motion.div>
-          </>
+          </motion.div>
         )}
       </AnimatePresence>
 
