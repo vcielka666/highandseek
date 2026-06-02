@@ -16,6 +16,10 @@ export async function POST() {
   const payload = { email: session.user.email, exp: Date.now() + 60_000 }
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url')
   const sig = crypto.createHmac('sha256', secret).update(payloadB64).digest('base64url')
+  const token = `${payloadB64}.${sig}`
 
-  return NextResponse.json({ token: `${payloadB64}.${sig}` })
+  const seekersBase = process.env.SEEKERS_URL ?? process.env.NEXT_PUBLIC_SEEKERS_URL ?? 'http://localhost:3000'
+  const redirectUrl = `${seekersBase}/cross-app?token=${encodeURIComponent(token)}`
+
+  return NextResponse.json({ token, redirectUrl })
 }

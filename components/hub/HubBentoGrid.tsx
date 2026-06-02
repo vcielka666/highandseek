@@ -137,9 +137,8 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
     try {
       const res = await fetch('/api/auth/seekers-token', { method: 'POST' })
       if (!res.ok) throw new Error()
-      const { token } = await res.json()
-      const base = process.env.NEXT_PUBLIC_SEEKERS_URL || 'http://localhost:3000'
-      setSeekersTargetUrl(`${base}/cross-app?token=${encodeURIComponent(token)}`)
+      const { redirectUrl } = await res.json() as { redirectUrl: string }
+      setSeekersTargetUrl(redirectUrl)
       setSeekersConfirm(false)
       setSeekersTransition(true)
     } catch {
