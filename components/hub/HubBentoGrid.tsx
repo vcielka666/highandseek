@@ -133,15 +133,15 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
   const [logoFlip,          setLogoFlip]          = useState(false)
   const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Randomly flip the Seekers logo on Y-axis while transition overlay is showing
+  // Flip the Seekers logo on Y-axis roughly once every 5s while transition overlay is showing
   useEffect(() => {
     if (!seekersTransition) return
     const schedule = () => {
       flipTimerRef.current = setTimeout(() => {
         setLogoFlip(true)
-        setTimeout(() => setLogoFlip(false), 650)
+        setTimeout(() => setLogoFlip(false), 1200)
         schedule()
-      }, 1200 + Math.random() * 2000)
+      }, 4000 + Math.random() * 2000)
     }
     schedule()
     return () => { if (flipTimerRef.current) clearTimeout(flipTimerRef.current) }
@@ -343,7 +343,7 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
           >
             <motion.div
               animate={logoFlip ? { rotateY: [0, 180, 360] } : { rotateY: 0 }}
-              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              transition={{ duration: 1.1, ease: 'easeInOut' }}
               style={{ width: 80, height: 80, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(240,168,48,0.4)', boxShadow: '0 0 40px rgba(240,168,48,0.15)', perspective: 600 }}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
