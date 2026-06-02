@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLanguage } from '@/stores/languageStore'
 import GrowCard,        { type GrowCardData, type StrainPickerItem } from './cards/GrowCard'
@@ -130,7 +130,22 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
   const [seekersConfirm, setSeekersConfirm] = useState(false)
   const [seekersLoading, setSeekersLoading] = useState(false)
   const [seekersTransition, setSeekersTransition] = useState(false)
-  const [seekersTargetUrl, setSeekersTargetUrl] = useState('')
+  const [logoFlip,          setLogoFlip]          = useState(false)
+  const flipTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Randomly flip the Seekers logo on Y-axis while transition overlay is showing
+  useEffect(() => {
+    if (!seekersTransition) return
+    const schedule = () => {
+      flipTimerRef.current = setTimeout(() => {
+        setLogoFlip(true)
+        setTimeout(() => setLogoFlip(false), 650)
+        schedule()
+      }, 1200 + Math.random() * 2000)
+    }
+    schedule()
+    return () => { if (flipTimerRef.current) clearTimeout(flipTimerRef.current) }
+  }, [seekersTransition])
 
   async function handleSeekersEnter() {
     setSeekersLoading(true)
@@ -138,9 +153,10 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
       const res = await fetch('/api/auth/seekers-token', { method: 'POST' })
       if (!res.ok) throw new Error()
       const { redirectUrl } = await res.json() as { redirectUrl: string }
-      setSeekersTargetUrl(redirectUrl)
       setSeekersConfirm(false)
       setSeekersTransition(true)
+      // Use setTimeout — don't rely on onAnimationComplete which can silently skip
+      setTimeout(() => { window.location.href = redirectUrl }, 520)
     } catch {
       setSeekersLoading(false)
     }
@@ -319,17 +335,20 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             transition={{ duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
-            onAnimationComplete={() => { window.location.href = seekersTargetUrl }}
             style={{
               position: 'fixed', inset: 0, zIndex: 999,
               background: 'linear-gradient(135deg, #06060a 0%, #0d0810 100%)',
               display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20,
             }}
           >
-            <div style={{ width: 80, height: 80, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(240,168,48,0.4)', boxShadow: '0 0 40px rgba(240,168,48,0.15)' }}>
+            <motion.div
+              animate={logoFlip ? { rotateY: [0, 180, 360] } : { rotateY: 0 }}
+              transition={{ duration: 0.6, ease: 'easeInOut' }}
+              style={{ width: 80, height: 80, borderRadius: '50%', overflow: 'hidden', border: '1px solid rgba(240,168,48,0.4)', boxShadow: '0 0 40px rgba(240,168,48,0.15)', perspective: 600 }}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src="/seekers/icon-512x512.png" alt="Seekers" style={{ width: '100%', height: '100%', objectFit: 'cover', transform: 'scale(1.18)', transformOrigin: 'center' }} />
-            </div>
+            </motion.div>
             <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: 10, letterSpacing: '3px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.7)' }}>
               {t.hubDash.seekersEnterLoading}
             </div>
