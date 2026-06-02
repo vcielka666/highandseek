@@ -34,6 +34,8 @@ export default async function AdminTourBookingsPage() {
     qrCode:          b.qrCode,
     notes:           b.notes ?? '',
     createdAt:       b.createdAt ? new Date(b.createdAt).toISOString() : '',
+    hostPayout:      (b as { hostPayout?: number }).hostPayout ?? 0,
+    platformFee:     (b as { platformFee?: number }).platformFee ?? 0,
   }))
 
   return (

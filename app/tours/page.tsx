@@ -11,7 +11,7 @@ import type { ICannabisSpot } from '@/lib/db/models/CannabisSpot'
 // ─── Seed fallback (shown when DB is empty) ───────────────────────────────────
 const PLACEHOLDER_TOUR: TourCard = {
   _id:              'placeholder',
-  slug:             'prague-cannabis-culture-walk',
+  slug:             'praha-cannabis-culture-walk',
   title:            'Prague Cannabis Culture Walk',
   city:             'Praha',
   country:          'CZ',
@@ -409,8 +409,16 @@ export default async function ToursPage() {
         <ToursWaitlist />
       </section>
 
-      {/* ── Back link ── */}
-      <div style={{ textAlign: 'center', paddingBottom: '40px' }}>
+      {/* ── Back link + Guide CTA ── */}
+      <div style={{ textAlign: 'center', paddingBottom: '40px', display: 'flex', flexDirection: 'column', gap: '12px', alignItems: 'center' }}>
+        <Link href="/hub/tours" style={{
+          fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
+          letterSpacing: '1px', color: '#f0a830', textDecoration: 'none',
+          textTransform: 'uppercase', padding: '5px 14px', borderRadius: '20px',
+          background: 'rgba(240,168,48,0.08)', border: '0.5px solid rgba(240,168,48,0.2)',
+        }}>
+          🧭 Host a Tour
+        </Link>
         <Link href="/" style={{
           fontFamily: 'var(--font-dm-mono)', fontSize: '10px',
           letterSpacing: '1px', color: '#4a6066', textDecoration: 'none',

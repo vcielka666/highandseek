@@ -54,6 +54,18 @@ const UserSchema = new mongoose.Schema({
   },
   walletAddress:     { type: String, default: '' },
   claimedTreasures:  { type: [mongoose.Schema.Types.Mixed], default: [] },
+
+  // Tour guide system
+  tourGuideStatus:     { type: String, enum: ['none', 'pending', 'approved', 'rejected'], default: 'none' },
+  tourGuideAppliedAt:  { type: Date },
+  tourGuideApprovedAt: { type: Date },
+  platformCommission:  { type: Number, default: 20 },
+  tourGuideInfo: {
+    bio:        { type: String, maxlength: 500, default: '' },
+    languages:  [{ type: String }],
+    cities:     [{ type: String }],
+    experience: { type: String, maxlength: 300, default: '' },
+  },
 }, { timestamps: true })
 
 export type IUser = InferSchemaType<typeof UserSchema> & { _id: mongoose.Types.ObjectId }

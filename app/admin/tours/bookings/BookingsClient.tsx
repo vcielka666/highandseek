@@ -28,6 +28,8 @@ export interface BookingRow {
   qrCode:          string
   notes:           string
   createdAt:       string
+  hostPayout:      number
+  platformFee:     number
 }
 
 type FilterStatus = 'all' | 'pending' | 'confirmed' | 'completed' | 'cancelled'
@@ -117,6 +119,12 @@ function BookingDetailSheet({
               <p className="text-xs" style={{ color: '#4a6066' }}>
                 via {booking.paymentMethod}
               </p>
+              {(booking.platformFee > 0 || booking.hostPayout > 0) && (
+                <div className="mt-2 grid grid-cols-2 gap-1 text-xs" style={{ fontFamily: 'var(--font-dm-mono)' }}>
+                  <div style={{ color: '#f0a830' }}>Platform: {booking.platformFee.toFixed(2)} {booking.currency}</div>
+                  <div style={{ color: '#44cc88' }}>Host: {booking.hostPayout.toFixed(2)} {booking.currency}</div>
+                </div>
+              )}
             </Section>
 
             {/* QR */}

@@ -49,9 +49,20 @@ export async function POST(
     _id: import('mongoose').Types.ObjectId
     title: string
     meetingPoint: { address: string }
+    host: { userId?: string }
   }>()
   if (!tour) {
     return NextResponse.json({ error: 'Tour not found' }, { status: 404 })
+  }
+
+  // Revenue split: look up guide's commission if tour has a host user
+  let platformFee = 0
+  let hostPayout = 0
+  if (tour.host?.userId) {
+    const hostUser = await User.findById(tour.host.userId).select('platformCommission').lean<{ platformCommission?: number }>()
+    const commission = hostUser?.platformCommission ?? 20
+    platformFee = Math.round(payment.amount * (commission / 100) * 100) / 100
+    hostPayout  = Math.round((payment.amount - platformFee) * 100) / 100
   }
 
   const userId = session?.user?.id ?? undefined
@@ -112,6 +123,8 @@ export async function POST(
     qrCode,
     notes,
     xpAwarded: 0,
+    hostPayout,
+    platformFee,
   })
 
   await Tour.findByIdAndUpdate(tour._id, { $inc: { totalBookings: 1 } })

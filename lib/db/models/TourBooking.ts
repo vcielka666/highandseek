@@ -34,6 +34,9 @@ export interface ITourBooking {
   xpAwarded: number
   badgeAwarded?: string
 
+  hostPayout: number
+  platformFee: number
+
   createdAt: Date
   updatedAt: Date
 }
@@ -67,6 +70,9 @@ const TourBookingSchema = new Schema<ITourBooking>({
 
   xpAwarded:    { type: Number, default: 0 },
   badgeAwarded: { type: String },
+
+  hostPayout:   { type: Number, default: 0 },
+  platformFee:  { type: Number, default: 0 },
 }, { timestamps: true })
 
 TourBookingSchema.index({ tourId: 1, date: 1 })
