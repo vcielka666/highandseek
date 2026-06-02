@@ -2,19 +2,6 @@
 
 import { APIProvider, Map, AdvancedMarker } from '@vis.gl/react-google-maps'
 
-const DARK_MAP_STYLE = [
-  { elementType: 'geometry',           stylers: [{ color: '#0d0d12' }] },
-  { elementType: 'labels.text.fill',   stylers: [{ color: '#4a6066' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#050508' }] },
-  { featureType: 'road',     elementType: 'geometry',       stylers: [{ color: '#1a1a24' }] },
-  { featureType: 'road',     elementType: 'geometry.stroke', stylers: [{ color: '#050508' }] },
-  { featureType: 'road',     elementType: 'labels.text.fill', stylers: [{ color: '#4a6066' }] },
-  { featureType: 'water',    elementType: 'geometry',        stylers: [{ color: '#080810' }] },
-  { featureType: 'transit',  stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi',      stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1a1a24' }] },
-]
-
 interface MeetingMapProps {
   lat:     number
   lng:     number
@@ -47,7 +34,6 @@ export default function MeetingMap({ lat, lng, address }: MeetingMapProps) {
           defaultCenter={{ lat, lng }}
           defaultZoom={15}
           mapId="meeting-point-map"
-          styles={DARK_MAP_STYLE}
           disableDefaultUI
           gestureHandling="none"
           style={{ width: '100%', height: '100%' }}

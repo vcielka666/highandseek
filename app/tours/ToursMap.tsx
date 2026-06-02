@@ -46,21 +46,6 @@ const STOP_TYPE_COLORS: Record<string, string> = {
   other:     '#4a6066',
 }
 
-const DARK_MAP_STYLE = [
-  { elementType: 'geometry',       stylers: [{ color: '#0d0d12' }] },
-  { elementType: 'labels.text.fill', stylers: [{ color: '#4a6066' }] },
-  { elementType: 'labels.text.stroke', stylers: [{ color: '#050508' }] },
-  { featureType: 'road',           elementType: 'geometry', stylers: [{ color: '#1a1a24' }] },
-  { featureType: 'road',           elementType: 'geometry.stroke', stylers: [{ color: '#050508' }] },
-  { featureType: 'road',           elementType: 'labels.text.fill', stylers: [{ color: '#4a6066' }] },
-  { featureType: 'water',          elementType: 'geometry', stylers: [{ color: '#080810' }] },
-  { featureType: 'transit',        stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi',            stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative', elementType: 'geometry', stylers: [{ color: '#1a1a24' }] },
-  { featureType: 'administrative.country', elementType: 'labels.text.fill', stylers: [{ color: '#4a6066' }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#6a8088' }] },
-]
-
 type SelectedItem =
   | { kind: 'spot'; item: MapSpot }
   | { kind: 'stop'; item: MapTourStop }
@@ -89,7 +74,6 @@ function ToursMapInner({ spots, tourStops, defaultLat, defaultLng }: ToursMapPro
       defaultCenter={center}
       defaultZoom={13}
       mapId="tours-dark-map"
-      styles={DARK_MAP_STYLE}
       disableDefaultUI
       gestureHandling="cooperative"
       style={{ width: '100%', height: '100%' }}
