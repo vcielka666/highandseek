@@ -5,7 +5,6 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useLanguage } from '@/stores/languageStore'
-import GuestRegisterPrompt from '@/components/hub/GuestRegisterPrompt'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -238,7 +237,6 @@ function SetupWizardInner() {
   const cloneSlug         = params.get('clone') ?? ''
   const initDDS           = Math.min(86400, Math.max(60, Number(params.get('dds') ?? 86400)))
   const { data: session, status } = useSession()
-  const [showGuestPrompt, setShowGuestPrompt] = useState(false)
 
   const [step, setStep]           = useState(0)
   const [dayDurationSeconds, setDds] = useState<number>(initDDS)
@@ -341,8 +339,25 @@ function SetupWizardInner() {
   }
 
   async function submit() {
+    // Guest mode: save config and show the grow preview (wow moment)
     if (status !== 'loading' && !session) {
-      setShowGuestPrompt(true)
+      const strainName = isCloneGrow
+        ? (cloneSlug)
+        : isCustom
+          ? customStrain.name
+          : (selectedStrain?.name ?? selectedSlug)
+      const previewData = {
+        strainName,
+        strainSlug: isCloneGrow ? cloneSlug : isCustom ? '__custom__' : selectedSlug,
+        strainType: isCustom ? customStrain.type : (selectedStrain?.type ?? 'hybrid'),
+        floweringTime: isCustom ? customStrain.floweringTime : (selectedStrain?.floweringTime ?? 63),
+        setup,
+        dayDurationSeconds,
+      }
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem('guestGrow', JSON.stringify(previewData))
+      }
+      router.push('/hub/grow/preview')
       return
     }
     start(async () => {
@@ -369,7 +384,6 @@ function SetupWizardInner() {
 
   return (
     <>
-    <GuestRegisterPrompt open={showGuestPrompt} onClose={() => setShowGuestPrompt(false)} variant="grow" />
     <div style={{ maxWidth: '680px', padding: '20px 16px 60px', margin: '0 auto' }}>
       <style>{`
         @keyframes strain-border-glow {

@@ -178,38 +178,6 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
         variant={guestPrompt ?? 'generic'}
       />
 
-      {/* Guest banner */}
-      {data.guestMode && (
-        <div style={{
-          position: 'sticky', top: 0, zIndex: 100,
-          background: 'rgba(5,5,8,0.92)', backdropFilter: 'blur(8px)',
-          borderBottom: '0.5px solid rgba(0,212,200,0.2)',
-          padding: '10px 20px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
-        }}>
-          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: '#4a6066', letterSpacing: '0.5px' }}>
-            {t.guest.bannerText}
-          </span>
-          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
-            <a href="/auth/login" style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1px',
-              textTransform: 'uppercase', color: '#4a6066', textDecoration: 'none',
-              padding: '6px 12px', border: '0.5px solid rgba(255,255,255,0.08)',
-              borderRadius: 4, background: 'transparent',
-            }}>
-              {t.guest.signIn}
-            </a>
-            <a href="/auth/register" style={{
-              fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1px',
-              textTransform: 'uppercase', color: '#050508', textDecoration: 'none',
-              padding: '6px 12px', borderRadius: 4, background: '#00d4c8',
-            }}>
-              {t.guest.bannerCTA}
-            </a>
-          </div>
-        </div>
-      )}
-
       {/* Grid */}
       <div style={{
         display:             'grid',
@@ -232,10 +200,12 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             layoutId={`card-${card.id}`}
             onClick={() => {
               if (card.id === 'seekers') {
-                if (data.guestMode) { setGuestPrompt('generic'); return }
+                if (data.guestMode) {
+                  window.location.href = process.env.NEXT_PUBLIC_SEEKERS_URL || 'https://seekers-game.com'
+                  return
+                }
                 setSeekersConfirm(true); return
               }
-              if (data.guestMode && card.id === 'grow')        { setGuestPrompt('grow');   return }
               if (data.guestMode && card.id === 'strain')      { setGuestPrompt('strain'); return }
               if (data.guestMode && card.id === 'marketplace') { setGuestPrompt('market'); return }
               setSelected(card.id)
