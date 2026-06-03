@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth/config'
-import { redirect } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import Strain from '@/lib/db/models/Strain'
 import AvatarState from '@/lib/db/models/AvatarState'
@@ -10,7 +9,6 @@ export const dynamic = 'force-dynamic'
 
 export default async function StrainsPage() {
   const session = await auth()
-  if (!session) redirect('/auth/login?callbackUrl=/hub/strains')
 
   await connectDB()
 
@@ -32,7 +30,7 @@ export default async function StrainsPage() {
       isComingSoon: boolean
     }>>()
 
-  const userStates = await AvatarState.find({ userId: session.user.id })
+  const userStates = session ? await AvatarState.find({ userId: session.user.id })
     .select('strainSlug level xp needs status chatCount')
     .lean<Array<{
       strainSlug: string
@@ -41,7 +39,7 @@ export default async function StrainsPage() {
       needs: { hydration: number; nutrients: number; energy: number; happiness: number; lastUpdated: Date }
       status: string
       chatCount: number
-    }>>()
+    }>>() : []
 
   const stateMap = new Map(userStates.map(s => [s.strainSlug, s]))
 
@@ -90,5 +88,5 @@ export default async function StrainsPage() {
     }
   })
 
-  return <StrainDirectoryClient strains={strainsData} />
+  return <StrainDirectoryClient strains={strainsData} guestMode={!session} />
 }

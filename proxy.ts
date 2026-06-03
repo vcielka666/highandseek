@@ -6,12 +6,6 @@ export default auth((req) => {
   const { pathname } = nextUrl
   const isLoggedIn = !!req.auth
 
-  if (pathname.startsWith('/hub') && !isLoggedIn) {
-    const loginUrl = new URL('/auth/login', nextUrl.origin)
-    loginUrl.searchParams.set('callbackUrl', pathname)
-    return NextResponse.redirect(loginUrl)
-  }
-
   if (pathname.startsWith('/admin')) {
     if (!isLoggedIn) {
       const loginUrl = new URL('/auth/login', nextUrl.origin)
@@ -29,5 +23,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ['/hub/:path*', '/admin/:path*', '/auth/:path*'],
+  matcher: ['/admin/:path*', '/auth/:path*'],
 }

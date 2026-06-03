@@ -12,7 +12,7 @@ import { getServerT } from '@/lib/i18n/server'
 
 export default async function GrowPage() {
   const session = await auth()
-  if (!session) redirect('/auth/login?callbackUrl=/hub/grow')
+  if (!session) redirect('/hub/grow/setup')
 
   const { t } = await getServerT()
   const g = t.grow

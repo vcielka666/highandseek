@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import Breadcrumb from '@/components/ui/Breadcrumb'
 import { AvatarStatus } from '@/lib/avatar/decay'
 import { useLanguage } from '@/stores/languageStore'
+import GuestRegisterPrompt from '@/components/hub/GuestRegisterPrompt'
 
 interface StrainUserState {
   level: number
@@ -71,9 +73,10 @@ function AvatarPlaceholder({ type, size = 80 }: { type: string; size?: number })
 }
 
 
-export default function StrainDirectoryClient({ strains }: { strains: StrainCard[] }) {
+export default function StrainDirectoryClient({ strains, guestMode }: { strains: StrainCard[]; guestMode?: boolean }) {
   const { t } = useLanguage()
   const s = t.strainDir
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false)
 
   const STATUS_LABELS: Record<AvatarStatus, string> = {
     thriving: s.statusThriving,
@@ -84,7 +87,9 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
   }
 
   return (
-    /* Outer wrapper — image as CSS background, 1:1 square */
+    <>
+    <GuestRegisterPrompt open={showGuestPrompt} onClose={() => setShowGuestPrompt(false)} variant="strain" />
+    {/* Outer wrapper — image as CSS background, 1:1 square */}
     <div style={{
       position: 'relative',
       backgroundImage: 'url(/avatarsLounge.png)',
@@ -219,6 +224,21 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
 
                 {/* CTA */}
                 {!strain.isComingSoon && (
+                  guestMode ? (
+                    <button
+                      onClick={() => setShowGuestPrompt(true)}
+                      style={{
+                        marginTop: 'auto',
+                        display: 'block', width: '100%', textAlign: 'center',
+                        fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '1px',
+                        color: '#050508', background: '#cc00aa',
+                        padding: '8px', borderRadius: '4px', border: 'none', cursor: 'pointer',
+                        transition: 'opacity 0.15s',
+                      }}
+                    >
+                      {s.chatCta}
+                    </button>
+                  ) : (
                   <Link
                     href={`/hub/strains/${strain.slug}`}
                     style={{
@@ -233,6 +253,7 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
                   >
                     {strain.userState ? s.continueCta : s.chatCta}
                   </Link>
+                  )
                 )}
               </div>
             </div>
@@ -241,5 +262,6 @@ export default function StrainDirectoryClient({ strains }: { strains: StrainCard
       </div>
       </div>
     </div>
+    </>
   )
 }

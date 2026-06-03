@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth/config'
-import { redirect } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import Listing from '@/lib/db/models/Listing'
 import User from '@/lib/db/models/User'
@@ -20,7 +19,6 @@ export default async function MarketplacePage(props: {
   searchParams: Promise<{ category?: string; page?: string }>
 }) {
   const session = await auth()
-  if (!session) redirect('/auth/login?callbackUrl=/hub/marketplace')
 
   const { category: rawCat, page: rawPage } = await props.searchParams
   const VALID_CATS = ['equipment', 'clones', 'seeds', 'nutrients', 'art', 'other'] as const
@@ -106,7 +104,7 @@ export default async function MarketplacePage(props: {
             {m.subtitle}
           </p>
         </div>
-        <MarketplaceAddButton label={m.addListing} />
+        <MarketplaceAddButton label={m.addListing} guestMode={!session} />
       </div>
 
       {/* Credits info */}
@@ -202,7 +200,7 @@ export default async function MarketplacePage(props: {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '16px' }}>
           {listings.map(listing => (
-            <ListingCard key={listing._id} listing={listing} m={m as unknown as Record<string, string>} locale={locale} sessionUserId={session.user.id} boostedSlotsFull={boostedSlotsUsed >= 3} />
+            <ListingCard key={listing._id} listing={listing} m={m as unknown as Record<string, string>} locale={locale} sessionUserId={session?.user.id ?? ''} boostedSlotsFull={boostedSlotsUsed >= 3} />
           ))}
         </div>
       )}

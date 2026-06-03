@@ -2,8 +2,10 @@
 
 import { useState, useTransition, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { toast } from 'sonner'
 import { useLanguage } from '@/stores/languageStore'
+import GuestRegisterPrompt from '@/components/hub/GuestRegisterPrompt'
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -235,6 +237,8 @@ function SetupWizardInner() {
   const preselect         = params.get('strain') ?? ''
   const cloneSlug         = params.get('clone') ?? ''
   const initDDS           = Math.min(86400, Math.max(60, Number(params.get('dds') ?? 86400)))
+  const { data: session, status } = useSession()
+  const [showGuestPrompt, setShowGuestPrompt] = useState(false)
 
   const [step, setStep]           = useState(0)
   const [dayDurationSeconds, setDds] = useState<number>(initDDS)
@@ -337,6 +341,10 @@ function SetupWizardInner() {
   }
 
   async function submit() {
+    if (status !== 'loading' && !session) {
+      setShowGuestPrompt(true)
+      return
+    }
     start(async () => {
       const body = isCloneGrow
         ? { cloneStrainSlug: cloneSlug, setup, dayDurationSeconds }
@@ -360,6 +368,8 @@ function SetupWizardInner() {
   }
 
   return (
+    <>
+    <GuestRegisterPrompt open={showGuestPrompt} onClose={() => setShowGuestPrompt(false)} variant="grow" />
     <div style={{ maxWidth: '680px', padding: '20px 16px 60px', margin: '0 auto' }}>
       <style>{`
         @keyframes strain-border-glow {
@@ -1381,6 +1391,7 @@ function SetupWizardInner() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

@@ -1,5 +1,4 @@
 import { auth } from '@/lib/auth/config'
-import { redirect } from 'next/navigation'
 import { connectDB } from '@/lib/db/connect'
 import User from '@/lib/db/models/User'
 import XPEvent from '@/lib/db/models/XPEvent'
@@ -13,9 +12,52 @@ import mongoose from 'mongoose'
 
 export default async function HubPage() {
   const session = await auth()
-  if (!session) redirect('/auth/login?callbackUrl=/hub')
 
   await connectDB()
+
+  // ── Guest branch — only public data ───────────────────────────────────────
+  if (!session) {
+    type GuestPost = {
+      _id: { toString(): string }
+      type: string
+      content: { mediaUrl?: string; mediaType: string | null; text?: string }
+      userId: { username: string; avatar: string }
+      likesCount: number
+      createdAt: Date
+    }
+    const [gStrains, gListings, gListingCount, gTopUsers, gPosts] = await Promise.all([
+      Strain.find({ isActive: true, isComingSoon: false }).limit(8)
+        .select('slug name type floweringTime difficulty visuals')
+        .lean<Array<{ slug: string; name: string; type: string; floweringTime?: number; difficulty?: string; visuals?: { avatarLevels?: Array<{ imageUrl: string }> } }>>(),
+      Listing.find({ status: 'active' }).sort({ createdAt: -1 }).limit(4)
+        .select('title category price images')
+        .lean<{ _id: { toString(): string }; title: string; category: string; price: number; images: string[] }[]>(),
+      Listing.countDocuments({ status: 'active' }),
+      User.find({}).sort({ xp: -1 }).limit(5).select('username xp level')
+        .lean<{ _id: { toString(): string }; username: string; xp: number; level: number }[]>(),
+      Post.find({ isDeleted: false, isPublic: true }).sort({ likesCount: -1, _id: -1 }).limit(4)
+        .populate('userId', 'username avatar').lean<GuestPost[]>(),
+    ])
+    const guestData: BentoData = {
+      userId: '', username: '', userAvatar: '',
+      xp: 0, level: 1, credits: 0, growsCompleted: 0, cloneBank: [],
+      percent: 0, levelName: 'Guest', nextLevelName: 'Seedling', nextLevelXP: 50,
+      activeGrow: null,
+      strains: gStrains.map(s => ({ slug: s.slug, name: s.name, type: s.type, imageUrl: s.visuals?.avatarLevels?.[0]?.imageUrl ?? '', floweringTime: s.floweringTime, difficulty: s.difficulty })),
+      strainCount: gStrains.length,
+      listings: gListings.map(l => ({ _id: l._id.toString(), title: l.title, category: l.category, price: l.price, images: l.images })),
+      listingCount: gListingCount,
+      topUsers: gTopUsers.map(u => ({ _id: u._id.toString(), username: u.username, xp: u.xp, level: u.level })),
+      xpEvents: [],
+      feedPreview: {
+        recentPosts: gPosts.map(p => ({ _id: p._id.toString(), type: p.type, content: p.content, user: { username: p.userId.username, avatar: p.userId.avatar }, likesCount: p.likesCount ?? 0, createdAt: p.createdAt.toISOString() })),
+        newPostsCount: 0, followerAvatars: [], totalFollowing: 0,
+      },
+      seekersTreasuresClaimed: 0,
+      guestMode: true,
+    }
+    return <HubBentoGrid data={guestData} />
+  }
 
   const [userData, recentXP, activeGrow, recentListings, listingCount, topUsers, strains] = await Promise.all([
     User.findById(session.user.id).select('xp level credits growsCompleted cloneBank avatar following claimedTreasures').lean<{

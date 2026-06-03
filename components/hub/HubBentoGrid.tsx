@@ -12,6 +12,7 @@ import MarketplaceCard, { type ListingData }     from './cards/MarketplaceCard'
 import LeaderboardCard, { type LeaderUser }      from './cards/LeaderboardCard'
 import SeekersCard                                from './cards/SeekersCard'
 import FeedCard,        { type FeedPreviewData } from './cards/FeedCard'
+import GuestRegisterPrompt                       from './GuestRegisterPrompt'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -37,6 +38,7 @@ export interface BentoData {
   xpEvents:               XPEventData[]
   feedPreview:            FeedPreviewData | null
   seekersTreasuresClaimed: number
+  guestMode?:     boolean
 }
 
 // ── Card config ───────────────────────────────────────────────────────────────
@@ -125,6 +127,7 @@ function CardExpanded({ id, data, t, onGrowAcknowledge, growAcknowledged }: { id
 export default function HubBentoGrid({ data }: { data: BentoData }) {
   const [selected, setSelected] = useState<CardId | null>(null)
   const [growAcknowledged, setGrowAcknowledged] = useState(false)
+  const [guestPrompt, setGuestPrompt] = useState<'grow' | 'strain' | 'market' | 'generic' | null>(null)
   const { t } = useLanguage()
 
   const [seekersConfirm, setSeekersConfirm] = useState(false)
@@ -169,6 +172,44 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
 
   return (
     <>
+      <GuestRegisterPrompt
+        open={guestPrompt !== null}
+        onClose={() => setGuestPrompt(null)}
+        variant={guestPrompt ?? 'generic'}
+      />
+
+      {/* Guest banner */}
+      {data.guestMode && (
+        <div style={{
+          position: 'sticky', top: 0, zIndex: 100,
+          background: 'rgba(5,5,8,0.92)', backdropFilter: 'blur(8px)',
+          borderBottom: '0.5px solid rgba(0,212,200,0.2)',
+          padding: '10px 20px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12,
+        }}>
+          <span style={{ fontFamily: 'var(--font-dm-mono)', fontSize: 11, color: '#4a6066', letterSpacing: '0.5px' }}>
+            {t.guest.bannerText}
+          </span>
+          <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+            <a href="/auth/login" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1px',
+              textTransform: 'uppercase', color: '#4a6066', textDecoration: 'none',
+              padding: '6px 12px', border: '0.5px solid rgba(255,255,255,0.08)',
+              borderRadius: 4, background: 'transparent',
+            }}>
+              {t.guest.signIn}
+            </a>
+            <a href="/auth/register" style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: 10, letterSpacing: '1px',
+              textTransform: 'uppercase', color: '#050508', textDecoration: 'none',
+              padding: '6px 12px', borderRadius: 4, background: '#00d4c8',
+            }}>
+              {t.guest.bannerCTA}
+            </a>
+          </div>
+        </div>
+      )}
+
       {/* Grid */}
       <div style={{
         display:             'grid',
@@ -190,7 +231,13 @@ export default function HubBentoGrid({ data }: { data: BentoData }) {
             key={card.id}
             layoutId={`card-${card.id}`}
             onClick={() => {
-              if (card.id === 'seekers') { setSeekersConfirm(true); return }
+              if (card.id === 'seekers') {
+                if (data.guestMode) { setGuestPrompt('generic'); return }
+                setSeekersConfirm(true); return
+              }
+              if (data.guestMode && card.id === 'grow')        { setGuestPrompt('grow');   return }
+              if (data.guestMode && card.id === 'strain')      { setGuestPrompt('strain'); return }
+              if (data.guestMode && card.id === 'marketplace') { setGuestPrompt('market'); return }
               setSelected(card.id)
             }}
             initial={{ opacity: 0, y: 20 }}
