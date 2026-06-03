@@ -90,7 +90,7 @@ function CardPreview({ id, data, t, growAcknowledged }: { id: CardId; data: Bent
     case 'leaderboard':
       return <LeaderboardCard users={data.topUsers} currentId={data.userId} labels={{ title: d.leaderboardTitle, fullLink: d.fullLeaderboard, you: b.you, lv: b.lv }} />
     case 'seekers':
-      return <SeekersCard credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
+      return <SeekersCard credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} isGuest={data.guestMode} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
   }
 }
 
@@ -118,7 +118,7 @@ function CardExpanded({ id, data, t, onGrowAcknowledge, growAcknowledged }: { id
     case 'leaderboard':
       return <LeaderboardCard users={data.topUsers} currentId={data.userId} expanded labels={{ title: d.leaderboardTitle, fullLink: d.fullLeaderboard, you: b.you, lv: b.lv }} />
     case 'seekers':
-      return <SeekersCard expanded credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
+      return <SeekersCard expanded credits={data.credits} treasuresClaimed={data.seekersTreasuresClaimed} isGuest={data.guestMode} labels={{ title: d.seekers, desc: d.seekersConnect, openApp: d.openSeekers, creditsLabel: d.seekersCreditsLabel, treasuresLabel: d.seekersTreasuresLabel }} />
   }
 }
 

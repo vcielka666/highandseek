@@ -4,6 +4,7 @@ interface Props {
   expanded?:        boolean
   credits:          number
   treasuresClaimed: number
+  isGuest?:         boolean
   labels: {
     title:          string
     desc:           string
@@ -13,7 +14,7 @@ interface Props {
   }
 }
 
-export default function SeekersCard({ expanded = false, credits, treasuresClaimed, labels }: Props) {
+export default function SeekersCard({ expanded = false, credits, treasuresClaimed, isGuest = false, labels }: Props) {
   return (
     <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: expanded ? '28px' : '16px', gap: '12px', alignItems: 'center', justifyContent: 'center', textAlign: 'center', position: 'relative' }}>
       <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(240,168,48,0.55)', alignSelf: expanded ? 'flex-start' : 'center' }}>
@@ -65,7 +66,7 @@ export default function SeekersCard({ expanded = false, credits, treasuresClaime
       )}
 
       <a
-        href="https://seekers-game.com"
+        href={isGuest ? 'https://seekers-game.com/guest' : 'https://seekers-game.com'}
         target="_blank"
         rel="noopener noreferrer"
         onClick={e => e.stopPropagation()}
