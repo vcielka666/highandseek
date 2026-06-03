@@ -79,6 +79,7 @@ interface VirtualGrow {
   hasLollipoped?: boolean
   purchasedUpgrades?: Array<{ type: string; name: string; creditsCost: number }>
   setupChangedGroups?: string[]
+  harvestData?: { gramsYield: number; qualityScore: number; creditsEarned: number; completedAt: string }
 }
 
 // ── Status color ───────────────────────────────────────────────────────────────
@@ -483,6 +484,125 @@ function GrowEndOverlay({ grow, g, onStartNew }: {
   )
 }
 
+// ── Guest harvest overlay ──────────────────────────────────────────────────────
+
+interface GuestHarvestResult {
+  gramsYield: number
+  qualityScore: number
+  strainName: string
+  currentDay: number
+}
+
+function GuestHarvestOverlay({ result, onStartNew }: { result: GuestHarvestResult; onStartNew: () => void }) {
+  const router = useRouter()
+  const qualityLabel = result.qualityScore >= 90 ? 'Exceptional' : result.qualityScore >= 70 ? 'Premium' : result.qualityScore >= 50 ? 'Good' : 'Standard'
+  const qualityColor = result.qualityScore >= 90 ? '#00d4c8' : result.qualityScore >= 70 ? '#f0a830' : '#e8f0ef'
+
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 80,
+      background: 'rgba(5,5,8,0.94)', backdropFilter: 'blur(12px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+      overflowY: 'auto',
+    }}>
+      <div style={{
+        background: 'rgba(10,0,16,0.98)',
+        border: '0.5px solid rgba(240,168,48,0.4)',
+        borderRadius: '12px', padding: '32px 28px',
+        maxWidth: '440px', width: '100%',
+        boxShadow: '0 0 60px rgba(240,168,48,0.12)',
+      }}>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🌾</div>
+          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '28px', color: '#e8f0ef', letterSpacing: '2px', marginBottom: '6px' }}>
+            Harvest Complete!
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: '#4a6066' }}>
+            {result.strainName} · Day {result.currentDay}
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '10px', marginBottom: '24px' }}>
+          {[
+            { label: 'Yield', value: `${result.gramsYield}g` },
+            { label: 'Quality', value: qualityLabel, color: qualityColor },
+            { label: 'Score', value: `${result.qualityScore}%` },
+          ].map(({ label, value, color }) => (
+            <div key={label} style={{
+              background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(74,96,102,0.15)',
+              borderRadius: '8px', padding: '14px 10px', textAlign: 'center',
+            }}>
+              <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '7px', letterSpacing: '1.5px', textTransform: 'uppercase', color: '#4a6066', marginBottom: '6px' }}>{label}</div>
+              <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '16px', fontWeight: 700, color: color ?? '#e8f0ef' }}>{value}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Register CTA */}
+        <div style={{
+          background: 'rgba(204,0,170,0.08)', border: '0.5px solid rgba(204,0,170,0.3)',
+          borderRadius: '8px', padding: '18px', marginBottom: '18px',
+        }}>
+          <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '11px', color: '#cc00aa', marginBottom: '10px', letterSpacing: '0.5px' }}>
+            Create a free account to unlock:
+          </div>
+          {[
+            'Save harvest to your grow history',
+            'Earn XP & credits for your grow',
+            'Keep a clone in your bank',
+            'Track all your future grows',
+          ].map(item => (
+            <div key={item} style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+              <span style={{ color: '#cc00aa', fontSize: '12px' }}>✓</span>
+              <span style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.75)' }}>{item}</span>
+            </div>
+          ))}
+          <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
+            <a href="/auth/register" style={{
+              flex: 2, fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px',
+              padding: '11px 16px', borderRadius: '4px', textAlign: 'center',
+              background: '#cc00aa', color: '#050508', textDecoration: 'none', display: 'block',
+            }}>
+              Join Free
+            </a>
+            <a href="/auth/login" style={{
+              flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+              padding: '11px 12px', borderRadius: '4px', textAlign: 'center',
+              border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', textDecoration: 'none', display: 'block',
+            }}>
+              Sign In
+            </a>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <button
+            onClick={onStartNew}
+            style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+              color: '#4a6066', background: 'transparent',
+              border: '0.5px solid rgba(74,96,102,0.25)', borderRadius: '4px',
+              padding: '10px', cursor: 'pointer', width: '100%',
+            }}
+          >
+            Grow again without account
+          </button>
+          <button
+            onClick={() => router.push('/hub')}
+            style={{
+              fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
+              color: '#4a6066', background: 'transparent', border: 'none',
+              padding: '8px', cursor: 'pointer', width: '100%',
+            }}
+          >
+            Back to Hub
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────────
 
 export default function ActiveGrowPage({ params }: { params: Promise<{ id: string }> }) {
@@ -490,6 +610,14 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   const router = useRouter()
   const { t } = useLanguage()
   const g = t.growUI
+
+  const guestTokenRef = useRef<string | null>(null)
+  const [isGuestMode, setIsGuestMode] = useState(false)
+  const [guestHarvestResult, setGuestHarvestResult] = useState<GuestHarvestResult | null>(null)
+
+  function authHeaders(): Record<string, string> {
+    return guestTokenRef.current ? { 'X-Guest-Token': guestTokenRef.current } : {}
+  }
 
   const [grow, setGrow]       = useState<VirtualGrow | null>(null)
   const [loading, setLoading] = useState(true)
@@ -591,7 +719,11 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   }, [])
 
   useEffect(() => {
-    fetch(`/api/hub/grow?id=${id}`, { cache: 'no-store' })
+    const token = localStorage.getItem('guestGrowToken')
+    guestTokenRef.current = token
+    setIsGuestMode(!!token)
+    const headers: Record<string, string> = token ? { 'X-Guest-Token': token } : {}
+    fetch(`/api/hub/grow?id=${id}`, { cache: 'no-store', headers })
       .then(r => r.json())
       .then(d => {
         if (d.grow) {
@@ -717,7 +849,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       setLampSliderActive(false)
       setCommittedHeight(h)
       const res  = await fetch('/api/hub/grow/action', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ type: 'light_height', value: h }),
       })
       const data = await res.json()
@@ -782,7 +914,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       setFanSliderActive(false)
       setCommittedFanSpeed(s)
       const res  = await fetch('/api/hub/grow/action', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ type: 'fan_speed', value: s }),
       })
       const data = await res.json()
@@ -852,7 +984,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     }
     start(async () => {
       const res  = await fetch('/api/hub/grow/action', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ type, ...(value !== undefined ? { value } : {}) }),
       })
       const data = await res.json()
@@ -892,7 +1024,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   async function advanceDay() {
     start(async () => {
-      const res  = await fetch('/api/hub/grow/advance-day', { method: 'POST' })
+      const res  = await fetch('/api/hub/grow/advance-day', { method: 'POST', headers: authHeaders() })
       const data = await res.json()
       if (!res.ok) {
         if (res.status === 429) { toast.error(g.nextAdvanceIn(Math.ceil(data.secondsLeft / 3600))); return }
@@ -911,7 +1043,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   async function doReset() {
     if (!window.confirm(g.resetGrowConfirm)) return
-    const res  = await fetch('/api/hub/grow/reset', { method: 'POST' })
+    const res  = await fetch('/api/hub/grow/reset', { method: 'POST', headers: authHeaders() })
     if (res.ok) {
       toast.success(g.resetGrowSuccess)
       router.push('/hub/grow')
@@ -920,9 +1052,13 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
   async function doHarvest() {
     start(async () => {
-      const res  = await fetch('/api/hub/grow/harvest', { method: 'POST' })
+      const res  = await fetch('/api/hub/grow/harvest', { method: 'POST', headers: authHeaders() })
       const data = await res.json()
       if (!res.ok) { toast.error(data.error ?? 'Harvest failed'); return }
+      if (data.isGuest) {
+        setGuestHarvestResult({ gramsYield: data.gramsYield, qualityScore: data.qualityScore, strainName: grow?.strainName ?? '', currentDay: grow?.currentDay ?? 0 })
+        return
+      }
       router.push(`/hub/grow/${id}/harvest`)
     })
   }
@@ -930,7 +1066,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
   async function doSetupChange(fields: Record<string, unknown>) {
     setEditingSetup(null)
     const res  = await fetch('/api/hub/grow/setup', {
-      method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+      method: 'PATCH', headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify(fields),
     })
     const data = await res.json()
@@ -948,7 +1084,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     setUpgradePending(type)
     try {
       const res  = await fetch('/api/hub/grow/upgrade', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json', ...authHeaders() },
         body: JSON.stringify({ type }),
       })
       const data = await res.json()
@@ -981,7 +1117,21 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
     </div>
   )
 
-  // Completed grow → redirect to harvest report
+  // Guest harvest overlay (set either by doHarvest or on revisit to completed grow)
+  const activeGuestHarvest = guestHarvestResult ?? (
+    isGuestMode && grow.status === 'completed' && grow.harvestData
+      ? { gramsYield: grow.harvestData.gramsYield, qualityScore: grow.harvestData.qualityScore, strainName: grow.strainName, currentDay: grow.currentDay }
+      : null
+  )
+  if (activeGuestHarvest) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#050508' }}>
+        <GuestHarvestOverlay result={activeGuestHarvest} onStartNew={() => router.push('/hub/grow/setup')} />
+      </div>
+    )
+  }
+
+  // Completed grow → redirect to harvest report (registered users only)
   if (grow.status === 'completed') {
     router.replace(`/hub/grow/${id}/harvest`)
     return (
@@ -1077,6 +1227,22 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
 
       {showTutorial && <TutorialOverlay onClose={closeTutorial} g={g} />}
 
+      {/* Guest mode banner */}
+      {isGuestMode && (
+        <div style={{
+          background: 'rgba(204,0,170,0.07)', border: '0.5px solid rgba(204,0,170,0.25)',
+          borderRadius: '6px', padding: '10px 14px', marginBottom: '16px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px', flexWrap: 'wrap',
+        }}>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '12px', color: 'rgba(232,240,239,0.6)', lineHeight: 1.4 }}>
+            Guest mode — progress is not saved to an account.
+          </div>
+          <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+            <a href="/auth/login" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', textDecoration: 'none' }}>Sign In</a>
+            <a href="/auth/register" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', background: '#cc00aa', color: '#050508', textDecoration: 'none' }}>Join Free</a>
+          </div>
+        </div>
+      )}
 
       {/* Header */}
       <style>{`

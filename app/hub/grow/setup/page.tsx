@@ -243,6 +243,7 @@ function SetupWizardInner() {
   const [setup, setSetup]         = useState<Setup>(DEFAULT_SETUP)
   const [activePreset, setActivePreset] = useState<'beginner' | 'pro' | null>(null)
   const [pending, start]          = useTransition()
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false)
 
   // Strain state
   const [strains, setStrains]             = useState<StrainOption[]>([])
@@ -338,28 +339,16 @@ function SetupWizardInner() {
     return undefined
   }
 
-  async function submit() {
-    // Guest mode: save config and show the grow preview (wow moment)
-    if (status !== 'loading' && !session) {
-      const strainName = isCloneGrow
-        ? (cloneSlug)
-        : isCustom
-          ? customStrain.name
-          : (selectedStrain?.name ?? selectedSlug)
-      const previewData = {
-        strainName,
-        strainSlug: isCloneGrow ? cloneSlug : isCustom ? '__custom__' : selectedSlug,
-        strainType: isCustom ? customStrain.type : (selectedStrain?.type ?? 'hybrid'),
-        floweringTime: isCustom ? customStrain.floweringTime : (selectedStrain?.floweringTime ?? 63),
-        setup,
-        dayDurationSeconds,
-      }
-      if (typeof window !== 'undefined') {
-        sessionStorage.setItem('guestGrow', JSON.stringify(previewData))
-      }
-      router.push('/hub/grow/preview')
-      return
+  function getOrCreateGuestToken(): string {
+    let token = localStorage.getItem('guestGrowToken')
+    if (!token) {
+      token = crypto.randomUUID()
+      localStorage.setItem('guestGrowToken', token)
     }
+    return token
+  }
+
+  async function submit() {
     start(async () => {
       const body = isCloneGrow
         ? { cloneStrainSlug: cloneSlug, setup, dayDurationSeconds }
@@ -367,9 +356,14 @@ function SetupWizardInner() {
           ? { customStrain, setup, dayDurationSeconds }
           : { strainSlug: selectedSlug, setup, dayDurationSeconds }
 
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+      if (!session) {
+        headers['X-Guest-Token'] = getOrCreateGuestToken()
+      }
+
       const res  = await fetch('/api/hub/grow/start', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body:    JSON.stringify(body),
       })
       const data = await res.json()
@@ -384,6 +378,40 @@ function SetupWizardInner() {
 
   return (
     <>
+    {/* Leave simulator dialog */}
+    {showLeaveDialog && (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 60,
+        background: 'rgba(5,5,8,0.88)', backdropFilter: 'blur(8px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px',
+      }}>
+        <div style={{
+          background: 'rgba(13,0,20,0.98)', border: '0.5px solid rgba(204,0,170,0.3)',
+          borderRadius: '10px', padding: '28px 24px', maxWidth: '360px', width: '100%',
+        }}>
+          <div style={{ fontFamily: 'var(--font-cacha)', fontSize: '18px', color: '#e8f0ef', marginBottom: '10px', letterSpacing: '1px' }}>
+            Leave Grow Simulator?
+          </div>
+          <div style={{ fontFamily: 'var(--font-dm-sans)', fontSize: '13px', color: 'rgba(232,240,239,0.6)', lineHeight: 1.6, marginBottom: '20px' }}>
+            Your setup choices will be lost. You can start a new grow anytime from the Hub.
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => router.push('/hub')}
+              style={{ flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', padding: '10px', borderRadius: '4px', border: '0.5px solid rgba(204,0,170,0.4)', background: 'rgba(204,0,170,0.1)', color: '#cc00aa', cursor: 'pointer' }}
+            >
+              Leave
+            </button>
+            <button
+              onClick={() => setShowLeaveDialog(false)}
+              style={{ flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px', padding: '10px', borderRadius: '4px', border: '0.5px solid rgba(74,96,102,0.3)', background: 'transparent', color: '#4a6066', cursor: 'pointer' }}
+            >
+              Stay
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     <div style={{ maxWidth: '680px', padding: '20px 16px 60px', margin: '0 auto' }}>
       <style>{`
         @keyframes strain-border-glow {
@@ -536,6 +564,16 @@ function SetupWizardInner() {
                     onClick={() => {
                       setSetup(key === 'beginner' ? PRESET_BEGINNER : PRESET_PRO)
                       setActivePreset(key)
+                      // Auto-select a strain: easy for beginner, medium for pro
+                      if (strains.length > 0) {
+                        const easyStrains = strains.filter(s => s.difficulty === 'easy')
+                        const medStrains  = strains.filter(s => s.difficulty === 'medium')
+                        const pick = key === 'beginner'
+                          ? (easyStrains[0] ?? strains[0])
+                          : (medStrains[0] ?? strains[0])
+                        setSelectedSlug(pick.slug)
+                        setShowCustomForm(false)
+                      }
                       setStep(STEPS.length - 1)
                     }}
                     style={{
@@ -1374,7 +1412,7 @@ function SetupWizardInner() {
       <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '24px' }}>
         <button
           onClick={() => {
-            if (step === 0) { router.push('/hub/grow'); return }
+            if (step === 0) { setShowLeaveDialog(true); return }
             // Back from Review with preset → back to step 0 (Speed), not Accessories
             if (activePreset && step === STEPS.length - 1) { setStep(0); return }
             setStep(s => s - 1)

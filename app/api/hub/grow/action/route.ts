@@ -33,7 +33,8 @@ function smartXP(before: AttrStatus | undefined, after: AttrStatus | undefined):
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const guestToken = req.headers.get('X-Guest-Token')
+  if (!session && !guestToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
   const parsed = ActionSchema.safeParse(body)
@@ -44,7 +45,8 @@ export async function POST(req: NextRequest) {
 
   await connectDB()
 
-  const grow = await VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
+  const ownerQuery = session ? { userId: session.user.id } : { guestToken }
+  const grow = await VirtualGrow.findOne({ ...ownerQuery, status: 'active' })
   if (!grow) return NextResponse.json({ error: 'No active grow' }, { status: 404 })
 
   // Persistent dynamic state — read once, used in all handlers
@@ -100,7 +102,7 @@ export async function POST(req: NextRequest) {
       : `pH adjusted to ${targetPh} — still outside optimal range (${low}–${high})`
     grow.actions.push({ type, timestamp: new Date(), xpEarned: xpDelta, effect: effectMsg })
     if (xpDelta !== 0) {
-      await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
+      if (session) await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
       grow.xpEarned = Math.max(0, grow.xpEarned + xpDelta)
     }
     await grow.save()
@@ -252,7 +254,7 @@ export async function POST(req: NextRequest) {
 
     grow.actions.push({ type, timestamp: new Date(), xpEarned, effect: effectMsg })
     if (xpEarned > 0) {
-      await awardXP(session.user.id, 'DEFOLIATION', xpEarned)
+      if (session) await awardXP(session.user.id, 'DEFOLIATION', xpEarned)
       grow.xpEarned += xpEarned
     }
     await grow.save()
@@ -289,7 +291,7 @@ export async function POST(req: NextRequest) {
 
     const effectMsg = 'Lollipopped — bottom branches removed, humidity −8%, ventilation improved'
     grow.actions.push({ type, timestamp: new Date(), xpEarned: 20, effect: effectMsg })
-    await awardXP(session.user.id, 'DEFOLIATION', 20)
+    if (session) await awardXP(session.user.id, 'DEFOLIATION', 20)
     grow.xpEarned += 20
     await grow.save()
     return NextResponse.json({ grow: grow.toObject(), effect: effectMsg })
@@ -333,7 +335,7 @@ export async function POST(req: NextRequest) {
 
     grow.actions.push({ type, timestamp: new Date(), xpEarned, effect: effectMsg })
     if (xpEarned > 0) {
-      await awardXP(session.user.id, 'LST_APPLIED', xpEarned)
+      if (session) await awardXP(session.user.id, 'LST_APPLIED', xpEarned)
       grow.xpEarned += xpEarned
     }
     await grow.save()
@@ -398,7 +400,7 @@ export async function POST(req: NextRequest) {
 
   // Award or deduct XP
   if (xpDelta !== 0) {
-    await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
+    if (session) await awardXP(session.user.id, 'WATER_PLANT', xpDelta)
     grow.xpEarned = Math.max(0, grow.xpEarned + xpDelta)
   }
 

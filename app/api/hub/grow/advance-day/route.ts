@@ -9,13 +9,15 @@ import type { Warning } from '@/lib/grow/simulation'
 // Max days to catch up in one request — prevents runaway loops on very stale grows
 const MAX_CATCHUP_DAYS = 60
 
-export async function POST() {
+export async function POST(req: Request) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const guestToken = (req as Request & { headers: Headers }).headers.get('X-Guest-Token')
+  if (!session && !guestToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   await connectDB()
 
-  const grow = await VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
+  const ownerQuery = session ? { userId: session.user.id } : { guestToken }
+  const grow = await VirtualGrow.findOne({ ...ownerQuery, status: 'active' })
   if (!grow) return NextResponse.json({ error: 'No active grow' }, { status: 404 })
 
   // Block advancement once plant is ready to harvest

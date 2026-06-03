@@ -45,7 +45,8 @@ const JournalEntrySchema = new mongoose.Schema({
 }, { _id: false })
 
 const VirtualGrowSchema = new mongoose.Schema({
-  userId:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  userId:        { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false, default: null },
+  guestToken:    { type: String, default: null, index: true },
   strainSlug:    { type: String, required: true },
   strainName:    { type: String, required: true },
   strainType:    { type: String, enum: ['indica', 'sativa', 'hybrid'], required: true },

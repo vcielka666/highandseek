@@ -65,7 +65,8 @@ const StartSchema = z.object({
 
 export async function POST(req: NextRequest) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const guestToken = req.headers.get('X-Guest-Token')
+  if (!session && !guestToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await req.json()
   const parsed = StartSchema.safeParse(body)
@@ -76,25 +77,29 @@ export async function POST(req: NextRequest) {
 
   await connectDB()
 
-  const [user, activeGrowCount] = await Promise.all([
-    User.findById(session.user.id).select('growsCompleted credits cloneBank').lean<{
-      growsCompleted: number
-      credits: number
-      cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
-    }>(),
-    VirtualGrow.countDocuments({ userId: session.user.id, status: 'active' }),
-  ])
-  if (!user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+  // Guest path: no credits/clone logic, allow freely
+  const user = session
+    ? await User.findById(session.user.id).select('growsCompleted credits cloneBank').lean<{
+        growsCompleted: number
+        credits: number
+        cloneBank: Array<{ strainSlug: string; strainName: string; strainType: 'indica'|'sativa'|'hybrid'; floweringTime: number }>
+      }>()
+    : null
 
-  // Free if no active grow — costs 2 credits only when starting a second concurrent grow
-  const CONCURRENT_GROW_COST = 2
-  const hasActiveGrow = activeGrowCount > 0
-  if (hasActiveGrow) {
-    if ((user.credits ?? 0) < CONCURRENT_GROW_COST) {
-      return NextResponse.json({ error: 'Not enough credits', required: CONCURRENT_GROW_COST, current: user.credits ?? 0 }, { status: 402 })
+  if (session && !user) return NextResponse.json({ error: 'User not found' }, { status: 404 })
+
+  if (session) {
+    // Free if no active grow — costs 2 credits only when starting a second concurrent grow
+    const CONCURRENT_GROW_COST = 2
+    const activeGrowCount = await VirtualGrow.countDocuments({ userId: session.user.id, status: 'active' })
+    if (activeGrowCount > 0) {
+      if ((user!.credits ?? 0) < CONCURRENT_GROW_COST) {
+        return NextResponse.json({ error: 'Not enough credits', required: CONCURRENT_GROW_COST, current: user!.credits ?? 0 }, { status: 402 })
+      }
+      await User.findByIdAndUpdate(session.user.id, { $inc: { credits: -CONCURRENT_GROW_COST } })
     }
-    await User.findByIdAndUpdate(session.user.id, { $inc: { credits: -CONCURRENT_GROW_COST } })
   }
+
   // Resolve strain data
   let strainData: { slug: string; name: string; type: 'indica' | 'sativa' | 'hybrid'; floweringTime: number }
   let isClone = false
@@ -104,7 +109,7 @@ export async function POST(req: NextRequest) {
     if (!clone) return NextResponse.json({ error: 'Clone not found in your bank' }, { status: 404 })
     strainData = { slug: clone.strainSlug, name: clone.strainName, type: clone.strainType, floweringTime: clone.floweringTime }
     isClone = true
-    await User.findByIdAndUpdate(session.user.id, {
+    await User.findByIdAndUpdate(session!.user.id, {
       $pull: { cloneBank: { strainSlug: cloneStrainSlug } },
     })
   } else if (customStrain) {
@@ -159,7 +164,8 @@ export async function POST(req: NextRequest) {
   }
 
   const grow = await VirtualGrow.create({
-    userId:        session.user.id,
+    userId:        session?.user.id ?? null,
+    guestToken:    guestToken ?? null,
     strainSlug:    strainData.slug,
     strainName:    strainData.name,
     strainType:    strainData.type,
@@ -169,17 +175,20 @@ export async function POST(req: NextRequest) {
     dayDurationSeconds,
     timeMode:       dayDurationSeconds >= 86400 ? 'realtime' : 'accelerated',
     isAccelerated:  dayDurationSeconds < 86400,
-    // Full perks only at realtime (24h/day). NFT cert requires realtime.
-    isPerkEligible: dayDurationSeconds >= 86400,
+    isPerkEligible: !!session && dayDurationSeconds >= 86400,
     environment,
     attributes:    initialAttributes,
     warnings:      initialWarnings,
     yieldProjection,
     creditsSpent:  0,
-    lastAdvanced:  new Date(Date.now() - dayDurationSeconds * 1000), // allow exactly 1 day on first load
+    lastAdvanced:  new Date(Date.now() - dayDurationSeconds * 1000),
   })
 
-  await awardXP(session.user.id, 'GROW_STARTED')
+  if (session) await awardXP(session.user.id, 'GROW_STARTED')
 
-  return NextResponse.json({ grow }, { status: 201 })
+  const res = NextResponse.json({ grow }, { status: 201 })
+  if (guestToken) {
+    res.cookies.set('guestGrowId', grow._id.toString(), { maxAge: 30 * 24 * 60 * 60, path: '/', httpOnly: false })
+  }
+  return res
 }

@@ -1,5 +1,6 @@
 import { auth } from '@/lib/auth/config'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import Link from 'next/link'
 import { connectDB } from '@/lib/db/connect'
 import VirtualGrow from '@/lib/db/models/VirtualGrow'
@@ -12,7 +13,12 @@ import { getServerT } from '@/lib/i18n/server'
 
 export default async function GrowPage() {
   const session = await auth()
-  if (!session) redirect('/hub/grow/setup')
+  if (!session) {
+    const cookieStore = await cookies()
+    const guestGrowId = cookieStore.get('guestGrowId')?.value
+    if (guestGrowId) redirect(`/hub/grow/${guestGrowId}`)
+    redirect('/hub/grow/setup')
+  }
 
   const { t } = await getServerT()
   const g = t.grow

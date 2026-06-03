@@ -39,13 +39,15 @@ function calculateQuality(grow: {
   return Math.min(100, Math.round(quality))
 }
 
-export async function POST() {
+export async function POST(req: Request) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const guestToken = (req as Request & { headers: Headers }).headers.get('X-Guest-Token')
+  if (!session && !guestToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   await connectDB()
 
-  const grow = await VirtualGrow.findOne({ userId: session.user.id, status: 'active' })
+  const ownerQuery = session ? { userId: session.user.id } : { guestToken }
+  const grow = await VirtualGrow.findOne({ ...ownerQuery, status: 'active' })
   if (!grow) return NextResponse.json({ error: 'No active grow' }, { status: 404 })
 
   if (grow.stage !== 'harvest') {
@@ -63,19 +65,21 @@ export async function POST() {
   const xpBonus       = Math.round(qualityScore * 2)  // up to +200 XP quality bonus
   const totalXP       = 200 + xpBonus
 
-  // Award credits + XP
-  await awardCredits(session.user.id, creditsEarned, `harvest_quality_${qualityScore}`)
-  await awardXP(session.user.id, 'GROW_COMPLETED', totalXP)
+  // Award credits + XP (registered users only)
+  if (session) {
+    await awardCredits(session.user.id, creditsEarned, `harvest_quality_${qualityScore}`)
+    await awardXP(session.user.id, 'GROW_COMPLETED', totalXP)
+  }
 
   // Update grow
   grow.harvestData = {
     gramsYield,
     qualityScore,
-    creditsEarned,
+    creditsEarned: session ? creditsEarned : 0,
     completedAt: new Date(),
   }
   grow.status   = 'completed'
-  grow.xpEarned += totalXP
+  grow.xpEarned += session ? totalXP : 0
 
   await grow.save()
 
@@ -93,15 +97,16 @@ export async function POST() {
       },
     }
   }
-  await User.findByIdAndUpdate(session.user.id, cloneUpdate)
+  if (session) await User.findByIdAndUpdate(session.user.id, cloneUpdate)
 
   return NextResponse.json({
     gramsYield,
     qualityScore,
-    creditsEarned,
-    xpEarned: totalXP,
+    creditsEarned: session ? creditsEarned : 0,
+    xpEarned: session ? totalXP : 0,
     isPerkEligible: grow.isPerkEligible,
-    cloneAvailable,
-    cloneStrain: cloneAvailable ? { slug: grow.strainSlug, name: grow.strainName } : null,
+    cloneAvailable: session ? cloneAvailable : false,
+    cloneStrain: session && cloneAvailable ? { slug: grow.strainSlug, name: grow.strainName } : null,
+    isGuest: !session,
   })
 }

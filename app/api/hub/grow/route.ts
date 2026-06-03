@@ -13,18 +13,21 @@ const MAX_CATCHUP = 1500
 
 export async function GET(req: Request) {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const guestToken = (req as Request & { headers: Headers }).headers.get('X-Guest-Token')
+  if (!session && !guestToken) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   await connectDB()
 
   const { searchParams } = new URL(req.url)
   const byId = searchParams.get('id')
 
+  const ownerQuery = session ? { userId: session.user.id } : { guestToken }
+
   const [growDoc, userDoc] = await Promise.all([
     byId
-      ? VirtualGrow.findOne({ _id: byId, userId: session.user.id })
-      : VirtualGrow.findOne({ userId: session.user.id, status: 'active' }),
-    User.findById(session.user.id).select('credits').lean<{ credits: number }>(),
+      ? VirtualGrow.findOne({ _id: byId, ...ownerQuery })
+      : VirtualGrow.findOne({ ...ownerQuery, status: 'active' }),
+    session ? User.findById(session.user.id).select('credits').lean<{ credits: number }>() : Promise.resolve(null),
   ])
 
   const credits = userDoc?.credits ?? 0
