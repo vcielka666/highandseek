@@ -1113,7 +1113,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#4a6066', marginBottom: '16px' }}>
         {g.growNotFound}
       </div>
-      <Link href="/hub/grow" style={{ color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '11px' }}>{g.backLink}</Link>
+      <Link href={isGuestMode ? '/hub' : '/hub/grow'} style={{ color: '#cc00aa', fontFamily: 'var(--font-dm-mono)', fontSize: '11px' }}>{g.backLink}</Link>
     </div>
   )
 
@@ -1258,7 +1258,7 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
       `}</style>
       <div className="gh">
         <div className="gh-left">
-          <Link href="/hub/grow" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textDecoration: 'none' }}>
+          <Link href={isGuestMode ? '/hub' : '/hub/grow'} style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '1px', color: '#4a6066', textDecoration: 'none' }}>
             {g.backLink}
           </Link>
           <h1

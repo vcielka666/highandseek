@@ -394,8 +394,8 @@ export default function FeedCard({ feedPreview, currentUser, expanded = false, l
   // Expanded state
   return (
     <div style={{ display: 'flex', flexDirection: 'column', padding: '20px 20px 40px', minHeight: '100%' }}>
-      {/* Header row */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+      {/* Header row — paddingRight leaves room for the parent's absolute ✕ button */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingRight: '44px' }}>
         <div style={{ fontFamily: 'var(--font-orbitron)', fontSize: '9px', letterSpacing: '2px', textTransform: 'uppercase', color: 'rgba(0,212,200,0.55)' }}>
           {labels.title}
         </div>
