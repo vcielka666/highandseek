@@ -6,11 +6,12 @@ import Link from 'next/link'
 import { useLanguage } from '@/stores/languageStore'
 
 interface Props {
-  username: string
-  avatar:   string
-  xp:       number
-  level:    number
-  credits:  number
+  username:  string
+  avatar:    string
+  xp:        number
+  level:     number
+  credits:   number
+  guestMode?: boolean
 }
 
 function Avatar({ username, avatar, size = 36 }: { username: string; avatar: string; size?: number }) {
@@ -29,7 +30,7 @@ function Avatar({ username, avatar, size = 36 }: { username: string; avatar: str
   )
 }
 
-export default function HubNavbar({ username, avatar, xp, level, credits }: Props) {
+export default function HubNavbar({ username, avatar, xp, level, credits, guestMode }: Props) {
   const [dropOpen, setDropOpen] = useState(false)
   const [pill, setPill] = useState<'xp' | 'credits' | null>(null)
   const [shopAlert, setShopAlert] = useState(false)
@@ -93,7 +94,33 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
           {d.explore} ↗
         </button>
 
-        {/* Right — pills + avatar */}
+        {/* Right — pills + avatar (or guest CTAs) */}
+        {guestMode ? (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <Link
+              href="/auth/login"
+              style={{
+                fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
+                color: 'rgba(232,240,239,0.55)', background: 'transparent',
+                border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px',
+                padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap',
+              }}
+            >
+              {t.guest.signIn}
+            </Link>
+            <Link
+              href="/auth/register"
+              style={{
+                fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
+                color: '#050508', background: '#cc00aa',
+                borderRadius: '4px', padding: '5px 12px',
+                textDecoration: 'none', whiteSpace: 'nowrap',
+              }}
+            >
+              {t.guest.bannerCTA}
+            </Link>
+          </div>
+        ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           {/* Clickable pills */}
           <div ref={pillRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -192,6 +219,7 @@ export default function HubNavbar({ username, avatar, xp, level, credits }: Prop
             )}
           </div>
         </div>
+        )}
       </nav>
 
       {/* Explore modal — outside nav to avoid sticky stacking context */}

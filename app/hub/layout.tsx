@@ -30,6 +30,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         xp={xp}
         level={level}
         credits={credits}
+        guestMode={!session}
       />
       <main style={{ paddingBottom: '40px' }}>
         {children}
