@@ -558,14 +558,14 @@ function GuestHarvestOverlay({ result, onStartNew }: { result: GuestHarvestResul
             </div>
           ))}
           <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
-            <a href="/auth/register" style={{
+            <a href="/auth/register?callbackUrl=/hub/grow" style={{
               flex: 2, fontFamily: 'var(--font-cacha)', fontSize: '12px', letterSpacing: '1px',
               padding: '11px 16px', borderRadius: '4px', textAlign: 'center',
               background: '#cc00aa', color: '#050508', textDecoration: 'none', display: 'block',
             }}>
               Join Free
             </a>
-            <a href="/auth/login" style={{
+            <a href="/auth/login?callbackUrl=/hub/grow" style={{
               flex: 1, fontFamily: 'var(--font-dm-mono)', fontSize: '10px', letterSpacing: '0.5px',
               padding: '11px 12px', borderRadius: '4px', textAlign: 'center',
               border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', textDecoration: 'none', display: 'block',
@@ -1238,8 +1238,8 @@ export default function ActiveGrowPage({ params }: { params: Promise<{ id: strin
             Guest mode — progress is not saved to an account.
           </div>
           <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-            <a href="/auth/login" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', textDecoration: 'none' }}>Sign In</a>
-            <a href="/auth/register" style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', background: '#cc00aa', color: '#050508', textDecoration: 'none' }}>Join Free</a>
+            <a href={`/auth/login?callbackUrl=/hub/grow/${id}`} style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', border: '0.5px solid rgba(204,0,170,0.3)', color: '#cc00aa', textDecoration: 'none' }}>Sign In</a>
+            <a href={`/auth/register?callbackUrl=/hub/grow/${id}`} style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '9px', letterSpacing: '0.5px', padding: '5px 10px', borderRadius: '3px', background: '#cc00aa', color: '#050508', textDecoration: 'none' }}>Join Free</a>
           </div>
         </div>
       )}

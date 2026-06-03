@@ -7,7 +7,7 @@ import { calculateCurrentNeeds, calculateStatus } from '@/lib/avatar/decay'
 
 export async function GET() {
   const session = await auth()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  // Guests can fetch strains (needed for grow setup wizard)
 
   await connectDB()
 
@@ -29,7 +29,7 @@ export async function GET() {
       isComingSoon: boolean
     }>>()
 
-  const userStates = await AvatarState.find({ userId: session.user.id })
+  const userStates = session ? await AvatarState.find({ userId: session.user.id })
     .lean<Array<{
       strainSlug: string
       level: number
@@ -37,7 +37,7 @@ export async function GET() {
       needs: { hydration: number; nutrients: number; energy: number; happiness: number; lastUpdated: Date }
       status: string
       chatCount: number
-    }>>()
+    }>>() : []
 
   const stateMap = new Map(userStates.map(s => [s.strainSlug, s]))
 

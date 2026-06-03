@@ -31,18 +31,21 @@ function Avatar({ username, avatar, size = 36 }: { username: string; avatar: str
 }
 
 export default function HubNavbar({ username, avatar, xp, level, credits, guestMode }: Props) {
-  const [dropOpen, setDropOpen] = useState(false)
-  const [pill, setPill] = useState<'xp' | 'credits' | null>(null)
-  const [shopAlert, setShopAlert] = useState(false)
-  const dropRef = useRef<HTMLDivElement>(null)
-  const pillRef = useRef<HTMLDivElement>(null)
+  const [dropOpen, setDropOpen]         = useState(false)
+  const [guestDropOpen, setGuestDropOpen] = useState(false)
+  const [pill, setPill]                 = useState<'xp' | 'credits' | null>(null)
+  const [shopAlert, setShopAlert]       = useState(false)
+  const dropRef     = useRef<HTMLDivElement>(null)
+  const guestDropRef = useRef<HTMLDivElement>(null)
+  const pillRef     = useRef<HTMLDivElement>(null)
   const { t } = useLanguage()
   const d = t.hubNavbar
 
   useEffect(() => {
     function onClickOut(e: MouseEvent) {
-      if (dropRef.current && !dropRef.current.contains(e.target as Node)) setDropOpen(false)
-      if (pillRef.current && !pillRef.current.contains(e.target as Node)) setPill(null)
+      if (dropRef.current      && !dropRef.current.contains(e.target as Node))      setDropOpen(false)
+      if (guestDropRef.current && !guestDropRef.current.contains(e.target as Node)) setGuestDropOpen(false)
+      if (pillRef.current      && !pillRef.current.contains(e.target as Node))      setPill(null)
     }
     document.addEventListener('mousedown', onClickOut)
     return () => document.removeEventListener('mousedown', onClickOut)
@@ -94,31 +97,55 @@ export default function HubNavbar({ username, avatar, xp, level, credits, guestM
           {d.explore} ↗
         </button>
 
-        {/* Right — pills + avatar (or guest CTAs) */}
+        {/* Right — pills + avatar (or guest avatar icon) */}
         {guestMode ? (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Link
-              href="/auth/login"
+          <div ref={guestDropRef} style={{ position: 'relative' }}>
+            <button
+              onClick={() => setGuestDropOpen(v => !v)}
               style={{
-                fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
-                color: 'rgba(232,240,239,0.55)', background: 'transparent',
-                border: '0.5px solid rgba(255,255,255,0.12)', borderRadius: '4px',
-                padding: '5px 12px', textDecoration: 'none', whiteSpace: 'nowrap',
+                width: 36, height: 36, borderRadius: '50%', flexShrink: 0,
+                background: 'rgba(74,96,102,0.12)',
+                border: '1.5px solid rgba(74,96,102,0.3)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer',
               }}
             >
-              {t.guest.signIn}
-            </Link>
-            <Link
-              href="/auth/register"
-              style={{
-                fontFamily: 'var(--font-dm-mono)', fontSize: '11px', letterSpacing: '1px',
-                color: '#050508', background: '#cc00aa',
-                borderRadius: '4px', padding: '5px 12px',
-                textDecoration: 'none', whiteSpace: 'nowrap',
-              }}
-            >
-              {t.guest.bannerCTA}
-            </Link>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="rgba(74,96,102,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </button>
+            {guestDropOpen && (
+              <div style={{
+                position: 'absolute', right: 0, top: 'calc(100% + 8px)',
+                background: 'rgba(13,13,18,0.97)', border: '0.5px solid rgba(255,255,255,0.1)',
+                borderRadius: '10px', padding: '6px', minWidth: '164px',
+                backdropFilter: 'blur(20px)', zIndex: 50,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              }}>
+                <div style={{ padding: '8px 10px 10px', borderBottom: '0.5px solid rgba(255,255,255,0.06)', marginBottom: '4px' }}>
+                  <div style={{ fontFamily: 'var(--font-dm-mono)', fontSize: '8px', color: '#4a6066', letterSpacing: '1.5px', textTransform: 'uppercase' }}>Guest Mode</div>
+                </div>
+                <Link
+                  href="/auth/login?callbackUrl=/hub"
+                  onClick={() => setGuestDropOpen(false)}
+                  style={{ display: 'block', padding: '8px 10px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#e8f0ef', textDecoration: 'none', borderRadius: '6px', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.06)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
+                >
+                  {t.guest.signIn}
+                </Link>
+                <Link
+                  href="/auth/register?callbackUrl=/hub"
+                  onClick={() => setGuestDropOpen(false)}
+                  style={{ display: 'block', padding: '8px 10px', fontFamily: 'var(--font-dm-mono)', fontSize: '11px', color: '#cc00aa', textDecoration: 'none', borderRadius: '6px', background: 'rgba(204,0,170,0.07)', transition: 'background 0.15s' }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.14)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(204,0,170,0.07)')}
+                >
+                  {t.guest.bannerCTA} ↗
+                </Link>
+              </div>
+            )}
           </div>
         ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
